@@ -1,0 +1,47 @@
+name: Node.js CI & Security Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    # Validamos si existe package.json antes de instalar
+    - name: Install Dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm ci
+        else
+          echo "No package.json found, skipping dependency install."
+        fi
+
+    # DevSecOps: Auditoría de seguridad de paquetes npm
+    - name: npm Security Audit
+      run: |
+        if [ -f package.json ]; then
+          npm audit --audit-level=high || true
+        else
+          echo "No package.json found, skipping security audit."
+        fi
+
+    # Compilación (si existe script de build)
+    - name: Build Application
+      run: |
+        if [ -f package.json ] && grep -q '"build"' package.json; then
+          npm run build
+        else
+          echo "No build script found, skipping build."
+        fi
