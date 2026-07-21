@@ -1,39 +1,16 @@
-# Impact.X Web Prototype v12
+# React + Vite
 
-Prototipo web HTML + CSS + JS puro para el apartado web de Impact.X.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-Esta versión mantiene las funciones anteriores y agrega un rediseño visual completo para mejorar lectura, contraste y coherencia con una aplicación de seguridad vial/wearable.
+Currently, two official plugins are available:
 
-## Cambios v12
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-- Nueva paleta visual ejecutiva y atractiva:
-  - Fondo claro tecnológico.
-  - Sidebar azul profundo.
-  - Teal para seguridad/acción principal.
-  - Azul para confianza/tecnología.
-  - Ámbar para advertencias.
-  - Rojo solo para peligro real.
-- Corrección de contraste en tablas, formularios, filtros y botones.
-- Corrección visual de IDs y enlaces internos que antes aparecían como botones blancos o se perdían.
-- Mejora de `toolbar`, buscadores y filtros.
-- Mejor lectura de badges, etiquetas, chats y tarjetas.
-- No se eliminaron rutas ni funciones de la v11.
+## React Compiler
 
-## Uso
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-Abre `index.html` en el navegador. Si venías de una versión anterior, haz recarga fuerte con `Ctrl + Shift + R` o usa Reiniciar demo para limpiar datos simulados.
+## Expanding the Oxlint configuration
 
-## Flujos incluidos
-
-- Registro por correo, usuario único e ID de perfil.
-- Login por correo, usuario o ID.
-- Personas por solicitud interna.
-- Invitación a la app para personas sin cuenta.
-- Chat interno.
-- Planes y límites por plan.
-- Suspensión/reactivación por límite.
-- Perfil con ficha médica.
-- Wearable.
-- Rutas e incidentes.
-- Permisos.
-- Configuración.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.

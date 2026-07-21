@@ -1,0 +1,8 @@
+/* Clean baseline for React+Vite app */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #02070D;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
