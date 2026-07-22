@@ -33,7 +33,7 @@ export default function App() {
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [activeTab, setActiveTab] = useState('dashboard');
   
-  // CAMPOS EN BLANCO PARA REGISTRO
+  // CAMPOS 100% LIMPIOS EN BLANCO PARA REGISTRO
   const [regForm, setRegForm] = useState({
     nombreCompleto: '',
     correo: '',
@@ -43,13 +43,13 @@ export default function App() {
     plan: 'Free'
   });
 
-  // CAMPOS EN BLANCO PARA LOGIN
+  // CAMPOS 100% LIMPIOS EN BLANCO PARA LOGIN
   const [loginForm, setLoginForm] = useState({
     correoOUsuario: '',
     password: ''
   });
 
-  // CAMPOS EN BLANCO PARA ONBOARDING DEL CONDUCTOR
+  // CAMPOS 100% LIMPIOS EN BLANCO PARA ONBOARDING
   const [driverData, setDriverData] = useState({
     fullName: '',
     username: '',
@@ -122,7 +122,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
-  // REGISTRO DE USUARIO CON PAYLOAD COMPATIBLE C# API Y AZURE COSMOS DB
+  // REGISTRO DE USUARIO CON PAYLOAD COMPATIBLE CON C# API
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!regForm.nombreCompleto || !regForm.correo || !regForm.password) {
@@ -155,14 +155,14 @@ export default function App() {
           setDriverData({
             fullName: res.data.usuario.nombre || regForm.nombreCompleto,
             username: res.data.usuario.username || 'conductor',
-            profileId: res.data.usuario.appId || 'IX-PROFILE-ID',
+            profileId: res.data.usuario.appId || `IX-${regForm.nombreCompleto.substring(0, 4).toUpperCase()}-2026`,
             phone: res.data.usuario.telefono || regForm.telefono,
             email: res.data.usuario.correo || regForm.correo,
             city: '',
-            plan: res.data.usuario.planActivo || 'Trial'
+            plan: res.data.usuario.planActivo || 'Free'
           });
         }
-        showToast('¡Cuenta Creada!', 'Documento generado en Azure Cosmos DB. Procede al Onboarding.', 'success');
+        showToast('¡Cuenta Creada!', 'Documento de usuario generado en Azure Cosmos DB. Procede al Onboarding.', 'success');
         setAuthView('onboarding');
         setOnboardingStep(1);
       } else {
@@ -174,7 +174,7 @@ export default function App() {
     }
   };
 
-  // VALIDACIÓN Y GUARDADO DE VEHÍCULO (PASO 3 DE ONBOARDING)
+  // VALIDACIÓN DE VEHÍCULO (AÑO LÍMITE AÑO ACTUAL)
   const handleVehicleStepSubmit = (e) => {
     e.preventDefault();
 
@@ -185,14 +185,14 @@ export default function App() {
 
     const yearNum = parseInt(vehicleData.year, 10);
     if (isNaN(yearNum) || yearNum < 1950 || yearNum > CURRENT_YEAR) {
-      showToast('Año no válido', `El año del vehículo debe estar entre 1950 y el año actual (${CURRENT_YEAR}). No se permite seleccionar años futuros.`, 'danger');
+      showToast('Año no válido', `El año del vehículo debe estar entre 1950 y el año actual (${CURRENT_YEAR}). No se permiten años futuros.`, 'danger');
       return;
     }
 
     setOnboardingStep(4);
   };
 
-  // FINALIZAR ONBOARDING Y SINCRO CON COSMOS DB
+  // FINALIZAR ONBOARDING Y SINCRO CON AZURE COSMOS DB
   const handleCompleteOnboarding = async () => {
     try {
       showToast('Sincronizando...', 'Guardando vehículo y ficha médica en Cosmos DB...', 'info');
@@ -296,7 +296,7 @@ export default function App() {
   };
 
   // =========================================================================
-  // VISTA PÚBLICA (LOGIN, REGISTRO Y ONBOARDING)
+  // VISTA PÚBLICA (LOGIN, REGISTRO Y ONBOARDING TOTALMENTE EN BLANCO)
   // =========================================================================
   if (!isLoggedIn) {
     return (
@@ -340,7 +340,7 @@ export default function App() {
                       <label>Nombre completo</label>
                       <input 
                         type="text" 
-                        placeholder="Ej. Leonardo Isaac Barrera Tejeda"
+                        placeholder="Ingresa tu nombre completo"
                         value={regForm.nombreCompleto}
                         onChange={(e) => setRegForm({ ...regForm, nombreCompleto: e.target.value })}
                         required 
@@ -350,7 +350,7 @@ export default function App() {
                       <label>Correo electrónico</label>
                       <input 
                         type="email" 
-                        placeholder="ejemplo@impactx.mx"
+                        placeholder="correo@ejemplo.com"
                         value={regForm.correo}
                         onChange={(e) => setRegForm({ ...regForm, correo: e.target.value })}
                         required 
@@ -360,7 +360,7 @@ export default function App() {
                       <label>Teléfono de referencia</label>
                       <input 
                         type="tel" 
-                        placeholder="+52 773 000 0000"
+                        placeholder="+52 55 0000 0000"
                         value={regForm.telefono}
                         onChange={(e) => setRegForm({ ...regForm, telefono: e.target.value })}
                         required 
@@ -444,7 +444,7 @@ export default function App() {
               </div>
             )}
 
-            {/* 3. VISTA DE ONBOARDING DEL CONDUCTOR (5 PASOS) */}
+            {/* 3. VISTA DE ONBOARDING EN BLANCO (5 PASOS) */}
             {authView === 'onboarding' && (
               <div className="form-card wide">
                 <span className="eyebrow">Configuración inicial</span>
@@ -462,7 +462,7 @@ export default function App() {
                   <div className={`step-pill ${onboardingStep === 5 ? 'active' : ''}`}>5. Confirmación</div>
                 </div>
 
-                {/* PASO 1: DATOS GENERALES */}
+                {/* PASO 1: DATOS GENERALES (CAMPOS VACÍOS) */}
                 {onboardingStep === 1 && (
                   <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(2); }}>
                     <div className="form-grid">
@@ -470,7 +470,7 @@ export default function App() {
                         <label>Nombre completo</label>
                         <input 
                           type="text" 
-                          placeholder="Nombre y Apellidos"
+                          placeholder="Ingresa tu nombre completo"
                           value={driverData.fullName}
                           onChange={(e) => setDriverData({ ...driverData, fullName: e.target.value })}
                           required 
@@ -478,18 +478,20 @@ export default function App() {
                       </div>
                       <div className="field">
                         <label>Usuario Impact.X</label>
-                        <input value={`@${driverData.username}`} disabled />
+                        <input value={driverData.username ? `@${driverData.username}` : ''} placeholder="@usuario" disabled />
                       </div>
                       <div className="field">
                         <label>ID único de perfil</label>
                         <div className="copy-field">
-                          <input value={driverData.profileId} disabled />
+                          <input value={driverData.profileId} placeholder="IX-PROFILE-ID" disabled />
                           <button 
                             className="btn small" 
                             type="button"
                             onClick={() => {
-                              navigator.clipboard.writeText(driverData.profileId);
-                              showToast('Copiado', 'ID de perfil copiado al portapapeles.', 'info');
+                              if (driverData.profileId) {
+                                navigator.clipboard.writeText(driverData.profileId);
+                                showToast('Copiado', 'ID de perfil copiado al portapapeles.', 'info');
+                              }
                             }}
                           >
                             Copiar
@@ -500,7 +502,7 @@ export default function App() {
                         <label>Teléfono principal</label>
                         <input 
                           type="tel" 
-                          placeholder="+52 773 000 0000"
+                          placeholder="+52 55 0000 0000"
                           value={driverData.phone}
                           onChange={(e) => setDriverData({ ...driverData, phone: e.target.value })}
                           required 
@@ -508,13 +510,13 @@ export default function App() {
                       </div>
                       <div className="field">
                         <label>Correo electrónico</label>
-                        <input value={driverData.email} disabled />
+                        <input value={driverData.email} placeholder="correo@ejemplo.com" disabled />
                       </div>
                       <div className="field">
                         <label>Ciudad o zona habitual</label>
                         <input 
                           type="text" 
-                          placeholder="Tula de Allende, Hidalgo"
+                          placeholder="Ingresa tu ciudad (Ej. Tula de Allende, Hidalgo)"
                           value={driverData.city}
                           onChange={(e) => setDriverData({ ...driverData, city: e.target.value })}
                           required 
@@ -609,7 +611,7 @@ export default function App() {
                   </form>
                 )}
 
-                {/* PASO 3: VEHÍCULO CON VALIDACIÓN DE AÑO (NO PERMITE AÑOS FUTUROS COMO 2029) */}
+                {/* PASO 3: VEHÍCULO CON VALIDACIÓN DE AÑO (MÁXIMO 2026) */}
                 {onboardingStep === 3 && (
                   <form onSubmit={handleVehicleStepSubmit}>
                     <div className="alert-box info mini">
@@ -1126,6 +1128,7 @@ export default function App() {
               <div className="page-title">
                 <div>
                   <h2>Planes y Suscripciones</h2>
+                  <p>Catálogo de cobertura.</p>
                 </div>
               </div>
 
