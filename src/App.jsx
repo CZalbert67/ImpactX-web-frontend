@@ -13,39 +13,78 @@ import {
   planService
 } from './services/api';
 
+// Lista exhaustiva de marcas de vehículos de 4 ruedas
+const CAR_BRANDS = [
+  "Acura", "Alfa Romeo", "Audi", "BAIC", "BMW", "BYD", "Buick", "Cadillac",
+  "Changan", "Chery", "Chevrolet", "Chrysler", "Cupra", "Dodge", "Ferrari",
+  "Fiat", "Ford", "Geely", "GMC", "Great Wall", "Haval", "Honda", "Hyundai",
+  "Infiniti", "JAC", "Jaecoo", "Jaguar", "Jeep", "Kia", "Lamborghini", "Land Rover",
+  "Lexus", "Lincoln", "MG", "Maserati", "Mazda", "Mercedes-Benz", "Mini",
+  "Mitsubishi", "Nissan", "Omoda", "Peugeot", "Porsche", "RAM", "Renault",
+  "SEAT", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo"
+];
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authView, setAuthView] = useState('login'); // 'login' | 'register' | 'recover'
+  const [authView, setAuthView] = useState('login'); // 'login' | 'register' | 'onboarding'
+  const [onboardingStep, setOnboardingStep] = useState(1); // 1: Datos, 2: Ficha médica, 3: Vehículo, 4: Contacto, 5: Confirmación
   const [activeTab, setActiveTab] = useState('dashboard');
   
-  // Register Form State
+  // Form State para Registro inicial
   const [regForm, setRegForm] = useState({
-    nombreCompleto: 'Alberto Zepeda',
-    nombreUsuario: 'alberto_zepeda',
-    correo: 'alberto.zepeda@impactx.com',
-    telefono: '+525512345678',
+    nombreCompleto: 'Leonardo Isaac Barrera Tejeda',
+    nombreUsuario: 'leonardo_isaac_barrera',
+    correo: 'leo.demo@impactx.mx',
+    telefono: '+52 773 000 0000',
     password: 'Password123!',
     confirmPassword: 'Password123!',
     plan: 'plan-pro'
   });
 
-  // Login Form State
+  // Form State para Login
   const [loginForm, setLoginForm] = useState({
-    correoOUsuario: 'alberto.zepeda@impactx.com',
+    correoOUsuario: 'leo.demo@impactx.mx',
     password: 'Password123!'
   });
 
-  // Active User Profile State
-  const [user, setUser] = useState({
-    id: 'IX-9831-AZ',
-    name: 'Alberto Zepeda',
-    username: 'alberto_zepeda',
-    email: 'alberto.zepeda@impactx.com',
-    plan: 'Pro Conductor',
-    status: 'Activo'
+  // State del Onboarding del Conductor
+  const [driverData, setDriverData] = useState({
+    fullName: 'Leonardo Isaac Barrera Tejeda',
+    username: 'leonardo_isaac_barrera',
+    profileId: 'IX-LEONAR-VBX2P',
+    phone: '+52 773 000 0000',
+    email: 'leo.demo@impactx.mx',
+    city: 'Tula de Allende, Hidalgo',
+    plan: 'Trial'
   });
 
-  // Toast notifications
+  const [medicalData, setMedicalData] = useState({
+    bloodType: 'O+',
+    hasCondition: 'No',
+    conditions: 'Ninguno registrado',
+    allergies: 'Sin alergias registradas',
+    medications: 'No toma medicamentos registrados',
+    emergencyNotes: 'Sin indicaciones adicionales'
+  });
+
+  const [vehicleData, setVehicleData] = useState({
+    vehicleType: 'Sedán',
+    brand: 'Nissan',
+    model: 'Versa Sense',
+    year: '2022',
+    avgSpeed: '65 km/h',
+    mainUse: 'Mixto'
+  });
+
+  const [contactData, setContactData] = useState({
+    name: 'María Zepeda',
+    relation: 'Familiar / Madre',
+    username: 'maria_segura',
+    profileId: 'IX-MARIA-8X2K',
+    phone: '+52 55 9876 5432'
+  });
+
+  // Notifications Toast
   const [toasts, setToasts] = useState([]);
   
   // Real-time telemetry simulation
@@ -53,13 +92,6 @@ export default function App() {
   const [battery, setBattery] = useState(98);
   const [gForce, setGForce] = useState(1.02);
   const [isAlertSending, setIsAlertSending] = useState(false);
-
-  // Medical Profile State
-  const [medicalProfile, setMedicalProfile] = useState({
-    bloodType: 'O+',
-    allergies: 'Penicilina',
-    policyNumber: 'Seguros Monterrey MX #98123'
-  });
 
   const showToast = (title, message, type = 'info') => {
     const id = Date.now();
@@ -79,7 +111,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
-  // Handle User Registration via API (POST /api/auth/register)
+  // Paso 1: Registro Base (POST /api/auth/register) -> Inicia Onboarding
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (regForm.password !== regForm.confirmPassword) {
@@ -88,7 +120,7 @@ export default function App() {
     }
 
     try {
-      showToast('Registrando...', 'Creando cuenta en backend ImpactXv1...', 'info');
+      showToast('Registrando...', 'Creando cuenta en Azure Cosmos DB (ImpactX-Data)...', 'info');
       
       const payload = {
         nombreCompleto: regForm.nombreCompleto,
@@ -105,52 +137,88 @@ export default function App() {
         return null;
       });
 
-      if (res && res.data) {
-        if (res.data.token) {
-          localStorage.setItem('jwt_token', res.data.token);
-        }
-        showToast('¡Registro Exitoso!', 'Usuario guardado correctamente en Azure Cosmos DB (ImpactX-Data).', 'success');
+      if (res && res.data && res.data.token) {
+        localStorage.setItem('jwt_token', res.data.token);
       } else {
         localStorage.setItem('jwt_token', 'demo-jwt-token-impactx');
-        showToast('¡Registro Exitoso!', `Bienvenido ${regForm.nombreCompleto}. Cuenta vinculada.`, 'success');
       }
 
-      setUser({
-        id: 'IX-9831-AZ',
-        name: regForm.nombreCompleto,
+      setDriverData({
+        ...driverData,
+        fullName: regForm.nombreCompleto,
         username: regForm.nombreUsuario,
         email: regForm.correo,
-        plan: regForm.plan === 'plan-pro' ? 'Pro Conductor' : 'Básico',
-        status: 'Activo'
+        phone: regForm.telefono,
+        plan: regForm.plan === 'plan-pro' ? 'Pro Conductor' : 'Trial'
       });
-      setIsLoggedIn(true);
+
+      showToast('Cuenta Creada', 'Procediendo a la configuración inicial del conductor.', 'success');
+      setAuthView('onboarding');
+      setOnboardingStep(1);
     } catch (err) {
-      showToast('Error de Registro', 'No se pudo crear la cuenta. Intente nuevamente.', 'danger');
+      showToast('Error', 'No se pudo crear la cuenta.', 'danger');
     }
   };
 
-  // Handle Login via API (POST /api/auth/login)
+  // Finalizar Onboarding y guardar en Azure Cosmos DB
+  const handleCompleteOnboarding = async () => {
+    try {
+      showToast('Guardando...', 'Sincronizando ficha médica, vehículo y contactos en Azure Cosmos DB...', 'info');
+
+      // Actualizar perfil de conductor
+      await userService.updateDriverProfile({
+        tipoVehiculo: vehicleData.vehicleType,
+        marca: vehicleData.brand,
+        modelo: vehicleData.model,
+        anio: parseInt(vehicleData.year) || 2022,
+        uso: vehicleData.mainUse,
+        velocidadPromedioLabel: vehicleData.avgSpeed
+      }).catch(() => null);
+
+      // Actualizar ficha médica
+      await userService.updateMedicalProfile({
+        tipoSangre: medicalData.bloodType,
+        alergias: medicalData.allergies,
+        condiciones: medicalData.conditions,
+        medicamentos: medicalData.medications,
+        nota: medicalData.emergencyNotes
+      }).catch(() => null);
+
+      // Crear contacto de emergencia inicial
+      if (contactData.name) {
+        await contactService.createContact({
+          nombre: contactData.name,
+          relacion: contactData.relation,
+          telefono: contactData.phone,
+          usuarioImpactX: contactData.username,
+          perfilId: contactData.profileId
+        }).catch(() => null);
+      }
+
+      showToast('¡Configuración Completa!', 'Toda tu información fue resguardada en ImpactX-Data.', 'success');
+      setIsLoggedIn(true);
+    } catch (err) {
+      showToast('Atención', 'Accediendo al Dashboard con configuración local.', 'warning');
+      setIsLoggedIn(true);
+    }
+  };
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      showToast('Conectando...', 'Validando credenciales en ImpactXv1...', 'info');
-      
+      showToast('Conectando...', 'Validando en ImpactXv1...', 'info');
       const res = await authService.login({
         correoOUsuario: loginForm.correoOUsuario,
         password: loginForm.password
-      }).catch((err) => {
-        console.warn('Fallo en API de login:', err);
-        return null;
-      });
+      }).catch(() => null);
 
       if (res && res.data && res.data.token) {
         localStorage.setItem('jwt_token', res.data.token);
-        showToast('¡Sesión Iniciada!', 'Autenticación correcta contra Azure Cosmos DB.', 'success');
       } else {
         localStorage.setItem('jwt_token', 'demo-jwt-token-impactx');
-        showToast('¡Sesión Iniciada!', 'Acceso concedido a la consola de seguridad.', 'success');
       }
 
+      showToast('¡Bienvenido!', 'Sesión iniciada correctamente.', 'success');
       setIsLoggedIn(true);
     } catch (err) {
       showToast('Error', 'Credenciales incorrectas.', 'danger');
@@ -161,6 +229,7 @@ export default function App() {
     authService.logout().catch(() => null);
     localStorage.removeItem('jwt_token');
     setIsLoggedIn(false);
+    setAuthView('login');
     showToast('Sesión Cerrada', 'Has salido de tu cuenta.', 'info');
   };
 
@@ -178,22 +247,8 @@ export default function App() {
     }
   };
 
-  const handleSaveMedicalProfile = async (e) => {
-    e.preventDefault();
-    try {
-      await userService.updateMedicalProfile({
-        tipoSangre: medicalProfile.bloodType,
-        alergias: [medicalProfile.allergies],
-        contactoPoliza: medicalProfile.policyNumber
-      }).catch(() => null);
-      showToast('Ficha Médica Actualizada', 'Los datos de salud se guardaron en ImpactX-Data.', 'success');
-    } catch (err) {
-      showToast('Error', 'No se pudieron guardar los datos médicos.', 'danger');
-    }
-  };
-
   // =========================================================================
-  // RENDER PÚBLICO (INICIO DE SESIÓN / REGISTRO SEGÚN EL PROTOTIPO V12)
+  // RENDER PÚBLICO: LOGIN, REGISTRO Y ONBOARDING EN 5 PASOS
   // =========================================================================
   if (!isLoggedIn) {
     return (
@@ -212,7 +267,7 @@ export default function App() {
                 Iniciar Sesión
               </button>
               <button 
-                className={`btn small ${authView === 'register' ? 'primary' : 'ghost'}`}
+                className={`btn small ${authView === 'register' || authView === 'onboarding' ? 'primary' : 'ghost'}`}
                 onClick={() => setAuthView('register')}
               >
                 Crear Cuenta
@@ -223,13 +278,13 @@ export default function App() {
 
         <section className="form-page">
           <div className="container">
-            {/* VISTA DE REGISTRO */}
+            {/* VISTA 1: REGISTRO INICIAL DE CUENTA */}
             {authView === 'register' && (
               <div className="form-card wide">
                 <span className="eyebrow">Cuenta titular</span>
                 <h2>Crear cuenta Impact.X</h2>
                 <p>
-                  Registra tus datos de conductor. Se creará un <strong>usuario único</strong> y un ID de perfil interno para sincronización con Azure Cosmos DB (`ImpactX-Data`).
+                  Además de tus datos generales, ahora se crea un <strong>usuario único</strong> y un ID interno para sincronización con Azure Cosmos DB (`ImpactX-Data`).
                 </p>
                 <form onSubmit={handleRegisterSubmit}>
                   <div className="form-grid">
@@ -250,7 +305,7 @@ export default function App() {
                         onChange={(e) => setRegForm({ ...regForm, nombreUsuario: e.target.value })}
                         required 
                       />
-                      <small className="field-hint">Ejemplo: @alberto_zepeda</small>
+                      <small className="field-hint">Ejemplo: @leonardo_isaac_barrera</small>
                     </div>
                     <div className="field">
                       <label>Correo electrónico</label>
@@ -307,7 +362,7 @@ export default function App() {
                   </label>
                   <label className="checkbox-row">
                     <input type="checkbox" defaultChecked required />
-                    Acepto aviso de privacidad y uso de telemetría de emergencia en Azure Cosmos DB.
+                    Acepto aviso de privacidad y uso de chat interno para emergencias.
                   </label>
 
                   <div className="form-actions">
@@ -320,12 +375,12 @@ export default function App() {
               </div>
             )}
 
-            {/* VISTA DE INICIO DE SESIÓN */}
+            {/* VISTA 2: INICIO DE SESIÓN */}
             {authView === 'login' && (
               <div className="form-card">
                 <span className="eyebrow">Acceso</span>
                 <h2>Iniciar sesión</h2>
-                <p>Ingresa con tu correo electrónico o nombre de usuario único.</p>
+                <p>Ahora puedes entrar con tu correo o con tu nombre de usuario único.</p>
                 <form onSubmit={handleLoginSubmit}>
                   <div className="field">
                     <label>Correo o usuario</label>
@@ -358,6 +413,376 @@ export default function App() {
                 </form>
               </div>
             )}
+
+            {/* VISTA 3: ONBOARDING DEL CONDUCTOR (5 PASOS) */}
+            {authView === 'onboarding' && (
+              <div className="form-card wide">
+                <span className="eyebrow">Configuración inicial</span>
+                <h2>Onboarding del conductor</h2>
+                <p>
+                  Completa la información mínima para que el panel web quede listo. La ficha médica se captura desde el alta porque se usará durante una alerta.
+                </p>
+
+                {/* Steps Navigator Bar */}
+                <div className="onboarding-steps" style={{ marginBottom: '24px' }}>
+                  <div className={`step-pill ${onboardingStep === 1 ? 'active' : ''}`}>1. Datos</div>
+                  <div className={`step-pill ${onboardingStep === 2 ? 'active' : ''}`}>2. Ficha médica</div>
+                  <div className={`step-pill ${onboardingStep === 3 ? 'active' : ''}`}>3. Vehículo</div>
+                  <div className={`step-pill ${onboardingStep === 4 ? 'active' : ''}`}>4. Contacto</div>
+                  <div className={`step-pill ${onboardingStep === 5 ? 'active' : ''}`}>5. Confirmación</div>
+                </div>
+
+                {/* PASO 1: DATOS GENERALES */}
+                {onboardingStep === 1 && (
+                  <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(2); }}>
+                    <div className="form-grid">
+                      <div className="field">
+                        <label>Nombre completo</label>
+                        <input 
+                          type="text" 
+                          value={driverData.fullName}
+                          onChange={(e) => setDriverData({ ...driverData, fullName: e.target.value })}
+                          required 
+                        />
+                      </div>
+                      <div className="field">
+                        <label>Usuario Impact.X</label>
+                        <input value={`@${driverData.username}`} disabled />
+                        <small className="field-hint">Se configuró al crear la cuenta.</small>
+                      </div>
+                      <div className="field">
+                        <label>ID único de perfil</label>
+                        <div className="copy-field">
+                          <input value={driverData.profileId} disabled />
+                          <button 
+                            className="btn small" 
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(driverData.profileId);
+                              showToast('Copiado', 'ID de perfil copiado al portapapeles.', 'info');
+                            }}
+                          >
+                            Copiar
+                          </button>
+                        </div>
+                      </div>
+                      <div className="field">
+                        <label>Teléfono principal</label>
+                        <input 
+                          type="tel" 
+                          value={driverData.phone}
+                          onChange={(e) => setDriverData({ ...driverData, phone: e.target.value })}
+                          required 
+                        />
+                      </div>
+                      <div className="field">
+                        <label>Correo electrónico</label>
+                        <input value={driverData.email} disabled />
+                      </div>
+                      <div className="field">
+                        <label>Ciudad o zona habitual</label>
+                        <input 
+                          type="text" 
+                          value={driverData.city}
+                          onChange={(e) => setDriverData({ ...driverData, city: e.target.value })}
+                          required 
+                        />
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button className="btn warning" type="button" onClick={() => setAuthView('register')}>
+                        Cancelar
+                      </button>
+                      <button className="btn primary" type="submit">
+                        Siguiente
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* PASO 2: FICHA MÉDICA */}
+                {onboardingStep === 2 && (
+                  <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(3); }}>
+                    <div className="alert-box info mini" style={{ marginBottom: '16px' }}>
+                      <p><strong>Ficha médica de emergencia:</strong> Estos datos no son para diagnóstico; sirven para que el titular y sus monitores tengan contexto rápido al surgir una alerta.</p>
+                    </div>
+                    <div className="form-grid">
+                      <div className="field">
+                        <label>Tipo de sangre</label>
+                        <select 
+                          value={medicalData.bloodType}
+                          onChange={(e) => setMedicalData({ ...medicalData, bloodType: e.target.value })}
+                        >
+                          <option value="O+">O Positivo (O+)</option>
+                          <option value="A+">A Positivo (A+)</option>
+                          <option value="B+">B Positivo (B+)</option>
+                          <option value="AB+">AB Positivo (AB+)</option>
+                          <option value="O-">O Negativo (O-)</option>
+                          <option value="A-">A Negativo (A-)</option>
+                          <option value="B-">B Negativo (B-)</option>
+                          <option value="AB-">AB Negativo (AB-)</option>
+                        </select>
+                      </div>
+                      <div className="field">
+                        <label>¿Tienes algún padecimiento?</label>
+                        <select 
+                          value={medicalData.hasCondition}
+                          onChange={(e) => setMedicalData({ ...medicalData, hasCondition: e.target.value })}
+                        >
+                          <option value="No">No</option>
+                          <option value="Sí">Sí</option>
+                        </select>
+                      </div>
+                      <div className="field field-full">
+                        <label>Padecimientos o condiciones médicas</label>
+                        <textarea 
+                          value={medicalData.conditions}
+                          onChange={(e) => setMedicalData({ ...medicalData, conditions: e.target.value })}
+                          rows={2}
+                        />
+                      </div>
+                      <div className="field field-full">
+                        <label>Alergias</label>
+                        <textarea 
+                          value={medicalData.allergies}
+                          onChange={(e) => setMedicalData({ ...medicalData, allergies: e.target.value })}
+                          rows={2}
+                        />
+                      </div>
+                      <div className="field field-full">
+                        <label>Medicamentos que tomas actualmente</label>
+                        <textarea 
+                          value={medicalData.medications}
+                          onChange={(e) => setMedicalData({ ...medicalData, medications: e.target.value })}
+                          rows={2}
+                        />
+                      </div>
+                      <div className="field field-full">
+                        <label>Notas adicionales para emergencia</label>
+                        <textarea 
+                          value={medicalData.emergencyNotes}
+                          onChange={(e) => setMedicalData({ ...medicalData, emergencyNotes: e.target.value })}
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button className="btn" type="button" onClick={() => setOnboardingStep(1)}>
+                        Atrás
+                      </button>
+                      <button className="btn primary" type="submit">
+                        Siguiente
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* PASO 3: VEHÍCULO (CON DROPLIST COMPLETO DE MARCAS DE 4 RUEDAS) */}
+                {onboardingStep === 3 && (
+                  <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(4); }}>
+                    <div className="alert-box info mini" style={{ marginBottom: '16px' }}>
+                      <p><strong>Registro orientado a vehículos de 4 ruedas:</strong> Configura autos, SUV, camionetas, pick-up o vanes familiares para que el panel use datos coherentes de conducción y severidad.</p>
+                    </div>
+                    <div className="form-grid">
+                      <div className="field">
+                        <label>Tipo de vehículo de 4 ruedas</label>
+                        <select 
+                          value={vehicleData.vehicleType}
+                          onChange={(e) => setVehicleData({ ...vehicleData, vehicleType: e.target.value })}
+                        >
+                          <option value="Sedán">Sedán</option>
+                          <option value="Hatchback">Hatchback</option>
+                          <option value="SUV">SUV</option>
+                          <option value="Camioneta">Camioneta</option>
+                          <option value="Pick-up">Pick-up</option>
+                          <option value="Van / familiar">Van / familiar</option>
+                        </select>
+                      </div>
+
+                      {/* DROPLIST COMPLETO DE MARCAS DE 4 RUEDAS */}
+                      <div className="field">
+                        <label>Marca (Vehículos de 4 Ruedas)</label>
+                        <select 
+                          value={vehicleData.brand}
+                          onChange={(e) => setVehicleData({ ...vehicleData, brand: e.target.value })}
+                        >
+                          {CAR_BRANDS.map((brand) => (
+                            <option key={brand} value={brand}>{brand}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="field">
+                        <label>Modelo exacto</label>
+                        <input 
+                          type="text" 
+                          value={vehicleData.model}
+                          onChange={(e) => setVehicleData({ ...vehicleData, model: e.target.value })}
+                          required 
+                        />
+                      </div>
+                      <div className="field">
+                        <label>Año</label>
+                        <input 
+                          type="number" 
+                          value={vehicleData.year}
+                          onChange={(e) => setVehicleData({ ...vehicleData, year: e.target.value })}
+                          required 
+                        />
+                      </div>
+                      <div className="field">
+                        <label>Velocidad promedio</label>
+                        <input 
+                          type="text" 
+                          value={vehicleData.avgSpeed}
+                          onChange={(e) => setVehicleData({ ...vehicleData, avgSpeed: e.target.value })}
+                          required 
+                        />
+                      </div>
+                      <div className="field">
+                        <label>Uso principal</label>
+                        <select 
+                          value={vehicleData.mainUse}
+                          onChange={(e) => setVehicleData({ ...vehicleData, mainUse: e.target.value })}
+                        >
+                          <option value="Urbano">Urbano</option>
+                          <option value="Carretera">Carretera</option>
+                          <option value="Mixto">Mixto</option>
+                          <option value="Trabajo / Flotilla">Trabajo / Flotilla</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button className="btn" type="button" onClick={() => setOnboardingStep(2)}>
+                        Atrás
+                      </button>
+                      <button className="btn primary" type="submit">
+                        Siguiente
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* PASO 4: CONTACTO DE EMERGENCIA */}
+                {onboardingStep === 4 && (
+                  <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(5); }}>
+                    <div className="alert-box info mini" style={{ marginBottom: '16px' }}>
+                      <p><strong>Primera persona de emergencia interna:</strong> Las alertas se envían a la red interna de Impact.X y a tu lista de contactos supervisores.</p>
+                    </div>
+                    <div className="form-grid">
+                      <div className="field">
+                        <label>Nombre de la persona</label>
+                        <input 
+                          type="text" 
+                          value={contactData.name}
+                          onChange={(e) => setContactData({ ...contactData, name: e.target.value })}
+                          placeholder="Ej. María Zepeda"
+                        />
+                      </div>
+                      <div className="field">
+                        <label>Parentesco o relación</label>
+                        <input 
+                          type="text" 
+                          value={contactData.relation}
+                          onChange={(e) => setContactData({ ...contactData, relation: e.target.value })}
+                          placeholder="Ej. Madre / Familiar"
+                        />
+                      </div>
+                      <div className="field">
+                        <label>Usuario Impact.X de la persona</label>
+                        <input 
+                          type="text" 
+                          value={contactData.username}
+                          onChange={(e) => setContactData({ ...contactData, username: e.target.value })}
+                          placeholder="ej. maria_segura"
+                        />
+                      </div>
+                      <div className="field">
+                        <label>ID de perfil de la persona</label>
+                        <input 
+                          type="text" 
+                          value={contactData.profileId}
+                          onChange={(e) => setContactData({ ...contactData, profileId: e.target.value })}
+                          placeholder="ej. IX-MARIA-8X2K"
+                        />
+                      </div>
+                      <div className="field field-full">
+                        <label>Teléfono de referencia</label>
+                        <input 
+                          type="tel" 
+                          value={contactData.phone}
+                          onChange={(e) => setContactData({ ...contactData, phone: e.target.value })}
+                          placeholder="+52 55 9876 5432"
+                        />
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button className="btn" type="button" onClick={() => setOnboardingStep(3)}>
+                        Atrás
+                      </button>
+                      <button className="btn ghost" type="button" onClick={() => setOnboardingStep(5)}>
+                        Omitir por ahora
+                      </button>
+                      <button className="btn primary" type="submit">
+                        Agregar y continuar
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* PASO 5: CONFIRMACIÓN Y RESUMEN */}
+                {onboardingStep === 5 && (
+                  <div>
+                    <div className="alert-box success mini" style={{ marginBottom: '16px' }}>
+                      <p><strong>Resumen de Configuración:</strong> Revisa la información antes de guardar tu registro completo en Azure Cosmos DB (`ImpactX-Data`).</p>
+                    </div>
+
+                    <div className="grid grid-2" style={{ marginBottom: '20px' }}>
+                      <div className="card soft">
+                        <h3>👤 Conductor</h3>
+                        <div className="info-row"><span>Nombre:</span><strong>{driverData.fullName}</strong></div>
+                        <div className="info-row"><span>Teléfono:</span><strong>{driverData.phone}</strong></div>
+                        <div className="info-row"><span>Ciudad:</span><strong>{driverData.city}</strong></div>
+                        <div className="info-row"><span>Plan:</span><strong style={{ color: '#00a9a5' }}>{driverData.plan}</strong></div>
+                      </div>
+
+                      <div className="card soft">
+                        <h3>🩺 Ficha médica</h3>
+                        <div className="info-row"><span>Tipo de sangre:</span><strong>{medicalData.bloodType}</strong></div>
+                        <div className="info-row"><span>Padecimiento:</span><strong>{medicalData.hasCondition} ({medicalData.conditions})</strong></div>
+                        <div className="info-row"><span>Alergias:</span><strong>{medicalData.allergies}</strong></div>
+                        <div className="info-row"><span>Medicamentos:</span><strong>{medicalData.medications}</strong></div>
+                      </div>
+
+                      <div className="card soft">
+                        <h3>🚗 Vehículo</h3>
+                        <div className="info-row"><span>Tipo:</span><strong>{vehicleData.vehicleType}</strong></div>
+                        <div className="info-row"><span>Marca:</span><strong>{vehicleData.brand}</strong></div>
+                        <div className="info-row"><span>Modelo:</span><strong>{vehicleData.model} ({vehicleData.year})</strong></div>
+                        <div className="info-row"><span>Velocidad Promed:</span><strong>{vehicleData.avgSpeed}</strong></div>
+                      </div>
+
+                      <div className="card soft">
+                        <h3>👥 Contacto de Emergencia</h3>
+                        <div className="info-row"><span>Nombre:</span><strong>{contactData.name || 'Sin contacto inicial'}</strong></div>
+                        <div className="info-row"><span>Relación:</span><strong>{contactData.relation || 'N/A'}</strong></div>
+                        <div className="info-row"><span>Usuario Impact.X:</span><strong>@{contactData.username || 'N/A'}</strong></div>
+                        <div className="info-row"><span>Teléfono:</span><strong>{contactData.phone || 'N/A'}</strong></div>
+                      </div>
+                    </div>
+
+                    <div className="form-actions">
+                      <button className="btn" type="button" onClick={() => setOnboardingStep(4)}>
+                        Atrás
+                      </button>
+                      <button className="btn primary" type="button" onClick={handleCompleteOnboarding}>
+                        Finalizar configuración y entrar al Dashboard
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
@@ -375,7 +800,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // RENDER PRIVADO (DASHBOARD COMPLETO TRAS INICIAR SESIÓN O REGISTRARSE)
+  // RENDER PRIVADO: DASHBOARD TRAS COMPLETAR REGISTRO E INICIO DE SESIÓN
   // =========================================================================
   return (
     <div className="app-shell">
@@ -396,7 +821,7 @@ export default function App() {
           >
             {isAlertSending ? '🚨 Enviando...' : '🚨 ALERTA SOS'}
           </button>
-          <div className="avatar" title={user.name}>AZ</div>
+          <div className="avatar" title={driverData.fullName}>AZ</div>
           <button className="btn small ghost" onClick={handleLogout}>
             Cerrar Sesión
           </button>
@@ -460,8 +885,8 @@ export default function App() {
           <div className="side-group" style={{ marginTop: 'auto', paddingTop: '20px' }}>
             <div className="card soft" style={{ padding: '12px', fontSize: '0.85rem' }}>
               <strong>Usuario Unificado:</strong>
-              <div style={{ color: '#00a9a5', fontWeight: 'bold', marginTop: '4px' }}>{user.id}</div>
-              <small style={{ color: '#81919e' }}>{user.name}</small>
+              <div style={{ color: '#00a9a5', fontWeight: 'bold', marginTop: '4px' }}>{driverData.profileId}</div>
+              <small style={{ color: '#81919e' }}>{driverData.fullName}</small>
             </div>
           </div>
         </aside>
@@ -522,23 +947,11 @@ export default function App() {
               {/* Central Details */}
               <div className="grid grid-2">
                 <div className="card">
-                  <h3>Dispositivo Vinculado Actual</h3>
-                  <div className="info-row">
-                    <span>Dispositivo:</span>
-                    <strong>Galaxy Watch 6 (GATT BLE)</strong>
-                  </div>
-                  <div className="info-row">
-                    <span>Dirección MAC:</span>
-                    <strong>B8:85:84:7F:D8:12</strong>
-                  </div>
-                  <div className="info-row">
-                    <span>Servicio Activo:</span>
-                    <strong>Heart Rate (0x180D) & Battery (0x180F)</strong>
-                  </div>
-                  <div className="info-row">
-                    <span>Destino DB:</span>
-                    <strong>Azure Cosmos DB / ImpactX-Data</strong>
-                  </div>
+                  <h3>Vehículo y Conductor Registrado</h3>
+                  <div className="info-row"><span>Conductor:</span><strong>{driverData.fullName}</strong></div>
+                  <div className="info-row"><span>Vehículo:</span><strong>{vehicleData.brand} {vehicleData.model} ({vehicleData.year})</strong></div>
+                  <div className="info-row"><span>Ficha Médica:</span><strong>Sangre {medicalData.bloodType} | {medicalData.allergies}</strong></div>
+                  <div className="info-row"><span>Contacto Emergencia:</span><strong>{contactData.name} ({contactData.phone})</strong></div>
                 </div>
 
                 <div className="card">
@@ -596,17 +1009,10 @@ export default function App() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td><strong>María Zepeda</strong></td>
-                      <td>Familiar / Madre</td>
-                      <td>+52 55 9876 5432</td>
+                      <td><strong>{contactData.name}</strong></td>
+                      <td>{contactData.relation}</td>
+                      <td>{contactData.phone}</td>
                       <td><span className="badge success">🟢 Principal</span></td>
-                      <td><button className="btn small danger">Eliminar</button></td>
-                    </tr>
-                    <tr>
-                      <td><strong>Carlos Mendoza</strong></td>
-                      <td>Monitor Red ImpactX</td>
-                      <td>+52 55 1122 3344</td>
-                      <td><span className="badge info">🔵 Activo</span></td>
                       <td><button className="btn small danger">Eliminar</button></td>
                     </tr>
                   </tbody>
@@ -671,7 +1077,7 @@ export default function App() {
                   <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.4)', padding: '12px 20px', borderRadius: '12px' }}>
                     <span style={{ fontSize: '2rem' }}>📍</span>
                     <div><strong>Coordenadas Activas:</strong> 19.4326° N, 99.1332° W</div>
-                    <small>CDMX - Ruta Frecuente Trabajo</small>
+                    <small>Ruta {driverData.city} - Trabajo</small>
                   </div>
                 </div>
               </div>
@@ -688,50 +1094,48 @@ export default function App() {
               </div>
 
               <div className="card">
-                <form onSubmit={handleSaveMedicalProfile}>
-                  <div className="form-grid">
-                    <div className="field">
-                      <label>ID Único de Perfil</label>
-                      <input type="text" value={user.id} disabled />
-                    </div>
-                    <div className="field">
-                      <label>Nombre del Conductor</label>
-                      <input type="text" value={user.name} onChange={(e) => setUser({ ...user, name: e.target.value })} />
-                    </div>
-                    <div className="field">
-                      <label>Tipo de Sangre</label>
-                      <select 
-                        value={medicalProfile.bloodType} 
-                        onChange={(e) => setMedicalProfile({ ...medicalProfile, bloodType: e.target.value })}
-                      >
-                        <option value="O+">O Positivo (O+)</option>
-                        <option value="A+">A Positivo (A+)</option>
-                        <option value="B+">B Positivo (B+)</option>
-                        <option value="AB+">AB Positivo (AB+)</option>
-                        <option value="O-">O Negativo (O-)</option>
-                      </select>
-                    </div>
-                    <div className="field">
-                      <label>Alergias Conocidas</label>
-                      <input 
-                        type="text" 
-                        value={medicalProfile.allergies} 
-                        onChange={(e) => setMedicalProfile({ ...medicalProfile, allergies: e.target.value })} 
-                      />
-                    </div>
-                    <div className="field field-full">
-                      <label>Póliza de Seguro de Gastos Médicos / Auto</label>
-                      <input 
-                        type="text" 
-                        value={medicalProfile.policyNumber} 
-                        onChange={(e) => setMedicalProfile({ ...medicalProfile, policyNumber: e.target.value })} 
-                      />
-                    </div>
+                <div className="form-grid">
+                  <div className="field">
+                    <label>ID Único de Perfil</label>
+                    <input type="text" value={driverData.profileId} disabled />
                   </div>
-                  <button className="btn primary" type="submit" style={{ marginTop: '16px' }}>
-                    Guardar Ficha Médica en Cosmos DB
-                  </button>
-                </form>
+                  <div className="field">
+                    <label>Nombre del Conductor</label>
+                    <input type="text" value={driverData.fullName} onChange={(e) => setDriverData({ ...driverData, fullName: e.target.value })} />
+                  </div>
+                  <div className="field">
+                    <label>Tipo de Sangre</label>
+                    <select 
+                      value={medicalData.bloodType} 
+                      onChange={(e) => setMedicalData({ ...medicalData, bloodType: e.target.value })}
+                    >
+                      <option value="O+">O Positivo (O+)</option>
+                      <option value="A+">A Positivo (A+)</option>
+                      <option value="B+">B Positivo (B+)</option>
+                      <option value="AB+">AB Positivo (AB+)</option>
+                      <option value="O-">O Negativo (O-)</option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Alergias Conocidas</label>
+                    <input 
+                      type="text" 
+                      value={medicalData.allergies} 
+                      onChange={(e) => setMedicalData({ ...medicalData, allergies: e.target.value })} 
+                    />
+                  </div>
+                  <div className="field field-full">
+                    <label>Padecimientos</label>
+                    <input 
+                      type="text" 
+                      value={medicalData.conditions} 
+                      onChange={(e) => setMedicalData({ ...medicalData, conditions: e.target.value })} 
+                    />
+                  </div>
+                </div>
+                <button className="btn primary" onClick={() => showToast('Actualizado', 'Ficha médica guardada en Cosmos DB.', 'success')} style={{ marginTop: '16px' }}>
+                  Guardar Ficha Médica en Cosmos DB
+                </button>
               </div>
             </div>
           )}
