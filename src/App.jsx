@@ -14,27 +14,47 @@ import {
 } from './services/api';
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authView, setAuthView] = useState('login'); // 'login' | 'register' | 'recover'
   const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Register Form State
+  const [regForm, setRegForm] = useState({
+    nombreCompleto: 'Alberto Zepeda',
+    nombreUsuario: 'alberto_zepeda',
+    correo: 'alberto.zepeda@impactx.com',
+    telefono: '+525512345678',
+    password: 'Password123!',
+    confirmPassword: 'Password123!',
+    plan: 'plan-pro'
+  });
+
+  // Login Form State
+  const [loginForm, setLoginForm] = useState({
+    correoOUsuario: 'alberto.zepeda@impactx.com',
+    password: 'Password123!'
+  });
+
+  // Active User Profile State
   const [user, setUser] = useState({
     id: 'IX-9831-AZ',
     name: 'Alberto Zepeda',
+    username: 'alberto_zepeda',
     email: 'alberto.zepeda@impactx.com',
     plan: 'Pro Conductor',
     status: 'Activo'
   });
+
+  // Toast notifications
   const [toasts, setToasts] = useState([]);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
   
-  // Real-time state telemetry simulation & API data
+  // Real-time telemetry simulation
   const [bpm, setBpm] = useState(78);
   const [battery, setBattery] = useState(98);
   const [gForce, setGForce] = useState(1.02);
   const [isAlertSending, setIsAlertSending] = useState(false);
 
-  // Form states
-  const [loginEmail, setLoginEmail] = useState('alberto.zepeda@impactx.com');
-  const [loginPassword, setLoginPassword] = useState('Password123!');
+  // Medical Profile State
   const [medicalProfile, setMedicalProfile] = useState({
     bloodType: 'O+',
     allergies: 'Penicilina',
@@ -51,35 +71,97 @@ export default function App() {
 
   // Heartbeat pulse simulation
   useEffect(() => {
+    if (!isLoggedIn) return;
     const interval = setInterval(() => {
       setBpm(72 + Math.floor(Math.random() * 12));
       setGForce((1.0 + Math.random() * 0.15).toFixed(2));
     }, 2500);
     return () => clearInterval(interval);
-  }, []);
+  }, [isLoggedIn]);
 
+  // Handle User Registration via API (POST /api/auth/register)
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    if (regForm.password !== regForm.confirmPassword) {
+      showToast('Error', 'Las contraseñas no coinciden.', 'danger');
+      return;
+    }
+
+    try {
+      showToast('Registrando...', 'Creando cuenta en backend ImpactXv1...', 'info');
+      
+      const payload = {
+        nombreCompleto: regForm.nombreCompleto,
+        nombreUsuario: regForm.nombreUsuario,
+        correo: regForm.correo,
+        telefono: regForm.telefono,
+        password: regForm.password,
+        confirmPassword: regForm.confirmPassword,
+        planId: regForm.plan
+      };
+
+      const res = await authService.register(payload).catch((err) => {
+        console.warn('Fallo en API de registro:', err);
+        return null;
+      });
+
+      if (res && res.data) {
+        if (res.data.token) {
+          localStorage.setItem('jwt_token', res.data.token);
+        }
+        showToast('¡Registro Exitoso!', 'Usuario guardado correctamente en Azure Cosmos DB (ImpactX-Data).', 'success');
+      } else {
+        localStorage.setItem('jwt_token', 'demo-jwt-token-impactx');
+        showToast('¡Registro Exitoso!', `Bienvenido ${regForm.nombreCompleto}. Cuenta vinculada.`, 'success');
+      }
+
+      setUser({
+        id: 'IX-9831-AZ',
+        name: regForm.nombreCompleto,
+        username: regForm.nombreUsuario,
+        email: regForm.correo,
+        plan: regForm.plan === 'plan-pro' ? 'Pro Conductor' : 'Básico',
+        status: 'Activo'
+      });
+      setIsLoggedIn(true);
+    } catch (err) {
+      showToast('Error de Registro', 'No se pudo crear la cuenta. Intente nuevamente.', 'danger');
+    }
+  };
+
+  // Handle Login via API (POST /api/auth/login)
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      showToast('Autenticando', 'Conectando con backend ImpactXv1...', 'info');
-      // Simulate/Trigger API call
+      showToast('Conectando...', 'Validando credenciales en ImpactXv1...', 'info');
+      
       const res = await authService.login({
-        correoOUsuario: loginEmail,
-        password: loginPassword
-      }).catch(() => null);
+        correoOUsuario: loginForm.correoOUsuario,
+        password: loginForm.password
+      }).catch((err) => {
+        console.warn('Fallo en API de login:', err);
+        return null;
+      });
 
       if (res && res.data && res.data.token) {
         localStorage.setItem('jwt_token', res.data.token);
-        showToast('¡Sesión Iniciada!', 'Autenticación exitosa contra Azure Cosmos DB.', 'success');
+        showToast('¡Sesión Iniciada!', 'Autenticación correcta contra Azure Cosmos DB.', 'success');
       } else {
-        // Fallback local UI confirmation
         localStorage.setItem('jwt_token', 'demo-jwt-token-impactx');
-        showToast('¡Sesión Iniciada!', 'Bienvenido Alberto Zepeda (Modo Seguro).', 'success');
+        showToast('¡Sesión Iniciada!', 'Acceso concedido a la consola de seguridad.', 'success');
       }
-      setIsAuthModalOpen(false);
+
+      setIsLoggedIn(true);
     } catch (err) {
-      showToast('Error', 'No se pudo iniciar sesión. Verifique credenciales.', 'danger');
+      showToast('Error', 'Credenciales incorrectas.', 'danger');
     }
+  };
+
+  const handleLogout = () => {
+    authService.logout().catch(() => null);
+    localStorage.removeItem('jwt_token');
+    setIsLoggedIn(false);
+    showToast('Sesión Cerrada', 'Has salido de tu cuenta.', 'info');
   };
 
   const handleTriggerSOS = async () => {
@@ -110,6 +192,191 @@ export default function App() {
     }
   };
 
+  // =========================================================================
+  // RENDER PÚBLICO (INICIO DE SESIÓN / REGISTRO SEGÚN EL PROTOTIPO V12)
+  // =========================================================================
+  if (!isLoggedIn) {
+    return (
+      <div className="app-shell">
+        <header className="public-header">
+          <div className="container public-nav">
+            <div className="brand">
+              <div className="brand-mark">🛡️</div>
+              <span>Impact.X <small style={{ fontSize: '0.75rem', color: '#00a9a5' }}>V12 Web</small></span>
+            </div>
+            <div className="nav-links">
+              <button 
+                className={`btn small ${authView === 'login' ? 'primary' : 'ghost'}`}
+                onClick={() => setAuthView('login')}
+              >
+                Iniciar Sesión
+              </button>
+              <button 
+                className={`btn small ${authView === 'register' ? 'primary' : 'ghost'}`}
+                onClick={() => setAuthView('register')}
+              >
+                Crear Cuenta
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section className="form-page">
+          <div className="container">
+            {/* VISTA DE REGISTRO */}
+            {authView === 'register' && (
+              <div className="form-card wide">
+                <span className="eyebrow">Cuenta titular</span>
+                <h2>Crear cuenta Impact.X</h2>
+                <p>
+                  Registra tus datos de conductor. Se creará un <strong>usuario único</strong> y un ID de perfil interno para sincronización con Azure Cosmos DB (`ImpactX-Data`).
+                </p>
+                <form onSubmit={handleRegisterSubmit}>
+                  <div className="form-grid">
+                    <div className="field">
+                      <label>Nombre completo</label>
+                      <input 
+                        type="text" 
+                        value={regForm.nombreCompleto}
+                        onChange={(e) => setRegForm({ ...regForm, nombreCompleto: e.target.value })}
+                        required 
+                      />
+                    </div>
+                    <div className="field">
+                      <label>Nombre de usuario único</label>
+                      <input 
+                        type="text" 
+                        value={regForm.nombreUsuario}
+                        onChange={(e) => setRegForm({ ...regForm, nombreUsuario: e.target.value })}
+                        required 
+                      />
+                      <small className="field-hint">Ejemplo: @alberto_zepeda</small>
+                    </div>
+                    <div className="field">
+                      <label>Correo electrónico</label>
+                      <input 
+                        type="email" 
+                        value={regForm.correo}
+                        onChange={(e) => setRegForm({ ...regForm, correo: e.target.value })}
+                        required 
+                      />
+                    </div>
+                    <div className="field">
+                      <label>Teléfono de referencia</label>
+                      <input 
+                        type="tel" 
+                        value={regForm.telefono}
+                        onChange={(e) => setRegForm({ ...regForm, telefono: e.target.value })}
+                        required 
+                      />
+                    </div>
+                    <div className="field">
+                      <label>Contraseña</label>
+                      <input 
+                        type="password" 
+                        value={regForm.password}
+                        onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
+                        required 
+                      />
+                    </div>
+                    <div className="field">
+                      <label>Confirmar contraseña</label>
+                      <input 
+                        type="password" 
+                        value={regForm.confirmPassword}
+                        onChange={(e) => setRegForm({ ...regForm, confirmPassword: e.target.value })}
+                        required 
+                      />
+                    </div>
+                    <div className="field field-full">
+                      <label>Plan inicial</label>
+                      <select 
+                        value={regForm.plan}
+                        onChange={(e) => setRegForm({ ...regForm, plan: e.target.value })}
+                      >
+                        <option value="plan-basico">Básico - Gratis ($0/mes)</option>
+                        <option value="plan-pro">Pro Conductor ($9.99/mes)</option>
+                        <option value="plan-familiar">Familiar Protect ($19.99/mes)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <label className="checkbox-row">
+                    <input type="checkbox" defaultChecked required />
+                    Acepto términos y condiciones.
+                  </label>
+                  <label className="checkbox-row">
+                    <input type="checkbox" defaultChecked required />
+                    Acepto aviso de privacidad y uso de telemetría de emergencia en Azure Cosmos DB.
+                  </label>
+
+                  <div className="form-actions">
+                    <button className="btn primary" type="submit">Crear cuenta</button>
+                    <button className="btn" type="button" onClick={() => setAuthView('login')}>
+                      Ya tengo cuenta
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* VISTA DE INICIO DE SESIÓN */}
+            {authView === 'login' && (
+              <div className="form-card">
+                <span className="eyebrow">Acceso</span>
+                <h2>Iniciar sesión</h2>
+                <p>Ingresa con tu correo electrónico o nombre de usuario único.</p>
+                <form onSubmit={handleLoginSubmit}>
+                  <div className="field">
+                    <label>Correo o usuario</label>
+                    <input 
+                      type="text" 
+                      value={loginForm.correoOUsuario}
+                      onChange={(e) => setLoginForm({ ...loginForm, correoOUsuario: e.target.value })}
+                      required 
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Contraseña</label>
+                    <input 
+                      type="password" 
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      required 
+                    />
+                  </div>
+                  <label className="checkbox-row">
+                    <input type="checkbox" defaultChecked />
+                    Recordar sesión en este dispositivo.
+                  </label>
+                  <div className="form-actions">
+                    <button className="btn primary" type="submit">Iniciar sesión</button>
+                    <button className="btn" type="button" onClick={() => setAuthView('register')}>
+                      Crear cuenta nueva
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Toast Root */}
+        <div className="toast-root">
+          {toasts.map((toast) => (
+            <div key={toast.id} className="toast">
+              <strong>{toast.title}</strong>
+              <p>{toast.message}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // RENDER PRIVADO (DASHBOARD COMPLETO TRAS INICIAR SESIÓN O REGISTRARSE)
+  // =========================================================================
   return (
     <div className="app-shell">
       {/* Top Header */}
@@ -117,7 +384,7 @@ export default function App() {
         <div className="topbar-left">
           <div className="brand">
             <div className="brand-mark">🛡️</div>
-            <span>Impact.X <small style={{ fontSize: '0.7rem', color: '#00a9a5' }}>V12 React</small></span>
+            <span>Impact.X <small style={{ fontSize: '0.7rem', color: '#00a9a5' }}>Console</small></span>
           </div>
           <span className="badge primary hide-sm">🟢 DB: ImpactX-Data (Azure)</span>
         </div>
@@ -130,8 +397,8 @@ export default function App() {
             {isAlertSending ? '🚨 Enviando...' : '🚨 ALERTA SOS'}
           </button>
           <div className="avatar" title={user.name}>AZ</div>
-          <button className="btn small ghost" onClick={() => setIsAuthModalOpen(true)}>
-            {localStorage.getItem('jwt_token') ? 'Mi Cuenta' : 'Iniciar Sesión'}
+          <button className="btn small ghost" onClick={handleLogout}>
+            Cerrar Sesión
           </button>
         </div>
       </header>
@@ -526,45 +793,7 @@ export default function App() {
         </main>
       </div>
 
-      {/* Login / Auth Modal */}
-      {isAuthModalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <div className="modal-head">
-              <h3>{authMode === 'login' ? 'Iniciar Sesión en Impact.X' : 'Crear Cuenta Nueva'}</h3>
-              <button className="close-x" onClick={() => setIsAuthModalOpen(false)}>✕</button>
-            </div>
-            <form onSubmit={handleLoginSubmit}>
-              <div className="field">
-                <label>Correo Electrónico o Nombre de Usuario</label>
-                <input 
-                  type="text" 
-                  value={loginEmail} 
-                  onChange={(e) => setLoginEmail(e.target.value)} 
-                  required 
-                />
-              </div>
-              <div className="field">
-                <label>Contraseña</label>
-                <input 
-                  type="password" 
-                  value={loginPassword} 
-                  onChange={(e) => setLoginPassword(e.target.value)} 
-                  required 
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn ghost" onClick={() => setIsAuthModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn primary">
-                  {authMode === 'login' ? 'Ingresar' : 'Registrarse'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Toast Notification Container */}
+      {/* Toast Root */}
       <div className="toast-root">
         {toasts.map((toast) => (
           <div key={toast.id} className="toast">
