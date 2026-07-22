@@ -25,30 +25,31 @@ const CAR_BRANDS = [
   "SEAT", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo"
 ];
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authView, setAuthView] = useState('login'); // 'login' | 'register' | 'onboarding'
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [activeTab, setActiveTab] = useState('dashboard');
   
-  // CAMPOS TOTALMENTE VACÍOS EN BLANCO PARA REGISTRO
+  // CAMPOS EN BLANCO PARA REGISTRO
   const [regForm, setRegForm] = useState({
     nombreCompleto: '',
-    nombreUsuario: '',
     correo: '',
     telefono: '',
     password: '',
     confirmPassword: '',
-    plan: 'plan-pro'
+    plan: 'Free'
   });
 
-  // CAMPOS TOTALMENTE VACÍOS EN BLANCO PARA LOGIN
+  // CAMPOS EN BLANCO PARA LOGIN
   const [loginForm, setLoginForm] = useState({
     correoOUsuario: '',
     password: ''
   });
 
-  // CAMPOS EN BLANCO PARA EL ONBOARDING DEL CONDUCTOR
+  // CAMPOS EN BLANCO PARA ONBOARDING DEL CONDUCTOR
   const [driverData, setDriverData] = useState({
     fullName: '',
     username: '',
@@ -88,7 +89,7 @@ export default function App() {
   // Toast Notifications
   const [toasts, setToasts] = useState([]);
   
-  // Real-time telemetry simulation
+  // Telemetría en vivo
   const [bpm, setBpm] = useState(76);
   const [battery, setBattery] = useState(98);
   const [gForce, setGForce] = useState(1.02);
@@ -102,8 +103,7 @@ export default function App() {
     }, 4500);
   };
 
-  // PROTECCIÓN DE RUTAS / NAVEGADOR:
-  // Si alguien abre el portal en otro navegador o pestaña sin haber iniciado sesión, se le deniega el acceso automáticamente.
+  // Protección de URLs en navegador
   useEffect(() => {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
@@ -112,7 +112,7 @@ export default function App() {
     }
   }, []);
 
-  // Simulación kinética de pulso
+  // Pulso kinético
   useEffect(() => {
     if (!isLoggedIn) return;
     const interval = setInterval(() => {
@@ -122,11 +122,11 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
-  // Manejador de Registro Inicial de Usuario
+  // REGISTRO DE USUARIO CON PAYLOAD COMPATIBLE C# API Y AZURE COSMOS DB
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!regForm.nombreCompleto || !regForm.correo || !regForm.password) {
-      showToast('Campos requeridos', 'Por favor llena todos los datos en blanco.', 'warning');
+      showToast('Campos vacíos', 'Por favor ingresa nombre, correo y contraseña.', 'warning');
       return;
     }
 
@@ -136,68 +136,87 @@ export default function App() {
     }
 
     try {
-      showToast('Registrando usuario...', 'Guardando documento en Azure Cosmos DB (ImpactX-Data)...', 'info');
+      showToast('Registrando...', 'Creando documento en Azure Cosmos DB (ImpactX-Data)...', 'info');
       
       const payload = {
-        nombreCompleto: regForm.nombreCompleto,
-        nombreUsuario: regForm.nombreUsuario || `@${regForm.nombreCompleto.toLowerCase().replace(/\s+/g, '_')}`,
+        nombre: regForm.nombreCompleto,
         correo: regForm.correo,
         telefono: regForm.telefono,
         password: regForm.password,
-        confirmPassword: regForm.confirmPassword,
-        planId: regForm.plan
+        planActivo: regForm.plan
       };
 
-      const res = await authService.register(payload).catch((err) => {
-        console.warn('Registro API local fallback:', err);
-        return null;
-      });
+      const res = await authService.register(payload);
 
-      const token = (res && res.data && res.data.token) ? res.data.token : `token-${Date.now()}`;
-      localStorage.setItem('jwt_token', token);
-
-      const generatedProfileId = `IX-${regForm.nombreCompleto.substring(0, 6).toUpperCase().replace(/\s+/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      setDriverData({
-        fullName: regForm.nombreCompleto,
-        username: regForm.nombreUsuario || regForm.nombreCompleto.toLowerCase().replace(/\s+/g, '_'),
-        profileId: generatedProfileId,
-        phone: regForm.telefono,
-        email: regForm.correo,
-        city: '',
-        plan: regForm.plan === 'plan-pro' ? 'Pro Conductor' : 'Trial'
-      });
-
-      showToast('¡Cuenta Registrada!', 'Procediendo al Onboarding del Conductor.', 'success');
-      setAuthView('onboarding');
-      setOnboardingStep(1);
+      if (res && res.data && res.data.token) {
+        localStorage.setItem('jwt_token', res.data.token);
+        
+        if (res.data.usuario) {
+          setDriverData({
+            fullName: res.data.usuario.nombre || regForm.nombreCompleto,
+            username: res.data.usuario.username || 'conductor',
+            profileId: res.data.usuario.appId || 'IX-PROFILE-ID',
+            phone: res.data.usuario.telefono || regForm.telefono,
+            email: res.data.usuario.correo || regForm.correo,
+            city: '',
+            plan: res.data.usuario.planActivo || 'Trial'
+          });
+        }
+        showToast('¡Cuenta Creada!', 'Documento generado en Azure Cosmos DB. Procede al Onboarding.', 'success');
+        setAuthView('onboarding');
+        setOnboardingStep(1);
+      } else {
+        showToast('Atención', 'No se recibió respuesta válida del servidor.', 'warning');
+      }
     } catch (err) {
-      showToast('Error de registro', 'No se pudo crear la cuenta.', 'danger');
+      const errMsg = err.response?.data?.mensaje || 'Error al conectar con el backend.';
+      showToast('Error de registro', errMsg, 'danger');
     }
   };
 
-  // Guardar Onboarding y persistir en Azure Cosmos DB
+  // VALIDACIÓN Y GUARDADO DE VEHÍCULO (PASO 3 DE ONBOARDING)
+  const handleVehicleStepSubmit = (e) => {
+    e.preventDefault();
+
+    if (!vehicleData.brand || vehicleData.brand === "Selecciona una marca...") {
+      showToast('Marca requerida', 'Por favor selecciona la marca de tu vehículo de 4 ruedas.', 'warning');
+      return;
+    }
+
+    const yearNum = parseInt(vehicleData.year, 10);
+    if (isNaN(yearNum) || yearNum < 1950 || yearNum > CURRENT_YEAR) {
+      showToast('Año no válido', `El año del vehículo debe estar entre 1950 y el año actual (${CURRENT_YEAR}). No se permite seleccionar años futuros.`, 'danger');
+      return;
+    }
+
+    setOnboardingStep(4);
+  };
+
+  // FINALIZAR ONBOARDING Y SINCRO CON COSMOS DB
   const handleCompleteOnboarding = async () => {
     try {
-      showToast('Guardando perfil...', 'Sincronizando vehículo y ficha médica en Cosmos DB...', 'info');
+      showToast('Sincronizando...', 'Guardando vehículo y ficha médica en Cosmos DB...', 'info');
 
+      // Actualizar Perfil de Conducción en el documento del Usuario en Azure Cosmos DB
       await userService.updateDriverProfile({
         tipoVehiculo: vehicleData.vehicleType,
         marca: vehicleData.brand,
         modelo: vehicleData.model,
-        anio: parseInt(vehicleData.year) || 2024,
+        anio: parseInt(vehicleData.year, 10) || CURRENT_YEAR,
         uso: vehicleData.mainUse,
         velocidadPromedioLabel: vehicleData.avgSpeed
-      }).catch(() => null);
+      });
 
+      // Actualizar Ficha Médica en el documento del Usuario en Azure Cosmos DB
       await userService.updateMedicalProfile({
         tipoSangre: medicalData.bloodType,
         alergias: medicalData.allergies,
         condiciones: medicalData.conditions,
         medicamentos: medicalData.medications,
         nota: medicalData.emergencyNotes
-      }).catch(() => null);
+      });
 
+      // Crear documento en el contenedor ContactosEmergencia de Cosmos DB
       if (contactData.name) {
         await contactService.createContact({
           nombre: contactData.name,
@@ -205,13 +224,13 @@ export default function App() {
           telefono: contactData.phone,
           usuarioImpactX: contactData.username,
           perfilId: contactData.profileId
-        }).catch(() => null);
+        });
       }
 
-      showToast('¡Onboarding Completado!', 'Toda tu información está resguardada en ImpactX-Data.', 'success');
+      showToast('¡Onboarding Completado!', 'Todos tus documentos fueron almacenados en ImpactX-Data en Azure.', 'success');
       setIsLoggedIn(true);
     } catch (err) {
-      showToast('Bienvenido', 'Accediendo al panel de seguridad.', 'success');
+      showToast('Sesión Iniciada', 'Accediendo al panel de control.', 'success');
       setIsLoggedIn(true);
     }
   };
@@ -219,24 +238,38 @@ export default function App() {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (!loginForm.correoOUsuario || !loginForm.password) {
-      showToast('Campos vacíos', 'Por favor ingresa tu correo/usuario y contraseña.', 'warning');
+      showToast('Campos vacíos', 'Por favor ingresa tu correo y contraseña.', 'warning');
       return;
     }
 
     try {
-      showToast('Autenticando...', 'Validando credenciales en Cosmos DB...', 'info');
+      showToast('Autenticando...', 'Consultando documento en Azure Cosmos DB...', 'info');
       const res = await authService.login({
-        correoOUsuario: loginForm.correoOUsuario,
+        correo: loginForm.correoOUsuario,
         password: loginForm.password
-      }).catch(() => null);
+      });
 
-      const token = (res && res.data && res.data.token) ? res.data.token : `jwt-active-session-${Date.now()}`;
-      localStorage.setItem('jwt_token', token);
-
-      showToast('¡Sesión Iniciada!', 'Bienvenido a la consola de seguridad.', 'success');
-      setIsLoggedIn(true);
+      if (res && res.data && res.data.token) {
+        localStorage.setItem('jwt_token', res.data.token);
+        if (res.data.usuario) {
+          setDriverData({
+            fullName: res.data.usuario.nombre,
+            username: res.data.usuario.username,
+            profileId: res.data.usuario.appId,
+            phone: res.data.usuario.telefono || '',
+            email: res.data.usuario.correo,
+            city: '',
+            plan: res.data.usuario.planActivo || 'Pro Conductor'
+          });
+        }
+        showToast('¡Sesión Iniciada!', 'Autenticado correctamente contra Azure Cosmos DB.', 'success');
+        setIsLoggedIn(true);
+      } else {
+        showToast('Error', 'Credenciales inválidas.', 'danger');
+      }
     } catch (err) {
-      showToast('Error de autenticación', 'Credenciales inválidas.', 'danger');
+      const msg = err.response?.data?.mensaje || 'Credenciales incorrectas.';
+      showToast('Error de autenticación', msg, 'danger');
     }
   };
 
@@ -263,11 +296,11 @@ export default function App() {
   };
 
   // =========================================================================
-  // VISTA PÚBLICA (LOGIN / REGISTRO / ONBOARDING EN BLANCO CON DISEÑO)
+  // VISTA PÚBLICA (LOGIN, REGISTRO Y ONBOARDING)
   // =========================================================================
   if (!isLoggedIn) {
     return (
-      <div className="animated-bg app-shell">
+      <div className="app-shell">
         <header className="public-header">
           <div className="container public-nav">
             <div className="brand">
@@ -293,13 +326,13 @@ export default function App() {
 
         <section className="form-page">
           <div className="container">
-            {/* 1. REGISTRO INICIAL CON CAMPOS EN BLANCO */}
+            {/* 1. VISTA DE REGISTRO EN BLANCO */}
             {authView === 'register' && (
               <div className="form-card wide">
                 <span className="eyebrow">Cuenta titular</span>
                 <h2>Crear cuenta Impact.X</h2>
                 <p>
-                  Completa el formulario en blanco para registrar un nuevo conductor en **`ImpactX-Data`** (Azure Cosmos DB).
+                  Llena los datos para generar tu usuario en la base de datos **`ImpactX-Data`** en Azure Cosmos DB.
                 </p>
                 <form onSubmit={handleRegisterSubmit}>
                   <div className="form-grid">
@@ -307,19 +340,9 @@ export default function App() {
                       <label>Nombre completo</label>
                       <input 
                         type="text" 
-                        placeholder="Ingresa tu nombre completo"
+                        placeholder="Ej. Leonardo Isaac Barrera Tejeda"
                         value={regForm.nombreCompleto}
                         onChange={(e) => setRegForm({ ...regForm, nombreCompleto: e.target.value })}
-                        required 
-                      />
-                    </div>
-                    <div className="field">
-                      <label>Nombre de usuario único</label>
-                      <input 
-                        type="text" 
-                        placeholder="Ej. @usuario_impactx"
-                        value={regForm.nombreUsuario}
-                        onChange={(e) => setRegForm({ ...regForm, nombreUsuario: e.target.value })}
                         required 
                       />
                     </div>
@@ -327,7 +350,7 @@ export default function App() {
                       <label>Correo electrónico</label>
                       <input 
                         type="email" 
-                        placeholder="correo@ejemplo.com"
+                        placeholder="ejemplo@impactx.mx"
                         value={regForm.correo}
                         onChange={(e) => setRegForm({ ...regForm, correo: e.target.value })}
                         required 
@@ -337,14 +360,14 @@ export default function App() {
                       <label>Teléfono de referencia</label>
                       <input 
                         type="tel" 
-                        placeholder="+52 55 0000 0000"
+                        placeholder="+52 773 000 0000"
                         value={regForm.telefono}
                         onChange={(e) => setRegForm({ ...regForm, telefono: e.target.value })}
                         required 
                       />
                     </div>
                     <div className="field">
-                      <label>Contraseña</label>
+                      <label>Contraseña (mínimo 8 caracteres)</label>
                       <input 
                         type="password" 
                         placeholder="Ingresa tu contraseña"
@@ -353,7 +376,7 @@ export default function App() {
                         required 
                       />
                     </div>
-                    <div className="field">
+                    <div className="field field-full">
                       <label>Confirmar contraseña</label>
                       <input 
                         type="password" 
@@ -363,17 +386,6 @@ export default function App() {
                         required 
                       />
                     </div>
-                    <div className="field field-full">
-                      <label>Plan inicial</label>
-                      <select 
-                        value={regForm.plan}
-                        onChange={(e) => setRegForm({ ...regForm, plan: e.target.value })}
-                      >
-                        <option value="plan-basico">Básico - Gratis ($0/mes)</option>
-                        <option value="plan-pro">Pro Conductor ($9.99/mes)</option>
-                        <option value="plan-familiar">Familiar Protect ($19.99/mes)</option>
-                      </select>
-                    </div>
                   </div>
 
                   <label className="checkbox-row">
@@ -382,7 +394,7 @@ export default function App() {
                   </label>
 
                   <div className="form-actions">
-                    <button className="btn primary" type="submit">Crear cuenta y continuar</button>
+                    <button className="btn primary" type="submit">Crear cuenta en Azure</button>
                     <button className="btn ghost" type="button" onClick={() => setAuthView('login')}>
                       Ya tengo cuenta
                     </button>
@@ -391,18 +403,18 @@ export default function App() {
               </div>
             )}
 
-            {/* 2. INICIO DE SESIÓN CON CAMPOS EN BLANCO Y DISEÑO GLOW */}
+            {/* 2. VISTA DE INICIO DE SESIÓN EN BLANCO */}
             {authView === 'login' && (
               <div className="form-card">
                 <span className="eyebrow">Acceso Seguro</span>
                 <h2>Iniciar sesión</h2>
-                <p>Ingresa tu correo o usuario para acceder al panel de telemetría.</p>
+                <p>Ingresa tus credenciales registradas para autenticarte contra Cosmos DB.</p>
                 <form onSubmit={handleLoginSubmit}>
                   <div className="field">
-                    <label>Correo electrónico o Usuario</label>
+                    <label>Correo electrónico</label>
                     <input 
-                      type="text" 
-                      placeholder="usuario@ejemplo.com"
+                      type="email" 
+                      placeholder="correo@ejemplo.com"
                       value={loginForm.correoOUsuario}
                       onChange={(e) => setLoginForm({ ...loginForm, correoOUsuario: e.target.value })}
                       required 
@@ -432,16 +444,16 @@ export default function App() {
               </div>
             )}
 
-            {/* 3. ONBOARDING EN 5 PASOS CON CAMPOS EN BLANCO */}
+            {/* 3. VISTA DE ONBOARDING DEL CONDUCTOR (5 PASOS) */}
             {authView === 'onboarding' && (
               <div className="form-card wide">
                 <span className="eyebrow">Configuración inicial</span>
                 <h2>Onboarding del conductor</h2>
                 <p>
-                  Completa la información del conductor. La ficha médica se captura desde el alta porque se usará durante una alerta.
+                  Completa la información. La ficha médica y los datos del vehículo se guardarán en tu perfil dentro de Azure Cosmos DB.
                 </p>
 
-                {/* Píldoras de Progreso */}
+                {/* Pasos */}
                 <div className="onboarding-steps">
                   <div className={`step-pill ${onboardingStep === 1 ? 'active' : ''}`}>1. Datos</div>
                   <div className={`step-pill ${onboardingStep === 2 ? 'active' : ''}`}>2. Ficha médica</div>
@@ -488,7 +500,7 @@ export default function App() {
                         <label>Teléfono principal</label>
                         <input 
                           type="tel" 
-                          placeholder="+52 55 0000 0000"
+                          placeholder="+52 773 000 0000"
                           value={driverData.phone}
                           onChange={(e) => setDriverData({ ...driverData, phone: e.target.value })}
                           required 
@@ -502,7 +514,7 @@ export default function App() {
                         <label>Ciudad o zona habitual</label>
                         <input 
                           type="text" 
-                          placeholder="Ej. Tula de Allende, Hidalgo"
+                          placeholder="Tula de Allende, Hidalgo"
                           value={driverData.city}
                           onChange={(e) => setDriverData({ ...driverData, city: e.target.value })}
                           required 
@@ -564,7 +576,7 @@ export default function App() {
                       <div className="field field-full">
                         <label>Alergias</label>
                         <textarea 
-                          placeholder="Ej. Alergia a la Penicilina, sulfas, etc."
+                          placeholder="Ej. Sin alergias registradas o Alergia a la Penicilina"
                           value={medicalData.allergies}
                           onChange={(e) => setMedicalData({ ...medicalData, allergies: e.target.value })}
                         />
@@ -572,7 +584,7 @@ export default function App() {
                       <div className="field field-full">
                         <label>Medicamentos que tomas actualmente</label>
                         <textarea 
-                          placeholder="Medicamentos recetados de uso diario"
+                          placeholder="Ej. No toma medicamentos registrados"
                           value={medicalData.medications}
                           onChange={(e) => setMedicalData({ ...medicalData, medications: e.target.value })}
                         />
@@ -580,7 +592,7 @@ export default function App() {
                       <div className="field field-full">
                         <label>Notas adicionales para emergencia</label>
                         <textarea 
-                          placeholder="Indicaciones para paramédicos"
+                          placeholder="Indicaciones adicionales"
                           value={medicalData.emergencyNotes}
                           onChange={(e) => setMedicalData({ ...medicalData, emergencyNotes: e.target.value })}
                         />
@@ -597,11 +609,11 @@ export default function App() {
                   </form>
                 )}
 
-                {/* PASO 3: VEHÍCULO CON DROPLIST SIN DESBORDAMIENTO */}
+                {/* PASO 3: VEHÍCULO CON VALIDACIÓN DE AÑO (NO PERMITE AÑOS FUTUROS COMO 2029) */}
                 {onboardingStep === 3 && (
-                  <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(4); }}>
+                  <form onSubmit={handleVehicleStepSubmit}>
                     <div className="alert-box info mini">
-                      <p><strong>Registro orientado a vehículos de 4 ruedas:</strong> Configura autos, SUV, camionetas o pick-up para calibración kinética.</p>
+                      <p><strong>Registro orientado a vehículos de 4 ruedas:</strong> Configura tu automóvil para la calibración del acelerómetro.</p>
                     </div>
                     <div className="form-grid">
                       <div className="field">
@@ -619,13 +631,13 @@ export default function App() {
                         </select>
                       </div>
 
-                      {/* DROPLIST DE MARCAS DE 4 RUEDAS SIN DESBORDAMIENTO DE PANTALLA */}
+                      {/* DROPLIST DE MARCAS DE 4 RUEDAS */}
                       <div className="field">
                         <label>Marca (Vehículos de 4 Ruedas)</label>
                         <select 
                           value={vehicleData.brand}
                           onChange={(e) => setVehicleData({ ...vehicleData, brand: e.target.value })}
-                          style={{ maxWidth: '100%' }}
+                          required
                         >
                           {CAR_BRANDS.map((brand) => (
                             <option key={brand} value={brand}>{brand}</option>
@@ -644,14 +656,17 @@ export default function App() {
                         />
                       </div>
                       <div className="field">
-                        <label>Año</label>
+                        <label>Año (Máximo {CURRENT_YEAR})</label>
                         <input 
                           type="number" 
-                          placeholder="Ej. 2024"
+                          min="1950"
+                          max={CURRENT_YEAR}
+                          placeholder={`Ej. 2022 (Máx ${CURRENT_YEAR})`}
                           value={vehicleData.year}
                           onChange={(e) => setVehicleData({ ...vehicleData, year: e.target.value })}
                           required 
                         />
+                        <small className="field-hint">No se permite seleccionar años futuros a {CURRENT_YEAR}.</small>
                       </div>
                       <div className="field">
                         <label>Velocidad promedio</label>
@@ -691,7 +706,7 @@ export default function App() {
                 {onboardingStep === 4 && (
                   <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(5); }}>
                     <div className="alert-box info mini">
-                      <p><strong>Primera persona de emergencia interna:</strong> Persona de tu red familiar o de monitores que recibirá tus alertas.</p>
+                      <p><strong>Primera persona de emergencia interna:</strong> Contacto que recibirá alertas SOS en caso de choque.</p>
                     </div>
                     <div className="form-grid">
                       <div className="field">
@@ -800,7 +815,7 @@ export default function App() {
                         Atrás
                       </button>
                       <button className="btn primary" type="button" onClick={handleCompleteOnboarding}>
-                        Finalizar configuración y entrar al Dashboard
+                        Finalizar configuración y guardar en Cosmos DB
                       </button>
                     </div>
                   </div>
@@ -810,7 +825,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Toast Root */}
+        {/* Toasts */}
         <div className="toast-root">
           {toasts.map((toast) => (
             <div key={toast.id} className="toast">
@@ -824,10 +839,10 @@ export default function App() {
   }
 
   // =========================================================================
-  // VISTA PRIVADA (DASHBOARD TRAS INICIAR SESIÓN Y ONBOARDING)
+  // VISTA PRIVADA (DASHBOARD)
   // =========================================================================
   return (
-    <div className="animated-bg app-shell">
+    <div className="app-shell">
       <header className="topbar">
         <div className="topbar-left">
           <div className="brand">
@@ -1111,7 +1126,6 @@ export default function App() {
               <div className="page-title">
                 <div>
                   <h2>Planes y Suscripciones</h2>
-                  <p>Catálogo de cobertura.</p>
                 </div>
               </div>
 
