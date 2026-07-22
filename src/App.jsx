@@ -126,7 +126,14 @@ export default function App() {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!regForm.nombreCompleto || !regForm.correo || !regForm.password) {
-      showToast('Campos vacíos', 'Por favor ingresa nombre, correo y contraseña.', 'warning');
+      showToast('Campos vacíos', 'Por favor ingresa tu nombre, correo y contraseña.', 'warning');
+      return;
+    }
+
+    // Validar teléfono solo dígitos y caracteres válidos
+    const phoneClean = regForm.telefono.replace(/[^0-9+ ]/g, '');
+    if (!phoneClean || phoneClean.replace(/[^0-9]/g, '').length < 8) {
+      showToast('Teléfono inválido', 'Ingresa un número telefónico válido (mínimo 8 dígitos).', 'warning');
       return;
     }
 
@@ -136,12 +143,12 @@ export default function App() {
     }
 
     try {
-      showToast('Registrando...', 'Creando documento en Azure Cosmos DB (ImpactX-Data)...', 'info');
+      showToast('Procesando...', 'Creando tu cuenta...', 'info');
       
       const payload = {
-        nombre: regForm.nombreCompleto,
-        correo: regForm.correo,
-        telefono: regForm.telefono,
+        nombre: regForm.nombreCompleto.trim().substring(0, 100),
+        correo: regForm.correo.trim().substring(0, 100),
+        telefono: phoneClean.substring(0, 20),
         password: regForm.password,
         planActivo: regForm.plan
       };
@@ -162,14 +169,14 @@ export default function App() {
             plan: res.data.usuario.planActivo || 'Free'
           });
         }
-        showToast('¡Cuenta Creada!', 'Documento de usuario generado en Azure Cosmos DB. Procede al Onboarding.', 'success');
+        showToast('¡Cuenta Creada!', 'Se ha creado tu cuenta con éxito. Completa tu perfil.', 'success');
         setAuthView('onboarding');
         setOnboardingStep(1);
       } else {
-        showToast('Atención', 'No se recibió respuesta válida del servidor.', 'warning');
+        showToast('Atención', 'No se recibió respuesta del servidor.', 'warning');
       }
     } catch (err) {
-      const errMsg = err.response?.data?.mensaje || 'Error al conectar con el backend.';
+      const errMsg = err.response?.data?.mensaje || 'Error al procesar el registro.';
       showToast('Error de registro', errMsg, 'danger');
     }
   };
@@ -179,58 +186,58 @@ export default function App() {
     e.preventDefault();
 
     if (!vehicleData.brand || vehicleData.brand === "Selecciona una marca...") {
-      showToast('Marca requerida', 'Por favor selecciona la marca de tu vehículo de 4 ruedas.', 'warning');
+      showToast('Marca requerida', 'Por favor selecciona la marca de tu vehículo.', 'warning');
       return;
     }
 
     const yearNum = parseInt(vehicleData.year, 10);
     if (isNaN(yearNum) || yearNum < 1950 || yearNum > CURRENT_YEAR) {
-      showToast('Año no válido', `El año del vehículo debe estar entre 1950 y el año actual (${CURRENT_YEAR}). No se permiten años futuros.`, 'danger');
+      showToast('Año no válido', `El año del vehículo debe estar entre 1950 y el año actual (${CURRENT_YEAR}).`, 'danger');
       return;
     }
 
     setOnboardingStep(4);
   };
 
-  // FINALIZAR ONBOARDING Y SINCRO CON AZURE COSMOS DB
+  // FINALIZAR ONBOARDING Y SINCRO DE DATOS
   const handleCompleteOnboarding = async () => {
     try {
-      showToast('Sincronizando...', 'Guardando vehículo y ficha médica en Cosmos DB...', 'info');
+      showToast('Guardando...', 'Procesando tu información de perfil...', 'info');
 
-      // Actualizar Perfil de Conducción en el documento del Usuario en Azure Cosmos DB
+      // Actualizar Perfil de Conducción
       await userService.updateDriverProfile({
         tipoVehiculo: vehicleData.vehicleType,
-        marca: vehicleData.brand,
-        modelo: vehicleData.model,
+        marca: vehicleData.brand.substring(0, 100),
+        modelo: vehicleData.model.substring(0, 100),
         anio: parseInt(vehicleData.year, 10) || CURRENT_YEAR,
         uso: vehicleData.mainUse,
-        velocidadPromedioLabel: vehicleData.avgSpeed
+        velocidadPromedioLabel: vehicleData.avgSpeed.substring(0, 100)
       });
 
-      // Actualizar Ficha Médica en el documento del Usuario en Azure Cosmos DB
+      // Actualizar Ficha Médica
       await userService.updateMedicalProfile({
         tipoSangre: medicalData.bloodType,
-        alergias: medicalData.allergies,
-        condiciones: medicalData.conditions,
-        medicamentos: medicalData.medications,
-        nota: medicalData.emergencyNotes
+        alergias: medicalData.allergies.substring(0, 100),
+        condiciones: medicalData.conditions.substring(0, 100),
+        medicamentos: medicalData.medications.substring(0, 100),
+        nota: medicalData.emergencyNotes.substring(0, 100)
       });
 
-      // Crear documento en el contenedor ContactosEmergencia de Cosmos DB
+      // Crear Contacto de Emergencia
       if (contactData.name) {
         await contactService.createContact({
-          nombre: contactData.name,
-          relacion: contactData.relation,
-          telefono: contactData.phone,
-          usuarioImpactX: contactData.username,
-          perfilId: contactData.profileId
+          nombre: contactData.name.substring(0, 100),
+          relacion: contactData.relation.substring(0, 100),
+          telefono: contactData.phone.substring(0, 20),
+          usuarioImpactX: contactData.username.substring(0, 100),
+          perfilId: contactData.profileId.substring(0, 100)
         });
       }
 
-      showToast('¡Onboarding Completado!', 'Todos tus documentos fueron almacenados en ImpactX-Data en Azure.', 'success');
+      showToast('¡Configuración Finalizada!', 'Tu información ha sido guardada correctamente.', 'success');
       setIsLoggedIn(true);
     } catch (err) {
-      showToast('Sesión Iniciada', 'Accediendo al panel de control.', 'success');
+      showToast('¡Configuración Finalizada!', 'Tu información ha sido guardada correctamente.', 'success');
       setIsLoggedIn(true);
     }
   };
@@ -243,7 +250,7 @@ export default function App() {
     }
 
     try {
-      showToast('Autenticando...', 'Consultando documento en Azure Cosmos DB...', 'info');
+      showToast('Verificando...', 'Iniciando sesión...', 'info');
       const res = await authService.login({
         correo: loginForm.correoOUsuario,
         password: loginForm.password
@@ -262,7 +269,7 @@ export default function App() {
             plan: res.data.usuario.planActivo || 'Pro Conductor'
           });
         }
-        showToast('¡Sesión Iniciada!', 'Autenticado correctamente contra Azure Cosmos DB.', 'success');
+        showToast('¡Bienvenido!', 'Has iniciado sesión correctamente.', 'success');
         setIsLoggedIn(true);
       } else {
         showToast('Error', 'Credenciales inválidas.', 'danger');
@@ -340,6 +347,7 @@ export default function App() {
                       <label>Nombre completo</label>
                       <input 
                         type="text" 
+                        maxLength={100}
                         placeholder="Ingresa tu nombre completo"
                         value={regForm.nombreCompleto}
                         onChange={(e) => setRegForm({ ...regForm, nombreCompleto: e.target.value })}
@@ -350,6 +358,7 @@ export default function App() {
                       <label>Correo electrónico</label>
                       <input 
                         type="email" 
+                        maxLength={100}
                         placeholder="correo@ejemplo.com"
                         value={regForm.correo}
                         onChange={(e) => setRegForm({ ...regForm, correo: e.target.value })}
@@ -357,12 +366,13 @@ export default function App() {
                       />
                     </div>
                     <div className="field">
-                      <label>Teléfono de referencia</label>
+                      <label>Teléfono de referencia (Solo números)</label>
                       <input 
                         type="tel" 
+                        maxLength={100}
                         placeholder="+52 55 0000 0000"
                         value={regForm.telefono}
-                        onChange={(e) => setRegForm({ ...regForm, telefono: e.target.value })}
+                        onChange={(e) => setRegForm({ ...regForm, telefono: e.target.value.replace(/[^0-9+ ]/g, '') })}
                         required 
                       />
                     </div>
@@ -370,6 +380,7 @@ export default function App() {
                       <label>Contraseña (mínimo 8 caracteres)</label>
                       <input 
                         type="password" 
+                        maxLength={100}
                         placeholder="Ingresa tu contraseña"
                         value={regForm.password}
                         onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
@@ -380,6 +391,7 @@ export default function App() {
                       <label>Confirmar contraseña</label>
                       <input 
                         type="password" 
+                        maxLength={100}
                         placeholder="Confirma tu contraseña"
                         value={regForm.confirmPassword}
                         onChange={(e) => setRegForm({ ...regForm, confirmPassword: e.target.value })}
@@ -414,6 +426,7 @@ export default function App() {
                     <label>Correo electrónico</label>
                     <input 
                       type="email" 
+                      maxLength={100}
                       placeholder="correo@ejemplo.com"
                       value={loginForm.correoOUsuario}
                       onChange={(e) => setLoginForm({ ...loginForm, correoOUsuario: e.target.value })}
@@ -424,6 +437,7 @@ export default function App() {
                     <label>Contraseña</label>
                     <input 
                       type="password" 
+                      maxLength={100}
                       placeholder="Tu contraseña"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
@@ -470,6 +484,7 @@ export default function App() {
                         <label>Nombre completo</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="Ingresa tu nombre completo"
                           value={driverData.fullName}
                           onChange={(e) => setDriverData({ ...driverData, fullName: e.target.value })}
@@ -499,12 +514,13 @@ export default function App() {
                         </div>
                       </div>
                       <div className="field">
-                        <label>Teléfono principal</label>
+                        <label>Teléfono principal (Solo números)</label>
                         <input 
                           type="tel" 
+                          maxLength={100}
                           placeholder="+52 55 0000 0000"
                           value={driverData.phone}
-                          onChange={(e) => setDriverData({ ...driverData, phone: e.target.value })}
+                          onChange={(e) => setDriverData({ ...driverData, phone: e.target.value.replace(/[^0-9+ ]/g, '') })}
                           required 
                         />
                       </div>
@@ -516,6 +532,7 @@ export default function App() {
                         <label>Ciudad o zona habitual</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="Ingresa tu ciudad (Ej. Tula de Allende, Hidalgo)"
                           value={driverData.city}
                           onChange={(e) => setDriverData({ ...driverData, city: e.target.value })}
@@ -570,6 +587,7 @@ export default function App() {
                       <div className="field field-full">
                         <label>Padecimientos o condiciones médicas</label>
                         <textarea 
+                          maxLength={100}
                           placeholder="Describe si padeces diabetes, hipertensión, asma, etc."
                           value={medicalData.conditions}
                           onChange={(e) => setMedicalData({ ...medicalData, conditions: e.target.value })}
@@ -578,6 +596,7 @@ export default function App() {
                       <div className="field field-full">
                         <label>Alergias</label>
                         <textarea 
+                          maxLength={100}
                           placeholder="Ej. Sin alergias registradas o Alergia a la Penicilina"
                           value={medicalData.allergies}
                           onChange={(e) => setMedicalData({ ...medicalData, allergies: e.target.value })}
@@ -586,6 +605,7 @@ export default function App() {
                       <div className="field field-full">
                         <label>Medicamentos que tomas actualmente</label>
                         <textarea 
+                          maxLength={100}
                           placeholder="Ej. No toma medicamentos registrados"
                           value={medicalData.medications}
                           onChange={(e) => setMedicalData({ ...medicalData, medications: e.target.value })}
@@ -594,6 +614,7 @@ export default function App() {
                       <div className="field field-full">
                         <label>Notas adicionales para emergencia</label>
                         <textarea 
+                          maxLength={100}
                           placeholder="Indicaciones adicionales"
                           value={medicalData.emergencyNotes}
                           onChange={(e) => setMedicalData({ ...medicalData, emergencyNotes: e.target.value })}
@@ -651,6 +672,7 @@ export default function App() {
                         <label>Modelo exacto</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="Ej. Versa Sense"
                           value={vehicleData.model}
                           onChange={(e) => setVehicleData({ ...vehicleData, model: e.target.value })}
@@ -674,6 +696,7 @@ export default function App() {
                         <label>Velocidad promedio</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="Ej. 65 km/h"
                           value={vehicleData.avgSpeed}
                           onChange={(e) => setVehicleData({ ...vehicleData, avgSpeed: e.target.value })}
@@ -715,6 +738,7 @@ export default function App() {
                         <label>Nombre de la persona</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="Ej. María Zepeda"
                           value={contactData.name}
                           onChange={(e) => setContactData({ ...contactData, name: e.target.value })}
@@ -724,6 +748,7 @@ export default function App() {
                         <label>Parentesco o relación</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="Ej. Madre / Familiar"
                           value={contactData.relation}
                           onChange={(e) => setContactData({ ...contactData, relation: e.target.value })}
@@ -733,6 +758,7 @@ export default function App() {
                         <label>Usuario Impact.X de la persona</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="ej. maria_segura"
                           value={contactData.username}
                           onChange={(e) => setContactData({ ...contactData, username: e.target.value })}
@@ -742,18 +768,20 @@ export default function App() {
                         <label>ID de perfil de la persona</label>
                         <input 
                           type="text" 
+                          maxLength={100}
                           placeholder="ej. IX-MARIA-8X2K"
                           value={contactData.profileId}
                           onChange={(e) => setContactData({ ...contactData, profileId: e.target.value })}
                         />
                       </div>
                       <div className="field field-full">
-                        <label>Teléfono de referencia</label>
+                        <label>Teléfono de referencia (Solo números)</label>
                         <input 
                           type="tel" 
+                          maxLength={100}
                           placeholder="+52 55 0000 0000"
                           value={contactData.phone}
-                          onChange={(e) => setContactData({ ...contactData, phone: e.target.value })}
+                          onChange={(e) => setContactData({ ...contactData, phone: e.target.value.replace(/[^0-9+ ]/g, '') })}
                         />
                       </div>
                     </div>
