@@ -332,7 +332,7 @@ export default function App() {
                 <span className="eyebrow">Cuenta titular</span>
                 <h2>Crear cuenta Impact.X</h2>
                 <p>
-                  Llena los datos para generar tu usuario en la base de datos **`ImpactX-Data`** en Azure Cosmos DB.
+                  Llena los datos para generar tu usuario en el sistema.
                 </p>
                 <form onSubmit={handleRegisterSubmit}>
                   <div className="form-grid">
@@ -394,7 +394,7 @@ export default function App() {
                   </label>
 
                   <div className="form-actions">
-                    <button className="btn primary" type="submit">Crear cuenta en Azure</button>
+                    <button className="btn primary" type="submit">Crear cuenta</button>
                     <button className="btn ghost" type="button" onClick={() => setAuthView('login')}>
                       Ya tengo cuenta
                     </button>
@@ -408,7 +408,7 @@ export default function App() {
               <div className="form-card">
                 <span className="eyebrow">Acceso Seguro</span>
                 <h2>Iniciar sesión</h2>
-                <p>Ingresa tus credenciales registradas para autenticarte contra Cosmos DB.</p>
+                <p>Ingresa tus credenciales registradas para acceder al panel.</p>
                 <form onSubmit={handleLoginSubmit}>
                   <div className="field">
                     <label>Correo electrónico</label>
@@ -450,7 +450,7 @@ export default function App() {
                 <span className="eyebrow">Configuración inicial</span>
                 <h2>Onboarding del conductor</h2>
                 <p>
-                  Completa la información. La ficha médica y los datos del vehículo se guardarán en tu perfil dentro de Azure Cosmos DB.
+                  Completa la información. La ficha médica y los datos del vehículo se guardarán en tu perfil de conductor.
                 </p>
 
                 {/* Pasos */}
@@ -775,7 +775,7 @@ export default function App() {
                 {onboardingStep === 5 && (
                   <div>
                     <div className="alert-box success mini">
-                      <p><strong>Resumen de Configuración:</strong> Revisa tu información antes de guardarla en la base de datos `ImpactX-Data` en Azure Cosmos DB.</p>
+                      <p><strong>Resumen de Configuración:</strong> Revisa tu información antes de confirmar el registro.</p>
                     </div>
 
                     <div className="grid grid-2" style={{ marginBottom: '22px' }}>
@@ -817,7 +817,7 @@ export default function App() {
                         Atrás
                       </button>
                       <button className="btn primary" type="button" onClick={handleCompleteOnboarding}>
-                        Finalizar configuración y guardar en Cosmos DB
+                        Finalizar configuración
                       </button>
                     </div>
                   </div>
