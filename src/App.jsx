@@ -122,8 +122,8 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
-  // REGISTRO DE USUARIO CON PAYLOAD COMPATIBLE CON C# API
-  const handleRegisterSubmit = async (e) => {
+  // REGISTRO Y AVANCE AL ONBOARDING (SIN CREAR CUENTA EN AZURE AÚN)
+  const handleRegisterSubmit = (e) => {
     e.preventDefault();
     if (!regForm.nombreCompleto || !regForm.correo || !regForm.password) {
       showToast('Campos vacíos', 'Por favor ingresa tu nombre, correo y contraseña.', 'warning');
@@ -142,43 +142,20 @@ export default function App() {
       return;
     }
 
-    try {
-      showToast('Procesando...', 'Creando tu cuenta...', 'info');
-      
-      const payload = {
-        nombre: regForm.nombreCompleto.trim().substring(0, 100),
-        correo: regForm.correo.trim().substring(0, 100),
-        telefono: phoneClean.substring(0, 20),
-        password: regForm.password,
-        planActivo: regForm.plan
-      };
+    // Guardar datos temporalmente en el estado local sin llamar a la API ni escribir el token aún
+    setDriverData((prev) => ({
+      ...prev,
+      fullName: regForm.nombreCompleto.trim().substring(0, 100),
+      phone: phoneClean.substring(0, 20),
+      email: regForm.correo.trim().substring(0, 100),
+      username: regForm.correo.trim().split('@')[0],
+      profileId: `IX-${regForm.nombreCompleto.trim().substring(0, 4).toUpperCase()}-2026`,
+      plan: regForm.plan || 'Free'
+    }));
 
-      const res = await authService.register(payload);
-
-      if (res && res.data && res.data.token) {
-        localStorage.setItem('jwt_token', res.data.token);
-        
-        if (res.data.usuario) {
-          setDriverData({
-            fullName: res.data.usuario.nombre || regForm.nombreCompleto,
-            username: res.data.usuario.username || 'conductor',
-            profileId: res.data.usuario.appId || `IX-${regForm.nombreCompleto.substring(0, 4).toUpperCase()}-2026`,
-            phone: res.data.usuario.telefono || regForm.telefono,
-            email: res.data.usuario.correo || regForm.correo,
-            city: '',
-            plan: res.data.usuario.planActivo || 'Free'
-          });
-        }
-        showToast('¡Cuenta Creada!', 'Se ha creado tu cuenta con éxito. Completa tu perfil.', 'success');
-        setAuthView('onboarding');
-        setOnboardingStep(1);
-      } else {
-        showToast('Atención', 'No se recibió respuesta del servidor.', 'warning');
-      }
-    } catch (err) {
-      const errMsg = err.response?.data?.mensaje || 'Error al procesar el registro.';
-      showToast('Error de registro', errMsg, 'danger');
-    }
+    showToast('Paso 1 de 5', 'Completa los datos de tu perfil para finalizar tu registro.', 'info');
+    setAuthView('onboarding');
+    setOnboardingStep(1);
   };
 
   // VALIDACIÓN DE VEHÍCULO (AÑO LÍMITE AÑO ACTUAL)
@@ -199,12 +176,43 @@ export default function App() {
     setOnboardingStep(4);
   };
 
-  // FINALIZAR ONBOARDING Y SINCRO DE DATOS
+  // FINALIZAR ONBOARDING: REGISTRAR EN AZURE Y PERSISTIR PERFILES EN COSMOS DB
   const handleCompleteOnboarding = async () => {
     try {
-      showToast('Guardando...', 'Procesando tu información de perfil...', 'info');
+      showToast('Procesando...', 'Creando tu cuenta y perfil...', 'info');
 
-      // Actualizar Perfil de Conducción
+      // 1. Crear la cuenta en la API de Azure
+      const phoneClean = regForm.telefono.replace(/[^0-9+ ]/g, '');
+      const payload = {
+        nombre: regForm.nombreCompleto.trim().substring(0, 100),
+        correo: regForm.correo.trim().substring(0, 100),
+        telefono: phoneClean.substring(0, 20),
+        password: regForm.password,
+        planActivo: regForm.plan
+      };
+
+      const res = await authService.register(payload);
+
+      if (!res || !res.data || !res.data.token) {
+        showToast('Error de registro', 'No se pudo crear la cuenta. Inténtalo de nuevo.', 'danger');
+        return;
+      }
+
+      // Guardar el token en localStorage únicamente al completarse el registro
+      localStorage.setItem('jwt_token', res.data.token);
+
+      if (res.data.usuario) {
+        setDriverData((prev) => ({
+          ...prev,
+          fullName: res.data.usuario.nombre || prev.fullName,
+          username: res.data.usuario.username || prev.username,
+          profileId: res.data.usuario.appId || prev.profileId,
+          phone: res.data.usuario.telefono || prev.phone,
+          email: res.data.usuario.correo || prev.email,
+        }));
+      }
+
+      // 2. Actualizar Perfil de Conducción en Azure Cosmos DB
       await userService.updateDriverProfile({
         tipoVehiculo: vehicleData.vehicleType,
         marca: vehicleData.brand.substring(0, 100),
@@ -212,18 +220,18 @@ export default function App() {
         anio: parseInt(vehicleData.year, 10) || CURRENT_YEAR,
         uso: vehicleData.mainUse,
         velocidadPromedioLabel: vehicleData.avgSpeed.substring(0, 100)
-      });
+      }).catch(() => null);
 
-      // Actualizar Ficha Médica
+      // 3. Actualizar Ficha Médica en Azure Cosmos DB
       await userService.updateMedicalProfile({
         tipoSangre: medicalData.bloodType,
         alergias: medicalData.allergies.substring(0, 100),
         condiciones: medicalData.conditions.substring(0, 100),
         medicamentos: medicalData.medications.substring(0, 100),
         nota: medicalData.emergencyNotes.substring(0, 100)
-      });
+      }).catch(() => null);
 
-      // Crear Contacto de Emergencia
+      // 4. Crear Contacto de Emergencia en Azure Cosmos DB
       if (contactData.name) {
         await contactService.createContact({
           nombre: contactData.name.substring(0, 100),
@@ -231,14 +239,14 @@ export default function App() {
           telefono: contactData.phone.substring(0, 20),
           usuarioImpactX: contactData.username.substring(0, 100),
           perfilId: contactData.profileId.substring(0, 100)
-        });
+        }).catch(() => null);
       }
 
-      showToast('¡Configuración Finalizada!', 'Tu información ha sido guardada correctamente.', 'success');
+      showToast('¡Configuración Finalizada!', 'Tu cuenta ha sido creada y configurada correctamente.', 'success');
       setIsLoggedIn(true);
     } catch (err) {
-      showToast('¡Configuración Finalizada!', 'Tu información ha sido guardada correctamente.', 'success');
-      setIsLoggedIn(true);
+      const errMsg = err.response?.data?.mensaje || 'Error al completar el registro.';
+      showToast('Error de registro', errMsg, 'danger');
     }
   };
 
