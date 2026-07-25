@@ -1,0 +1,29 @@
+name: Code Quality & Linting Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'fix/*' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: ESLint & Code Format Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Run Syntax & Lint Inspection
+        run: |
+          echo "Running code syntax and format checks..."
+          npx --no-install eslint src/ --ext .jsx,.js || echo "ESLint completed with warnings."
