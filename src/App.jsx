@@ -65,9 +65,14 @@ export default function App() {
     hasCondition: 'No',
     conditions: '',
     allergies: '',
+    hasTreatment: 'No',
     medications: '',
     emergencyNotes: ''
   });
+
+  // Estado para el Selector de Año con Calendario
+  const [showYearPicker, setShowYearPicker] = useState(false);
+  const [pickerDecade, setPickerDecade] = useState(2020);
 
   const [vehicleData, setVehicleData] = useState({
     vehicleType: 'Sedán',
@@ -130,10 +135,24 @@ export default function App() {
       return;
     }
 
+    // Validar formato de correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(regForm.correo.trim())) {
+      showToast('Correo inválido', 'Por favor ingresa un correo electrónico válido (ej. usuario@ejemplo.com).', 'danger');
+      return;
+    }
+
     // Validar teléfono solo dígitos y caracteres válidos
     const phoneClean = regForm.telefono.replace(/[^0-9+ ]/g, '');
     if (!phoneClean || phoneClean.replace(/[^0-9]/g, '').length < 8) {
       showToast('Teléfono inválido', 'Ingresa un número telefónico válido (mínimo 8 dígitos).', 'warning');
+      return;
+    }
+
+    // Validar fortaleza de contraseña (mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número)
+    const pwd = regForm.password;
+    if (pwd.length < 8 || !/[A-Z]/.test(pwd) || !/[a-z]/.test(pwd) || !/[0-9]/.test(pwd)) {
+      showToast('Contraseña débil', 'La contraseña debe tener mínimo 8 caracteres, e incluir mayúsculas, minúsculas y números.', 'danger');
       return;
     }
 
@@ -143,13 +162,14 @@ export default function App() {
     }
 
     // Guardar datos temporalmente en el estado local sin llamar a la API ni escribir el token aún
+    const defaultUser = regForm.correo.trim().split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
     setDriverData((prev) => ({
       ...prev,
       fullName: regForm.nombreCompleto.trim().substring(0, 100),
       phone: phoneClean.substring(0, 20),
       email: regForm.correo.trim().substring(0, 100),
-      username: regForm.correo.trim().split('@')[0],
-      profileId: `IX-${regForm.nombreCompleto.trim().substring(0, 4).toUpperCase()}-2026`,
+      username: prev.username || defaultUser,
+      profileId: prev.profileId || `IX-${regForm.nombreCompleto.trim().substring(0, 4).toUpperCase()}-2026`,
       plan: regForm.plan || 'Free'
     }));
 
@@ -225,9 +245,9 @@ export default function App() {
       // 3. Actualizar Ficha Médica en Azure Cosmos DB
       await userService.updateMedicalProfile({
         tipoSangre: medicalData.bloodType,
-        alergias: medicalData.allergies.substring(0, 100),
-        condiciones: medicalData.conditions.substring(0, 100),
-        medicamentos: medicalData.medications.substring(0, 100),
+        alergias: medicalData.hasCondition === 'Sí' ? (medicalData.allergies.substring(0, 100) || 'Ninguna') : 'Sin alergias registradas',
+        condiciones: medicalData.hasCondition === 'Sí' ? (medicalData.conditions.substring(0, 100) || 'Ninguna') : 'Sin padecimientos registrados',
+        medicamentos: medicalData.hasTreatment === 'Sí' ? (medicalData.medications.substring(0, 100) || 'Ninguno') : 'Sin tratamiento médico activo',
         nota: medicalData.emergencyNotes.substring(0, 100)
       }).catch(() => null);
 
@@ -339,7 +359,7 @@ export default function App() {
           </div>
         </header>
 
-        <section className="form-page">
+        <section className={`form-page ${authView === 'onboarding' ? `onboarding-bg-step-${onboardingStep}` : ''}`}>
           <div className="container">
             {/* 1. VISTA DE REGISTRO EN BLANCO */}
             {authView === 'register' && (
@@ -406,6 +426,27 @@ export default function App() {
                         required 
                       />
                     </div>
+
+                    {/* INDICADOR VISUAL DE FORTALEZA DE CONTRASEÑA */}
+                    {regForm.password && (
+                      <div className="pwd-strength-container field-full">
+                        <div className="pwd-strength-bar">
+                          <div className={`pwd-strength-fill ${
+                            regForm.password.length >= 8 && /[A-Z]/.test(regForm.password) && /[a-z]/.test(regForm.password) && /[0-9]/.test(regForm.password)
+                              ? 'strong'
+                              : regForm.password.length >= 8 && (/[A-Z]/.test(regForm.password) || /[0-9]/.test(regForm.password))
+                              ? 'medium'
+                              : 'weak'
+                          }`} />
+                        </div>
+                        <div className="pwd-rules">
+                          <span className={`pwd-rule-chip ${regForm.password.length >= 8 ? 'valid' : ''}`}>Mínimo 8 caracteres</span>
+                          <span className={`pwd-rule-chip ${/[A-Z]/.test(regForm.password) ? 'valid' : ''}`}>Mayúscula (A-Z)</span>
+                          <span className={`pwd-rule-chip ${/[a-z]/.test(regForm.password) ? 'valid' : ''}`}>Minúscula (a-z)</span>
+                          <span className={`pwd-rule-chip ${/[0-9]/.test(regForm.password) ? 'valid' : ''}`}>Número (0-9)</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <label className="checkbox-row">
@@ -500,8 +541,16 @@ export default function App() {
                         />
                       </div>
                       <div className="field">
-                        <label>Usuario Impact.X</label>
-                        <input value={driverData.username ? `@${driverData.username}` : ''} placeholder="@usuario" disabled />
+                        <label>Usuario Impact.X (Nombre de usuario)</label>
+                        <input 
+                          type="text"
+                          maxLength={50}
+                          placeholder="ej. juan_perez"
+                          value={driverData.username}
+                          onChange={(e) => setDriverData({ ...driverData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '') })}
+                          required
+                        />
+                        <small className="field-hint">Tu identificador público. Puedes editarlo libremente.</small>
                       </div>
                       <div className="field">
                         <label>ID único de perfil</label>
@@ -592,38 +641,61 @@ export default function App() {
                           <option value="Sí">Sí</option>
                         </select>
                       </div>
-                      <div className="field field-full">
-                        <label>Padecimientos o condiciones médicas</label>
-                        <textarea 
-                          maxLength={100}
-                          placeholder="Describe si padeces diabetes, hipertensión, asma, etc."
-                          value={medicalData.conditions}
-                          onChange={(e) => setMedicalData({ ...medicalData, conditions: e.target.value })}
-                        />
+
+                      <div className="field">
+                        <label>¿Llevas algún tratamiento actualmente?</label>
+                        <select 
+                          value={medicalData.hasTreatment}
+                          onChange={(e) => setMedicalData({ ...medicalData, hasTreatment: e.target.value })}
+                        >
+                          <option value="No">No</option>
+                          <option value="Sí">Sí</option>
+                        </select>
                       </div>
-                      <div className="field field-full">
-                        <label>Alergias</label>
-                        <textarea 
-                          maxLength={100}
-                          placeholder="Ej. Sin alergias registradas o Alergia a la Penicilina"
-                          value={medicalData.allergies}
-                          onChange={(e) => setMedicalData({ ...medicalData, allergies: e.target.value })}
-                        />
-                      </div>
-                      <div className="field field-full">
-                        <label>Medicamentos que tomas actualmente</label>
-                        <textarea 
-                          maxLength={100}
-                          placeholder="Ej. No toma medicamentos registrados"
-                          value={medicalData.medications}
-                          onChange={(e) => setMedicalData({ ...medicalData, medications: e.target.value })}
-                        />
-                      </div>
+
+                      {/* CAMPOS CONDICIONALES DE PADECIMIENTO / ALERGIAS */}
+                      {medicalData.hasCondition === 'Sí' && (
+                        <>
+                          <div className="field field-full conditional-field-fade">
+                            <label>Padecimientos o condiciones médicas</label>
+                            <textarea 
+                              maxLength={100}
+                              placeholder="Describe si padeces diabetes, hipertensión, asma, etc."
+                              value={medicalData.conditions}
+                              onChange={(e) => setMedicalData({ ...medicalData, conditions: e.target.value })}
+                            />
+                          </div>
+                          <div className="field field-full conditional-field-fade">
+                            <label>Alergias</label>
+                            <textarea 
+                              maxLength={100}
+                              placeholder="Ej. Alergia a la Penicilina, polen, mariscos..."
+                              value={medicalData.allergies}
+                              onChange={(e) => setMedicalData({ ...medicalData, allergies: e.target.value })}
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* CAMPO CONDICIONAL DE TRATAMIENTO Y MEDICAMENTOS */}
+                      {medicalData.hasTreatment === 'Sí' && (
+                        <div className="field field-full conditional-field-fade">
+                          <label>Medicamentos que tomas actualmente</label>
+                          <textarea 
+                            maxLength={100}
+                            placeholder="Ej. Insulina 10 UI cada 12 horas, Paracetamol..."
+                            value={medicalData.medications}
+                            onChange={(e) => setMedicalData({ ...medicalData, medications: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* NOTAS DE EMERGENCIA SIEMPRE VISIBLES */}
                       <div className="field field-full">
                         <label>Notas adicionales para emergencia</label>
                         <textarea 
                           maxLength={100}
-                          placeholder="Indicaciones adicionales"
+                          placeholder="Indicaciones adicionales de emergencia"
                           value={medicalData.emergencyNotes}
                           onChange={(e) => setMedicalData({ ...medicalData, emergencyNotes: e.target.value })}
                         />
@@ -687,18 +759,59 @@ export default function App() {
                           required 
                         />
                       </div>
+                      {/* SELECTOR DE AÑO CON CALENDARIO POR DÉCADAS */}
                       <div className="field">
-                        <label>Año (Máximo {CURRENT_YEAR})</label>
-                        <input 
-                          type="number" 
-                          min="1950"
-                          max={CURRENT_YEAR}
-                          placeholder={`Ej. 2022 (Máx ${CURRENT_YEAR})`}
-                          value={vehicleData.year}
-                          onChange={(e) => setVehicleData({ ...vehicleData, year: e.target.value })}
-                          required 
-                        />
-                        <small className="field-hint">No se permite seleccionar años futuros a {CURRENT_YEAR}.</small>
+                        <label>Año del vehículo (1950 - {CURRENT_YEAR})</label>
+                        <button 
+                          type="button" 
+                          className={`year-picker-trigger ${showYearPicker ? 'active' : ''}`}
+                          onClick={() => setShowYearPicker(!showYearPicker)}
+                        >
+                          <span>{vehicleData.year ? `Año ${vehicleData.year}` : 'Selecciona el año...'}</span>
+                          <span>📅 ▾</span>
+                        </button>
+
+                        {showYearPicker && (
+                          <div className="year-picker-modal">
+                            <div className="year-picker-header">
+                              <button 
+                                type="button" 
+                                className="year-picker-nav-btn"
+                                disabled={pickerDecade <= 1950}
+                                onClick={() => setPickerDecade(Math.max(1950, pickerDecade - 10))}
+                              >
+                                ‹
+                              </button>
+                              <h4>Década de {pickerDecade}s</h4>
+                              <button 
+                                type="button" 
+                                className="year-picker-nav-btn"
+                                disabled={pickerDecade + 10 > CURRENT_YEAR}
+                                onClick={() => setPickerDecade(Math.min(2020, pickerDecade + 10))}
+                              >
+                                ›
+                              </button>
+                            </div>
+                            <div className="year-grid">
+                              {Array.from({ length: 10 }, (_, i) => pickerDecade + i)
+                                .filter((y) => y >= 1950 && y <= CURRENT_YEAR)
+                                .map((y) => (
+                                  <button
+                                    key={y}
+                                    type="button"
+                                    className={`year-btn ${vehicleData.year == y ? 'selected' : ''} ${y === CURRENT_YEAR ? 'current' : ''}`}
+                                    onClick={() => {
+                                      setVehicleData({ ...vehicleData, year: y.toString() });
+                                      setShowYearPicker(false);
+                                    }}
+                                  >
+                                    {y}
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                        <small className="field-hint">Selecciona el año del vehículo desde el calendario por décadas.</small>
                       </div>
                       <div className="field">
                         <label>Velocidad promedio</label>
@@ -826,9 +939,9 @@ export default function App() {
                       <div className="card soft">
                         <h3>🩺 Ficha médica</h3>
                         <div className="info-row"><span>Tipo de sangre:</span><strong>{medicalData.bloodType}</strong></div>
-                        <div className="info-row"><span>Padecimiento:</span><strong>{medicalData.hasCondition} ({medicalData.conditions || 'Ninguno'})</strong></div>
-                        <div className="info-row"><span>Alergias:</span><strong>{medicalData.allergies || 'Sin alergias'}</strong></div>
-                        <div className="info-row"><span>Medicamentos:</span><strong>{medicalData.medications || 'Ninguno'}</strong></div>
+                        <div className="info-row"><span>Padecimiento:</span><strong>{medicalData.hasCondition === 'Sí' ? medicalData.conditions || 'Padecimiento activo' : 'Ninguno'}</strong></div>
+                        <div className="info-row"><span>Alergias:</span><strong>{medicalData.hasCondition === 'Sí' ? medicalData.allergies || 'Ninguna' : 'Sin alergias'}</strong></div>
+                        <div className="info-row"><span>Tratamiento:</span><strong>{medicalData.hasTreatment === 'Sí' ? medicalData.medications || 'Tratamiento activo' : 'Sin tratamiento'}</strong></div>
                       </div>
 
                       <div className="card soft">
