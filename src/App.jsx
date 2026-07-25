@@ -33,12 +33,15 @@ const CURRENT_YEAR = new Date().getFullYear();
 // ============================================================
 const OFFENSIVE_WORDS = [
   // Términos sexuales, genitales y vulgaridades explícitas
-  'panocha', 'panotxa', 'panotcha', 'panotxa', 'pilin', 'pito', 'pinga', 'polla', 'pene', 'verga', 'pico',
+  'panocha', 'panotxa', 'panotcha', 'pilin', 'pito', 'pinga', 'polla', 'pene', 'verga', 'pico',
   'follaabuelas', 'folla', 'follador', 'follar', 'chupa', 'chupada', 'mamar', 'mamada', 'coger',
   'tetas', 'tetazas', 'chichis', 'chichotas', 'vagina', 'concha', 'bolas', 'huevos', 'ano', 'anito',
-  'sexo', 'porno', 'pajas', 'pajero', 'pajera', 'orgasmo', 'clitoris', 'paja',
+  'sexo', 'porno', 'pajas', 'pajero', 'pajera', 'orgasmo', 'clitoris', 'paja', 'glande', 'reata', 'riata',
+  'semen', 'cum', 'esperma', 'pija', 'pitorro', 'trola', 'venirse', 'corrida',
 
-  // Groserías, insultos y vulgares (LatAm / México / España)
+  // Frases compuestas y verbos vulgares (LatAm / México / España)
+  'culear', 'culead', 'culeo', 'culea', 'pela', 'pelas', 'pelamesta', 'pelamela', 'melapelas',
+  'chingatumadre', 'chupamela', 'chupame', 'tragatela', 'traga', 'subetea', 'embona',
   'puta', 'puto', 'putita', 'putito', 'puton', 'puteria', 'putazo', 'putin',
   'chinga', 'chingado', 'chingada', 'chingon', 'chingaderia', 'chinguen', 'chingar',
   'pendejo', 'pendeja', 'pendejada', 'pendejazo',
