@@ -28,22 +28,57 @@ const CAR_BRANDS = [
 const CURRENT_YEAR = new Date().getFullYear();
 
 // ============================================================
-// FILTRO DE NOMBRES OFENSIVOS (Frontend - primera línea de defensa)
-// La API también debe validar esto en el backend como segunda barrera.
+// FILTRO ROBUSTO DE NOMBRES OFENSIVOS (MULTI-CAPA)
+// Normalización de acentos, leetspeak y repetición de caracteres
 // ============================================================
 const OFFENSIVE_WORDS = [
-  'puta', 'puto', 'chinga', 'chingada', 'pendejo', 'pendeja', 'cabron', 'cabrona',
-  'mierda', 'pinche', 'culero', 'culera', 'hijo_de', 'maldito', 'maldita',
-  'idiota', 'imbecil', 'estupido', 'estupida', 'verga', 'pene', 'vagina',
-  'culo', 'marica', 'perra', 'perro', 'bastardo', 'bastarda', 'gey', 'guey',
-  'fuck', 'shit', 'bitch', 'asshole', 'dick', 'pussy', 'nigger', 'faggot',
-  'whore', 'bastard', 'cunt', 'damn', 'hell', 'admin', 'root', 'system',
-  'hacker', 'null', 'undefined', 'test123', 'sexo', 'porno', 'nazi'
+  // Términos sexuales, genitales y vulgaridades explícitas
+  'panocha', 'panotxa', 'panotcha', 'panotxa', 'pilin', 'pito', 'pinga', 'polla', 'pene', 'verga', 'pico',
+  'follaabuelas', 'folla', 'follador', 'follar', 'chupa', 'chupada', 'mamar', 'mamada', 'coger',
+  'tetas', 'tetazas', 'chichis', 'chichotas', 'vagina', 'concha', 'bolas', 'huevos', 'ano', 'anito',
+  'sexo', 'porno', 'pajas', 'pajero', 'pajera', 'orgasmo', 'clitoris', 'paja',
+
+  // Groserías, insultos y vulgares (LatAm / México / España)
+  'puta', 'puto', 'putita', 'putito', 'puton', 'puteria', 'putazo', 'putin',
+  'chinga', 'chingado', 'chingada', 'chingon', 'chingaderia', 'chinguen', 'chingar',
+  'pendejo', 'pendeja', 'pendejada', 'pendejazo',
+  'cabron', 'cabrona', 'cabronada', 'cabronzo',
+  'mierda', 'pinche', 'culero', 'culera', 'culo', 'culon', 'culona', 'culazo',
+  'marica', 'maricon', 'joto', 'jotito', 'zorra', 'perra', 'maldito', 'maldita',
+  'idiota', 'imbecil', 'estupido', 'estupida', 'bastardo', 'bastarda', 'guey', 'wey',
+  'puerco', 'marrano', 'cerdo', 'malnacido', 'hijodeputa', 'hijosdeputa',
+
+  // Términos en inglés y globales
+  'fuck', 'fucker', 'fucking', 'shit', 'bitch', 'asshole', 'dick', 'pussy', 'nigger',
+  'faggot', 'whore', 'bastard', 'cunt', 'damn', 'hell', 'slut', 'cock', 'boobs', 'tits',
+
+  // Nombres de sistema reservados
+  'admin', 'administrator', 'root', 'system', 'sysadmin', 'hacker', 'null', 'undefined', 'moderator'
 ];
 
 const hasProfanity = (text) => {
-  const lower = text.toLowerCase();
-  return OFFENSIVE_WORDS.some((word) => lower.includes(word));
+  if (!text) return false;
+
+  // 1. Normalizar acentos y caracteres especiales (ej. "panóchá" -> "panocha", "pilín" -> "pilin")
+  let normalized = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  // 2. Sustitución de leetspeak común (@ -> a, 0 -> o, 1 -> i, 3 -> e, 5 -> s, 7 -> t)
+  let leetReplaced = normalized
+    .replace(/@/g, 'a')
+    .replace(/0/g, 'o')
+    .replace(/[1!|]/g, 'i')
+    .replace(/3/g, 'e')
+    .replace(/\$/g, 's')
+    .replace(/7/g, 't')
+    .replace(/5/g, 's');
+
+  // 3. Colapsar caracteres repetidos consecutivos (ej. "paaaanocha" -> "panocha")
+  let collapsed = leetReplaced.replace(/(.)\1+/g, '$1');
+
+  // Verificar en las tres variantes
+  return OFFENSIVE_WORDS.some((word) => {
+    return normalized.includes(word) || leetReplaced.includes(word) || collapsed.includes(word);
+  });
 };
 
 export default function App() {
@@ -604,13 +639,15 @@ export default function App() {
                           }}
                         />
                         {driverData.username && hasProfanity(driverData.username) && (
-                          <small style={{ color: '#ff9b9b', fontWeight: 700, marginTop: 4, display: 'block' }}>
-                            ⚠️ Ese nombre de usuario no está permitido. Por favor elige otro.
+                          <small style={{ color: '#ff9b9b', fontWeight: 700, marginTop: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff9b9b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            Ese nombre de usuario no está permitido. Por favor elige otro.
                           </small>
                         )}
                         {driverData.username && !hasProfanity(driverData.username) && driverData.username.length >= 3 && (
-                          <small style={{ color: '#a7f3d0', fontWeight: 700, marginTop: 4, display: 'block' }}>
-                            ✓ Usuario disponible: @{driverData.username}
+                          <small style={{ color: '#a7f3d0', fontWeight: 700, marginTop: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a7f3d0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Usuario disponible: @{driverData.username}
                           </small>
                         )}
                         <small className="field-hint">Tu identificador público. Mínimo 3 caracteres, solo letras, números y guión bajo.</small>
@@ -831,7 +868,10 @@ export default function App() {
                           onClick={() => setShowYearPicker(!showYearPicker)}
                         >
                           <span>{vehicleData.year ? `Año ${vehicleData.year}` : 'Selecciona el año...'}</span>
-                          <span>📅 ▾</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                          </span>
                         </button>
 
                         {showYearPicker && (
@@ -992,7 +1032,10 @@ export default function App() {
 
                     <div className="grid grid-2" style={{ marginBottom: '22px' }}>
                       <div className="card soft">
-                        <h3>👤 Conductor</h3>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                          Conductor
+                        </h3>
                         <div className="info-row"><span>Nombre:</span><strong>{driverData.fullName || 'No especificado'}</strong></div>
                         <div className="info-row"><span>Teléfono:</span><strong>{driverData.phone || 'No especificado'}</strong></div>
                         <div className="info-row"><span>Ciudad:</span><strong>{driverData.city || 'No especificado'}</strong></div>
@@ -1000,7 +1043,10 @@ export default function App() {
                       </div>
 
                       <div className="card soft">
-                        <h3>🩺 Ficha médica</h3>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e95454" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                          Ficha médica
+                        </h3>
                         <div className="info-row"><span>Tipo de sangre:</span><strong>{medicalData.bloodType}</strong></div>
                         <div className="info-row"><span>Padecimiento:</span><strong>{medicalData.hasCondition === 'Sí' ? medicalData.conditions || 'Padecimiento activo' : 'Ninguno'}</strong></div>
                         <div className="info-row"><span>Alergias:</span><strong>{medicalData.hasCondition === 'Sí' ? medicalData.allergies || 'Ninguna' : 'Sin alergias'}</strong></div>
@@ -1008,7 +1054,10 @@ export default function App() {
                       </div>
 
                       <div className="card soft">
-                        <h3>🚗 Vehículo</h3>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                          Vehículo
+                        </h3>
                         <div className="info-row"><span>Tipo:</span><strong>{vehicleData.vehicleType}</strong></div>
                         <div className="info-row"><span>Marca:</span><strong>{vehicleData.brand || 'No seleccionada'}</strong></div>
                         <div className="info-row"><span>Modelo:</span><strong>{vehicleData.model} ({vehicleData.year})</strong></div>
@@ -1016,7 +1065,10 @@ export default function App() {
                       </div>
 
                       <div className="card soft">
-                        <h3>👥 Contacto de Emergencia</h3>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M9 21v-2a4 4 0 0 1 3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/><circle cx="9" cy="7" r="4"/></svg>
+                          Contacto de Emergencia
+                        </h3>
                         <div className="info-row"><span>Nombre:</span><strong>{contactData.name || 'Sin contacto inicial'}</strong></div>
                         <div className="info-row"><span>Relación:</span><strong>{contactData.relation || 'N/A'}</strong></div>
                         <div className="info-row"><span>Usuario:</span><strong>@{contactData.username || 'N/A'}</strong></div>
@@ -1044,7 +1096,10 @@ export default function App() {
           <div className="terms-overlay" onClick={() => setShowTermsModal(false)}>
             <div className="terms-modal" onClick={(e) => e.stopPropagation()}>
               <div className="terms-modal-header">
-                <h3>📋 Términos, Condiciones y Aviso de Privacidad</h3>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  Términos, Condiciones y Aviso de Privacidad
+                </h3>
                 <button className="terms-modal-close" onClick={() => setShowTermsModal(false)}>✕</button>
               </div>
               <div className="terms-modal-body">
