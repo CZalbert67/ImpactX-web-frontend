@@ -27,6 +27,25 @@ const CAR_BRANDS = [
 
 const CURRENT_YEAR = new Date().getFullYear();
 
+// ============================================================
+// FILTRO DE NOMBRES OFENSIVOS (Frontend - primera línea de defensa)
+// La API también debe validar esto en el backend como segunda barrera.
+// ============================================================
+const OFFENSIVE_WORDS = [
+  'puta', 'puto', 'chinga', 'chingada', 'pendejo', 'pendeja', 'cabron', 'cabrona',
+  'mierda', 'pinche', 'culero', 'culera', 'hijo_de', 'maldito', 'maldita',
+  'idiota', 'imbecil', 'estupido', 'estupida', 'verga', 'pene', 'vagina',
+  'culo', 'marica', 'perra', 'perro', 'bastardo', 'bastarda', 'gey', 'guey',
+  'fuck', 'shit', 'bitch', 'asshole', 'dick', 'pussy', 'nigger', 'faggot',
+  'whore', 'bastard', 'cunt', 'damn', 'hell', 'admin', 'root', 'system',
+  'hacker', 'null', 'undefined', 'test123', 'sexo', 'porno', 'nazi'
+];
+
+const hasProfanity = (text) => {
+  const lower = text.toLowerCase();
+  return OFFENSIVE_WORDS.some((word) => lower.includes(word));
+};
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authView, setAuthView] = useState('login'); // 'login' | 'register' | 'onboarding'
@@ -93,6 +112,10 @@ export default function App() {
 
   // Toast Notifications
   const [toasts, setToasts] = useState([]);
+
+  // Modal de Términos y Condiciones
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   
   // Telemetría en vivo
   const [bpm, setBpm] = useState(76);
@@ -450,8 +473,20 @@ export default function App() {
                   </div>
 
                   <label className="checkbox-row">
-                    <input type="checkbox" required defaultChecked />
-                    Acepto términos, condiciones y aviso de privacidad de emergencia.
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      required
+                    />
+                    Acepto los{' '}
+                    <button
+                      type="button"
+                      className="terms-link"
+                      onClick={() => setShowTermsModal(true)}
+                    >
+                      términos, condiciones y aviso de privacidad de emergencia
+                    </button>.
                   </label>
 
                   <div className="form-actions">
@@ -527,7 +562,18 @@ export default function App() {
 
                 {/* PASO 1: DATOS GENERALES (CAMPOS VACÍOS) */}
                 {onboardingStep === 1 && (
-                  <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(2); }}>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (driverData.username.length < 3) {
+                      showToast('Usuario muy corto', 'El nombre de usuario debe tener mínimo 3 caracteres.', 'warning');
+                      return;
+                    }
+                    if (hasProfanity(driverData.username)) {
+                      showToast('Usuario no permitido', 'El nombre de usuario contiene palabras no permitidas. Por favor elige otro.', 'danger');
+                      return;
+                    }
+                    setOnboardingStep(2);
+                  }}>
                     <div className="form-grid">
                       <div className="field">
                         <label>Nombre completo</label>
@@ -547,10 +593,27 @@ export default function App() {
                           maxLength={50}
                           placeholder="ej. juan_perez"
                           value={driverData.username}
-                          onChange={(e) => setDriverData({ ...driverData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '') })}
+                          onChange={(e) => {
+                            const clean = e.target.value.replace(/[^a-zA-Z0-9_]/g, '');
+                            setDriverData({ ...driverData, username: clean });
+                          }}
                           required
+                          style={{
+                            borderColor: driverData.username && hasProfanity(driverData.username)
+                              ? 'rgba(217, 45, 32, 0.8)' : undefined
+                          }}
                         />
-                        <small className="field-hint">Tu identificador público. Puedes editarlo libremente.</small>
+                        {driverData.username && hasProfanity(driverData.username) && (
+                          <small style={{ color: '#ff9b9b', fontWeight: 700, marginTop: 4, display: 'block' }}>
+                            ⚠️ Ese nombre de usuario no está permitido. Por favor elige otro.
+                          </small>
+                        )}
+                        {driverData.username && !hasProfanity(driverData.username) && driverData.username.length >= 3 && (
+                          <small style={{ color: '#a7f3d0', fontWeight: 700, marginTop: 4, display: 'block' }}>
+                            ✓ Usuario disponible: @{driverData.username}
+                          </small>
+                        )}
+                        <small className="field-hint">Tu identificador público. Mínimo 3 caracteres, solo letras, números y guión bajo.</small>
                       </div>
                       <div className="field">
                         <label>ID único de perfil</label>
@@ -975,6 +1038,53 @@ export default function App() {
             )}
           </div>
         </section>
+
+        {/* MODAL TÉRMINOS Y CONDICIONES */}
+        {showTermsModal && (
+          <div className="terms-overlay" onClick={() => setShowTermsModal(false)}>
+            <div className="terms-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="terms-modal-header">
+                <h3>📋 Términos, Condiciones y Aviso de Privacidad</h3>
+                <button className="terms-modal-close" onClick={() => setShowTermsModal(false)}>✕</button>
+              </div>
+              <div className="terms-modal-body">
+                <h4>1. Aceptación de Términos</h4>
+                <p>Al crear una cuenta en la plataforma <strong>Impact.X</strong>, el usuario acepta de forma voluntaria los presentes términos y condiciones de uso. Esta plataforma está diseñada exclusivamente para monitoreo de seguridad vial en tiempo real.</p>
+
+                <h4>2. Datos de Emergencia y Privacidad</h4>
+                <p>La información ingresada en la <strong>Ficha Médica de Emergencia</strong> (tipo de sangre, alergias, padecimientos, medicamentos) es de carácter sensible. Impact.X la almacena de forma segura en <strong>Azure Cosmos DB</strong> con cifrado en tránsito (HTTPS/TLS) y en reposo. Esta información <em>solo será accesible</em> por el conductor titular y los monitores autorizados de emergencia.</p>
+
+                <h4>3. Uso de la Plataforma</h4>
+                <p>El usuario se compromete a: (a) proporcionar información veraz, (b) no compartir sus credenciales de acceso, (c) notificar a Impact.X ante cualquier uso no autorizado de su cuenta, (d) usar la plataforma conforme a las leyes vigentes en México.</p>
+
+                <h4>4. Datos del Vehículo</h4>
+                <p>Los datos del vehículo registrado se usan para calibrar el sistema de monitoreo de acelerometría y detección de impacto. Impact.X no comparte esta información con terceros ni aseguradoras sin consentimiento expreso del titular.</p>
+
+                <h4>5. Contacto de Emergencia</h4>
+                <p>Al registrar un contacto de emergencia, el usuario acepta que Impact.X le notificará automáticamente vía SOS en caso de detectar un incidente crítico. El contacto registrado debe ser mayor de 18 años y debe haber otorgado su consentimiento.</p>
+
+                <h4>6. Limitación de Responsabilidad</h4>
+                <p>Impact.X es una herramienta de apoyo y monitoreo. No sustituye a los servicios de emergencias oficiales (911). En caso de emergencia real, contacte siempre a las autoridades competentes.</p>
+
+                <h4>7. Modificaciones</h4>
+                <p>Impact.X se reserva el derecho de actualizar estos términos. Los cambios serán notificados al correo registrado con al menos 15 días de anticipación.</p>
+
+                <div className="terms-modal-footer">
+                  <p style={{ color: '#7e94a8', fontSize: '0.83rem' }}>Versión 1.0 — Impact.X 2026. Plataforma de Seguridad Vial Inteligente.</p>
+                  <button
+                    className="btn primary"
+                    onClick={() => {
+                      setTermsAccepted(true);
+                      setShowTermsModal(false);
+                    }}
+                  >
+                    Aceptar y Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Toasts */}
         <div className="toast-root">
