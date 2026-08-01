@@ -3,7 +3,7 @@ import axios from 'axios';
 // Instancia centralizada de Axios para la comunicación con ImpactX Backend API en Azure
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net/api',
-    withCredentials: true,
+    withCredentials: false,
     headers: {
         'Content-Type': 'application/json'
     }
