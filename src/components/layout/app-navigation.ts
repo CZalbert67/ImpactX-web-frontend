@@ -25,14 +25,14 @@ export interface NavItem {
 }
 
 /**
- * Secciones visibles de la navegación. Los módulos marcados como `soon`
- * redirigen a una pantalla de «Próximamente» en esta rama (Frontend
- * Foundation); solo Dashboard está operativo.
+ * Secciones visibles de la navegación. Dashboard, Viajes y Telemetría son
+ * funcionales; el resto se mantienen como «Próximamente». Telemetría
+ * conduce al listado de viajes (la telemetría se elige por viaje).
  */
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "dashboard", label: "Dashboard", to: "/app/dashboard", icon: LayoutDashboard },
-  { id: "viajes", label: "Viajes", to: "/app/viajes", icon: Car, soon: true },
-  { id: "telemetria", label: "Telemetría", to: "/app/telemetria", icon: Activity, soon: true },
+  { id: "viajes", label: "Viajes", to: "/app/trips", icon: Car },
+  { id: "telemetría", label: "Telemetría", to: "/app/trips", icon: Activity },
   { id: "alertas", label: "Alertas", to: "/app/alertas", icon: TriangleAlert, soon: true },
   { id: "incidentes", label: "Incidentes", to: "/app/incidentes", icon: ShieldAlert, soon: true },
   { id: "wearables", label: "Wearables", to: "/app/wearables", icon: Watch, soon: true },

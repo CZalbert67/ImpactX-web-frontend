@@ -1,0 +1,1 @@
+export { TripTelemetryPage } from "@/features/telemetry/pages/TripTelemetryPage";
