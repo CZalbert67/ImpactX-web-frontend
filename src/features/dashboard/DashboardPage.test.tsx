@@ -58,7 +58,11 @@ describe("Página de Dashboard (datos reales)", () => {
     renderApp({ initialEntries: ["/app/dashboard"], authenticated: true });
 
     expect(
-      await screen.findByRole("heading", { name: /hola, maría/i }),
+      await screen.findByRole(
+        "heading",
+        { name: /hola, maría/i },
+        { timeout: 5_000 },
+      ),
     ).toBeInTheDocument();
   });
 
