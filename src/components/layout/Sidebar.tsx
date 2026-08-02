@@ -47,7 +47,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, className }: SidebarProp
         </div>
       ) : (
         <div className="border-t border-line px-3 py-3 text-xs text-muted">
-          ImpactX · Frontend Foundation
+          ImpactX · Panel web
         </div>
       )}
     </aside>

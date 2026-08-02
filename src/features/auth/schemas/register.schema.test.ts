@@ -50,6 +50,7 @@ describe("registerSchema", () => {
   it("toRegisterRequest omite teléfono si queda vacío", () => {
     const request = toRegisterRequest({ ...valid, telefono: "   " });
     expect(request.telefono).toBeUndefined();
+    expect(request.client).toBe("web");
   });
 
   it("toRegisterRequest conserva un teléfono válido", () => {

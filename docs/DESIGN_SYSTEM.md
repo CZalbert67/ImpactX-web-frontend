@@ -51,3 +51,12 @@ Cambio: `ThemeSelector` (+ store `useThemeStore`), script anti-flicker inline en
 - `aria-pressed` (selector de temas), `aria-busy` (loading), `aria-hidden` en iconos
 - foco visible y `:focus-visible` en controles
 - orden semántico de encabezados por página
+## Conservación de la paleta
+
+La integración funcional no modifica `src/styles/themes.css`. Su SHA-256 de referencia es:
+
+```text
+fea329e321983c723bd72908ce27cf924f39124c3341f8f9bfb3d3b436c0b5d3
+```
+
+Los módulos nuevos usan exclusivamente tokens y utilidades existentes (`panel`, `text-primary`, `text-muted`, `text-brand`, etc.).

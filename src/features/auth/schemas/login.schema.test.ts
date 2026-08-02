@@ -2,48 +2,25 @@ import { describe, expect, it } from "vitest";
 import { loginSchema, toLoginRequest } from "@/features/auth/schemas/login.schema";
 
 describe("loginSchema", () => {
-  it("acepta correo y contraseña válidos", () => {
-    const result = loginSchema.safeParse({
-      correo: "ana@ejemplo.com",
-      password: "secreto123",
-    });
-    expect(result.success).toBe(true);
+  it("acepta correo o username y contraseña", () => {
+    expect(loginSchema.safeParse({ identifier: "ana@ejemplo.com", password: "secreto123" }).success).toBe(true);
+    expect(loginSchema.safeParse({ identifier: "ana.usuario", password: "secreto123" }).success).toBe(true);
   });
 
-  it("rechaza un correo inválido", () => {
-    const result = loginSchema.safeParse({
-      correo: "no-es-correo",
-      password: "secreto123",
-    });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/correo/i);
-    }
+  it("rechaza un identificador vacío", () => {
+    expect(loginSchema.safeParse({ identifier: " ", password: "secreto123" }).success).toBe(false);
   });
 
   it("rechaza una contraseña vacía", () => {
-    const result = loginSchema.safeParse({
-      correo: "ana@ejemplo.com",
-      password: "",
-    });
-    expect(result.success).toBe(false);
+    expect(loginSchema.safeParse({ identifier: "ana.usuario", password: "" }).success).toBe(false);
   });
 
-  it("no supera 256 caracteres en el correo", () => {
-    const tooLong = `${"a".repeat(250)}@ejemplo.com`;
-    const result = loginSchema.safeParse({
-      correo: tooLong,
-      password: "secreto123",
-    });
-    expect(result.success).toBe(false);
+  it("no supera 256 caracteres", () => {
+    expect(loginSchema.safeParse({ identifier: "a".repeat(257), password: "secreto123" }).success).toBe(false);
   });
 
-  it("toLoginRequest recorta el correo", () => {
-    const request = toLoginRequest({
-      correo: "  ana@ejemplo.com  ",
-      password: "secreto123",
-    });
-    expect(request.correo).toBe("ana@ejemplo.com");
-    expect(request.password).toBe("secreto123");
+  it("genera siempre una sesión web", () => {
+    const request = toLoginRequest({ identifier: "  ana.usuario  ", password: "secreto123" });
+    expect(request).toEqual({ identifier: "ana.usuario", password: "secreto123", client: "web" });
   });
 });

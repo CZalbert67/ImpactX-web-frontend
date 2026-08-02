@@ -1,13 +1,9 @@
 import type { components } from "@/api/generated/schema";
 
 export type { Trip, TripState } from "@/features/trips/types/trip";
-export type { StartTripRequest } from "@/features/trips/types/trip";
 export {
   classifyTripState,
   parseTripFromTrip,
-  canPauseTrip,
-  canResumeTrip,
-  canFinishTrip,
   isTripActive,
   isTripPaused,
   isTripFinished,

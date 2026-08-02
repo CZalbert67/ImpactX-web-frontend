@@ -21,6 +21,10 @@ const ACTIVE_TRIP: Trip = {
   inicio: "2026-08-01T10:00:00.000Z",
   fin: null,
   dispositivoId: "band-0001",
+  vehiclePublicId: "VEH-dashboard-active",
+  controlClient: "wearable",
+  mobileFallbackUsed: false,
+  fallbackReason: null,
   proposito: "Traslado a cliente",
   rutaOrigen: "Guadalajara",
   rutaDestino: "Zapopan",
@@ -32,6 +36,10 @@ const FINISHED_TRIP: Trip = {
   inicio: "2026-07-28T09:15:00.000Z",
   fin: "2026-07-28T11:05:00.000Z",
   dispositivoId: null,
+  vehiclePublicId: null,
+  controlClient: "mobile",
+  mobileFallbackUsed: false,
+  fallbackReason: null,
   proposito: null,
   rutaOrigen: null,
   rutaDestino: null,
@@ -93,8 +101,11 @@ describe("Página de Dashboard (datos reales)", () => {
       await screen.findByText(/aún no hay viajes/i),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole("button", { name: /iniciar viaje/i }).length,
-    ).toBeGreaterThan(0);
+      screen.getByText(/los viajes iniciados desde móvil o wearable aparecerán/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /iniciar viaje/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("muestra un error recuperable cuando las consultas fallan", async () => {

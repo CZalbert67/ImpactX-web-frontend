@@ -3,8 +3,3 @@ export type { UseTripsOptions } from "@/features/trips/hooks/useTrips";
 export { useActiveTrip } from "@/features/trips/hooks/useActiveTrip";
 export { useTripsSummary } from "@/features/trips/hooks/useTripsSummary";
 export { useTripDetail } from "@/features/trips/hooks/useTripDetail";
-export { useStartTrip } from "@/features/trips/hooks/useStartTrip";
-export type { StartTripVariables } from "@/features/trips/hooks/useStartTrip";
-export { usePauseTrip } from "@/features/trips/hooks/usePauseTrip";
-export { useResumeTrip } from "@/features/trips/hooks/useResumeTrip";
-export { useFinishTrip } from "@/features/trips/hooks/useFinishTrip";

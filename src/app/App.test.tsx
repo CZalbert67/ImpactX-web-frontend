@@ -10,7 +10,7 @@ describe("App (render de la aplicación)", () => {
       await screen.findByRole("heading", { name: /inicia sesión/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText(/correo electrónico/i),
+      screen.getByLabelText(/correo o nombre de usuario/i),
     ).toBeInTheDocument();
   });
 
