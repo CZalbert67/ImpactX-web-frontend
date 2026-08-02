@@ -1,11 +1,6 @@
 import { useId } from "react";
-import type { TelemetryRow } from "@/features/telemetry/types";
+import type { SeriesDatum } from "@/features/telemetry/utils/series";
 import { sampleSeries, MAX_CHART_POINTS } from "@/features/telemetry/utils/sample";
-
-export interface SeriesDatum {
-  time: number;
-  value: number;
-}
 
 export interface TimeSeriesChartProps {
   title: string;
@@ -89,24 +84,4 @@ export function TimeSeriesChart({
       <p className="mt-1 text-xs text-muted">{description}</p>
     </div>
   );
-}
-
-function toSeries(
-  rows: readonly TelemetryRow[],
-  select: (row: TelemetryRow) => number | null,
-): SeriesDatum[] {
-  return rows.flatMap((row) => {
-    const value = select(row);
-    const time = Date.parse(row.timestamp);
-    if (value === null || !Number.isFinite(time)) return [];
-    return [{ time, value }];
-  });
-}
-
-export function velocitySeries(rows: readonly TelemetryRow[]): SeriesDatum[] {
-  return toSeries(rows, (row) => row.velocidad);
-}
-
-export function altitudeSeries(rows: readonly TelemetryRow[]): SeriesDatum[] {
-  return toSeries(rows, (row) => row.altitud);
 }

@@ -34,7 +34,7 @@ export function shouldRetryQuery(failureCount: number, error: unknown): boolean 
 }
 
 export function retryDelayQuery(
-  _failureCount: number,
+  failureCount: number,
   error: unknown,
 ): number {
   const apiError = error instanceof AppApiError ? error : null;
@@ -43,5 +43,6 @@ export function retryDelayQuery(
     return Math.min(apiError.retryAfterSeconds * 1000, 60_000);
   }
 
-  return BASE_DELAY_MS;
+  const exponential = BASE_DELAY_MS * 2 ** (failureCount - 1);
+  return Math.min(exponential, MAX_DELAY_MS);
 }

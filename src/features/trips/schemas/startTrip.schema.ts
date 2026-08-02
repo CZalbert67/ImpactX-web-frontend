@@ -13,7 +13,7 @@ export const startTripSchema = z.object({
   rutaDestino: z.string().trim().max(160).optional().default(""),
 });
 
-export type StartTripFormValues = z.infer<typeof startTripSchema>;
+export type StartTripFormValues = z.input<typeof startTripSchema>;
 
 export const START_TRIP_DEFAULT_VALUES: StartTripFormValues = {
   dispositivoId: "",

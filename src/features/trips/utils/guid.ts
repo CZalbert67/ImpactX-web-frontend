@@ -9,3 +9,6 @@ export function isValidGuid(value: string | null | undefined): boolean {
   if (typeof value !== "string") return false;
   return UUID_RE.test(value.trim());
 }
+
+/** Alias semántico para validar el identificador de un viaje (TripId). */
+export const isValidTripGuid = isValidGuid;

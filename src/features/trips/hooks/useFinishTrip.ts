@@ -11,6 +11,7 @@ export function useFinishTrip() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.trips });
       void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.tripsSummary });
     },
   });
 }

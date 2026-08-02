@@ -57,7 +57,10 @@ export function useDashboardState(): DashboardState {
     (tripsError !== null && isNetworkError(tripsError)) ||
     (activeError !== null && isNetworkError(activeError));
 
-  const isLoading = active.isPending || (trips.isPending && trips.isFetching);
+  const isLoading =
+    active.isPending ||
+    summary.isPending ||
+    (trips.isPending && trips.isFetching);
   const connectivity: Connectivity = offline
     ? "offline"
     : isLoading

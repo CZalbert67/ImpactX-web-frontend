@@ -63,7 +63,6 @@ export function TripActionControls({
 
   const mutation =
     pending === "pause" ? pause : pending === "resume" ? resume : finish;
-  const isLoading = mutation.isPending;
 
   const currentError =
     mutation.error && pending !== null

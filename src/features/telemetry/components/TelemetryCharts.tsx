@@ -1,8 +1,8 @@
+import { TimeSeriesChart } from "@/features/telemetry/components/TimeSeriesChart";
 import {
-  TimeSeriesChart,
   velocitySeries,
   altitudeSeries,
-} from "@/features/telemetry/components/TimeSeriesChart";
+} from "@/features/telemetry/utils/series";
 import type { TelemetryRow } from "@/features/telemetry/types";
 
 export interface TelemetryChartsProps {

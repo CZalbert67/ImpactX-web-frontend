@@ -1,7 +1,6 @@
 import { useParams } from "react-router";
 import { Activity, ArrowLeft, Route } from "lucide-react";
 import { Link } from "react-router";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ErrorState } from "@/components/ui/ErrorState";
