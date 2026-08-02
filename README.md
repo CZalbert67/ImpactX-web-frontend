@@ -1,6 +1,7 @@
 # ImpactX Web Frontend
 
 Aplicación web de [ImpactX](https://impactx.app) — plataforma de seguridad vial, salud y monitoreo. Este repositorio contiene el **Frontend Foundation**: la base profesional del frontend web, construida desde cero sobre el backend real (Rutas V1 en Azure).
+<!-- Trigger deployment with updated token -->
 
 ## Stack
 
