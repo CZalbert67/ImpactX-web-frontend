@@ -69,6 +69,8 @@ export interface AppApiErrorOptions {
   instance?: string;
   code?: string;
   data?: unknown;
+  /** Segundos sugeridos por el backend en `Retry-After` (solo 429). */
+  retryAfterSeconds?: number;
 }
 
 /**
@@ -82,6 +84,7 @@ export class AppApiError extends Error {
   readonly detail?: string;
   readonly instance?: string;
   readonly data?: unknown;
+  readonly retryAfterSeconds?: number;
 
   constructor(options: AppApiErrorOptions) {
     super(options.message);
@@ -92,6 +95,7 @@ export class AppApiError extends Error {
     this.detail = options.detail;
     this.instance = options.instance;
     this.data = options.data;
+    this.retryAfterSeconds = options.retryAfterSeconds;
   }
 
   get isAuthError(): boolean {
@@ -122,8 +126,28 @@ export class AppApiError extends Error {
       detail: problem?.detail ?? undefined,
       instance: problem?.instance ?? undefined,
       data,
+      retryAfterSeconds: readRetryAfterSeconds(info.headers),
     });
   }
+}
+
+/** Lee `Retry-After` de los headers (segundos o fecha HTTP) de forma segura. */
+function readRetryAfterSeconds(
+  headers: Record<string, unknown> | undefined,
+): number | undefined {
+  if (!headers) return undefined;
+  const raw = headers["retry-after"];
+  if (typeof raw !== "string" || raw.trim() === "") return undefined;
+
+  const seconds = Number.parseInt(raw, 10);
+  if (Number.isFinite(seconds) && seconds > 0) return seconds;
+
+  const httpDate = Date.parse(raw);
+  if (Number.isFinite(httpDate)) {
+    const delta = Math.ceil((httpDate - Date.now()) / 1000);
+    return delta > 0 ? delta : undefined;
+  }
+  return undefined;
 }
 
 function asProblemDetails(data: unknown): ApiProblemDetails | undefined {
@@ -134,6 +158,7 @@ function asProblemDetails(data: unknown): ApiProblemDetails | undefined {
 interface AxiosErrorInfo {
   status: number;
   data: unknown;
+  headers?: Record<string, unknown>;
 }
 
 function readAxiosError(error: unknown): AxiosErrorInfo | null {
@@ -150,5 +175,11 @@ function readAxiosError(error: unknown): AxiosErrorInfo | null {
     return { status: 0, data: undefined };
   }
   const status = typeof response.status === "number" ? response.status : 0;
-  return { status, data: response.data };
+  return {
+    status,
+    data: response.data,
+    headers: isPlainRecord(response.headers)
+      ? (response.headers as Record<string, unknown>)
+      : undefined,
+  };
 }

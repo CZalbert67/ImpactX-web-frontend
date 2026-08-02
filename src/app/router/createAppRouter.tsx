@@ -10,6 +10,9 @@ import {
   LoginPage,
   NotFoundPage,
   RegisterPage,
+  TripDetailPage,
+  TripTelemetryPage,
+  TripsPage,
   UnauthorizedPage,
 } from "@/app/router/lazyRoutes";
 import { AppShell } from "@/components/layout/AppShell";
@@ -54,6 +57,15 @@ function buildRoutes() {
       children: [
         { index: true, element: <Navigate to="/app/dashboard" replace /> },
         { path: "dashboard", element: withSuspense(<DashboardPage />) },
+        { path: "trips", element: withSuspense(<TripsPage />) },
+        {
+          path: "trips/:tripId",
+          element: withSuspense(<TripDetailPage />),
+        },
+        {
+          path: "trips/:tripId/telemetry",
+          element: withSuspense(<TripTelemetryPage />),
+        },
         { path: "*", element: withSuspense(<ComingSoonPage />) },
       ],
     },

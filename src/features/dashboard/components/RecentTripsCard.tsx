@@ -1,12 +1,20 @@
 import { Route } from "lucide-react";
+import { Link } from "react-router";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import type { RecentTrip } from "@/features/dashboard/types";
+import {
+  formatLocalDateTime,
+  formatDuration,
+} from "@/features/trips/utils/format";
+import { shortTripId, tripTitleLabel } from "@/features/trips/utils/display";
+import { tripStateLabel } from "@/features/trips/utils/state-labels";
+import type { Trip } from "@/features/trips/types";
 
 export interface RecentTripsCardProps {
-  trips: RecentTrip[];
+  trips: Trip[];
 }
 
+/** Últimos viajes con la duración calculada solo con fechas reales. */
 export function RecentTripsCard({ trips }: RecentTripsCardProps) {
   return (
     <Card>
@@ -15,18 +23,27 @@ export function RecentTripsCard({ trips }: RecentTripsCardProps) {
         <EmptyState
           icon={Route}
           title="Sin viajes"
-          description="Tus viajes recientes aparecerán aquí."
+          description="Cuando registres viajes aparecerán aquí."
         />
       ) : (
         <ul className="space-y-3">
           {trips.map((trip) => (
             <li key={trip.id} className="rounded-lg bg-panel-soft p-3">
-              <p className="font-medium">
-                {trip.origen} → {trip.destino}
+              <div className="flex items-start justify-between gap-3">
+                <Link
+                  to={`/app/trips/${trip.id}`}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {tripTitleLabel(trip)}
+                </Link>
+                <span className="text-xs text-muted">{shortTripId(trip.id)}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-muted">
+                {tripStateLabel(trip.estado)} ·{" "}
+                {formatLocalDateTime(trip.inicio)}
               </p>
-              <p className="mt-0.5 text-xs text-muted">{trip.fecha}</p>
-              <p className="mt-1 text-xs text-secondary">
-                {trip.distanciaKm.toFixed(1)} km · {trip.duracionMin} min
+              <p className="mt-0.5 text-xs text-secondary">
+                {formatDuration(trip.inicio, trip.fin).label}
               </p>
             </li>
           ))}

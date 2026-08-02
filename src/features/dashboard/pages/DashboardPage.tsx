@@ -1,72 +1,92 @@
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Route, Play } from "lucide-react";
 import { useSession } from "@/features/auth/hooks/useSession";
-import { useDashboardDemo } from "@/features/dashboard/hooks/useDashboardDemo";
+import { useDashboardState } from "@/features/dashboard/hooks/useDashboard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { DashboardSkeleton } from "@/features/dashboard/components/DashboardSkeleton";
 import { WelcomeCard } from "@/features/dashboard/components/WelcomeCard";
-import { SafetyStatusCard } from "@/features/dashboard/components/SafetyStatusCard";
-import { ActiveTripCard } from "@/features/dashboard/components/ActiveTripCard";
+import { ConnectionStatusCard } from "@/features/dashboard/components/ConnectionStatusCard";
+import { TripsSummaryCard } from "@/features/dashboard/components/TripsSummaryCard";
 import { RecentTripsCard } from "@/features/dashboard/components/RecentTripsCard";
-import { RecentAlertsCard } from "@/features/dashboard/components/RecentAlertsCard";
-import { WearableCard } from "@/features/dashboard/components/WearableCard";
-import { EmergencyContactsCard } from "@/features/dashboard/components/EmergencyContactsCard";
-import { NotificationsCard } from "@/features/dashboard/components/NotificationsCard";
 import { QuickActionsCard } from "@/features/dashboard/components/QuickActionsCard";
+import { ActiveTripCard } from "@/features/trips/components/ActiveTripCard";
+import { StartTripDialog } from "@/features/trips/components/StartTripDialog";
+import { useDisclosure } from "@/hooks/useDisclosure";
 
 export function DashboardPage() {
-  const { state, retry } = useDashboardDemo();
   const { user } = useSession();
+  const dashboard = useDashboardState();
+  const startDialog = useDisclosure();
+
   const displayName = user?.nombre || user?.username || "";
+  const preparing = dashboard.view.kind === "loading";
+  const failed = dashboard.view.kind === "error";
 
   return (
     <div aria-live="polite">
       <PageHeader
         icon={LayoutDashboard}
         title="Dashboard"
-        description="Resumen de seguridad, viajes y dispositivos."
-        actions={<Badge tone="info">Datos demo</Badge>}
+        description="Resumen de tus viajes y del estado de la plataforma."
       />
 
-      {state.kind === "loading" ? <DashboardSkeleton /> : null}
+      {preparing ? <DashboardSkeleton /> : null}
 
-      {state.kind === "error" ? (
+      {failed ? (
         <ErrorState
           title="No se pudo cargar el dashboard"
-          description={state.message}
-          onRetry={retry}
+          description={dashboard.errorMessage}
+          onRetry={dashboard.retry}
         />
       ) : null}
 
-      {state.kind === "empty" ? (
-        <EmptyState
-          title="Aún no hay información"
-          description="Conecta un wearable o inicia tu primer viaje cuando los módulos estén listos."
-        />
-      ) : null}
-
-      {state.kind === "ready" ? (
+      {!preparing && !failed ? (
         <div className="space-y-6">
           <WelcomeCard displayName={displayName} />
 
+          {dashboard.view.kind === "empty" ? (
+            <EmptyState
+              icon={Route}
+              title="Aún no hay viajes"
+              description="Cuando inicies tu primer viaje aparecerá aquí su resumen."
+              action={
+                <Button
+                  leftIcon={<Play className="size-4" aria-hidden="true" />}
+                  onClick={startDialog.open}
+                >
+                  Iniciar viaje
+                </Button>
+              }
+            />
+          ) : null}
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <SafetyStatusCard status={state.data.safety} />
-            <ActiveTripCard trip={state.data.activeTrip} />
-            <WearableCard wearable={state.data.wearable} />
+            <ConnectionStatusCard connectivity={dashboard.connectivity} />
+            <ActiveTripCard trip={dashboard.activeTrip} />
+            <TripsSummaryCard summary={dashboard.summary} />
 
-            <RecentTripsCard trips={state.data.recentTrips} />
-            <RecentAlertsCard alerts={state.data.recentAlerts} />
-            <NotificationsCard summary={state.data.notifications} />
-
-            <div className="md:col-span-2">
-              <EmergencyContactsCard contacts={state.data.contacts} />
+            <div className="lg:col-span-2">
+              <RecentTripsCard trips={dashboard.recentTrips} />
             </div>
-            <QuickActionsCard actions={state.data.quickActions} />
+            <QuickActionsCard
+              actions={[
+                { id: "viajes", label: "Ver viajes", to: "/app/trips" },
+                {
+                  id: "telemetria",
+                  label: "Ver telemetría",
+                  to: "/app/trips",
+                },
+              ]}
+              startLabel="Iniciar viaje"
+              onStart={startDialog.open}
+            />
           </div>
         </div>
       ) : null}
+
+      <StartTripDialog open={startDialog.isOpen} onClose={startDialog.close} />
     </div>
   );
 }

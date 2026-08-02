@@ -15,6 +15,21 @@ export const DashboardPage = lazy(() =>
     default: m.DashboardPage,
   })),
 );
+export const TripsPage = lazy(() =>
+  import("@/features/trips/pages/TripsPage").then((m) => ({
+    default: m.TripsPage,
+  })),
+);
+export const TripDetailPage = lazy(() =>
+  import("@/features/trips/pages/TripDetailPage").then((m) => ({
+    default: m.TripDetailPage,
+  })),
+);
+export const TripTelemetryPage = lazy(() =>
+  import("@/features/telemetry/pages/TripTelemetryPage").then((m) => ({
+    default: m.TripTelemetryPage,
+  })),
+);
 export const ComingSoonPage = lazy(() =>
   import("@/pages/ComingSoonPage").then((m) => ({
     default: m.ComingSoonPage,
