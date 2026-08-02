@@ -1,13 +1,38 @@
 <!doctype html>
-<html lang="en">
+<html lang="es" data-theme="impactx-neon">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>impactx-web-frontend</title>
+    <meta
+      name="description"
+      content="ImpactX — plataforma web de seguridad vial, salud y monitoreo de viajes y telemetría."
+    />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>ImpactX</title>
+    <script>
+      (function () {
+        var key = "impactx.theme";
+        var themes = [
+          "impactx-neon",
+          "impactx-professional",
+          "impactx-light",
+        ];
+        var theme = null;
+        try {
+          theme = localStorage.getItem(key);
+        } catch (error) {
+          theme = null;
+        }
+        if (themes.indexOf(theme) === -1) {
+          theme = "impactx-neon";
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

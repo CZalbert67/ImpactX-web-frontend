@@ -1,0 +1,146 @@
+/* ---------------------------------------------------------------------------
+ * Sistema de temas de ImpactX
+ *
+ * Los temas se activan mediante el atributo `data-theme` en <html>.
+ * Todas las paletas viven únicamente aquí. Fuera de este archivo no debe
+ * haber colores hexadecimales dispersos.
+ *
+ * - impactx-neon (predeterminado)
+ * - impactx-professional
+ * - impactx-light
+ * ------------------------------------------------------------------------- */
+
+/* Tokens compartidos por todos los temas (dimensión, motion, tipografía) */
+:root {
+  --font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --transition-fast: 120ms ease;
+  --transition-base: 220ms ease;
+  --transition-slow: 380ms ease;
+
+  --sidebar-width: 16rem;
+  --sidebar-width-collapsed: 4.25rem;
+  --topbar-height: 4rem;
+  --content-max-width: 1200px;
+}
+
+/* ==================== Tema impactoX Neon (predeterminado) ==================== */
+[data-theme="impactx-neon"] {
+  color-scheme: dark;
+
+  --color-bg-main: #07051a;
+  --color-bg-secondary: #111035;
+  --color-panel: #151438;
+  --color-panel-elevated: #1c1a4a;
+  --color-panel-soft: #242160;
+
+  --color-text-primary: #f6f7ff;
+  --color-text-secondary: #b9bfdf;
+  --color-text-muted: #8790b7;
+
+  --color-primary: #6ef6c3;
+  --color-secondary: #60a5ff;
+  --color-accent-purple: #b56cff;
+  --color-accent-pink: #ff7ac3;
+
+  --color-success: #43f2a8;
+  --color-warning: #ffd166;
+  --color-error: #ff5f7a;
+  --color-info: #65d8ff;
+
+  --color-border: rgba(246, 247, 255, 0.1);
+  --color-border-strong: rgba(246, 247, 255, 0.2);
+  --color-overlay: rgba(4, 3, 16, 0.6);
+  --color-focus: #6ef6c3;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 34px rgba(0, 0, 0, 0.5);
+}
+
+/* ==================== Tema profesional (oscuro) ==================== */
+[data-theme="impactx-professional"] {
+  color-scheme: dark;
+
+  --color-bg-main: #06111f;
+  --color-bg-secondary: #0b1b2f;
+  --color-panel: #0f2238;
+  --color-panel-elevated: #132c47;
+  --color-panel-soft: #1b3a5a;
+
+  --color-text-primary: #f7fbff;
+  --color-text-secondary: #bfd0df;
+  --color-text-muted: #7e94a8;
+
+  --color-primary: #1fb6d5;
+  --color-secondary: #00d0a6;
+  --color-accent-purple: #3b82f6;
+  --color-accent-pink: #f59e0b;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #38bdf8;
+
+  --color-border: rgba(247, 251, 255, 0.1);
+  --color-border-strong: rgba(247, 251, 255, 0.22);
+  --color-overlay: rgba(2, 6, 14, 0.6);
+  --color-focus: #1fb6d5;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 34px rgba(0, 0, 0, 0.55);
+}
+
+/* ==================== Tema claro ==================== */
+[data-theme="impactx-light"] {
+  color-scheme: light;
+
+  --color-bg-main: #eef5f8;
+  --color-bg-secondary: #dfeef4;
+  --color-panel: #ffffff;
+  --color-panel-elevated: #f7fbfd;
+  --color-panel-soft: #e9f3f7;
+
+  --color-text-primary: #142231;
+  --color-text-secondary: #5b6b79;
+  --color-text-muted: #81919e;
+
+  --color-primary: #00a9a5;
+  --color-secondary: #2563eb;
+  --color-accent-purple: #7c3aed;
+  --color-accent-pink: #ffb020;
+
+  --color-success: #039855;
+  --color-warning: #ffb020;
+  --color-error: #d92d20;
+  --color-info: #0284c7;
+
+  --color-border: rgba(20, 34, 49, 0.12);
+  --color-border-strong: rgba(20, 34, 49, 0.24);
+  --color-overlay: rgba(15, 23, 33, 0.45);
+  --color-focus: #2563eb;
+
+  --shadow-sm: 0 1px 2px rgba(20, 34, 49, 0.1);
+  --shadow-md: 0 6px 18px rgba(20, 34, 49, 0.14);
+  --shadow-lg: 0 12px 34px rgba(20, 34, 49, 0.2);
+}
