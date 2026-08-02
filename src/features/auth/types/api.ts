@@ -1,26 +1,41 @@
-import type { components } from "@/api/generated/schema";
+export interface LoginRequest {
+  identifier: string;
+  password: string;
+  client: "web";
+}
 
-export type LoginRequest = components["schemas"]["LoginRequest"];
-export type RegisterRequest = components["schemas"]["RegisterRequest"];
-export type RefreshTokenRequest = components["schemas"]["RefreshTokenRequest"];
-export type LogoutRequest = components["schemas"]["LogoutRequest"];
-export type ResetPasswordRequest =
-  components["schemas"]["ResetPasswordRequest"];
+export interface RegisterRequest {
+  nombre: string;
+  correo: string;
+  telefono?: string;
+  password: string;
+  planActivo?: string;
+  client: "web";
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface LogoutRequest {
+  refreshToken: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
 
 export interface AuthUser {
   id: string;
+  publicProfileId: string;
   username: string;
-  appId: string;
   nombre: string;
   correo: string;
   telefono: string | null;
   planActivo: string | null;
 }
 
-/**
- * AuthResponse del backend (presente en el contrato de servicio aunque no esté
- * documentada en la respuesta 200 del OpenAPI). Campos externos del DTO real.
- */
 export interface AuthResponse {
   success: boolean;
   token: string | null;
@@ -30,12 +45,4 @@ export interface AuthResponse {
   usuario: AuthUser | null;
 }
 
-export interface ProfileResponse {
-  id: string;
-  username: string;
-  appId: string;
-  nombre: string;
-  correo: string;
-  telefono: string | null;
-  planActivo: string | null;
-}
+export type ProfileResponse = AuthUser;

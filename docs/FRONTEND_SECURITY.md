@@ -1,45 +1,13 @@
-# ImpactX Frontend — Seguridad
+# Seguridad del frontend
 
-Decisiones de seguridad del Frontend Foundation.
-
-## Tokens
-
-- Los tokens viven en `sessionStorage` (`impactx.session.v1`) — nunca en
-  `localStorage` ni en cookies.
-- No se registran tokens por consola ni en logs de red; los interceptores evitan
-  imprimir headers sensibles.
-- El `Authorization` se añade solo a rutas no públicas de auth.
-- El store de sesión nunca expone tokens en el DOM ni en el bloque de estado.
-
-## XSS
-
-- React escapa el contenido por defecto; los errores del backend se renderizan
-  como texto (`<p>`, `Alert`).
-- El cliente HTTP rechaza payloads no-ProblemDetails en `AppApiError` con
-  datos estructurados (sin devolver HTML).
-- No se usa `dangerouslySetInnerHTML`.
-- El dashboard demo solo renderiza componentes React y texto; no se inyecta
-  HTML sin escapar.
-
-## Autorización
-
-- El frontend no confía en el `localStorage` para decidir estado: siempre usa el
-  `AuthStatus` de Zustand y redirige si hay sesión expirada.
-- `ProtectedRoute` muestra estado de carga mientras se restaura la sesión.
-
-## Reduce exposición de datos
-
-- El store solo guarda `user` (Id, Username, AppId, Nombre, Correo, Teléfono,
-  PlanActivo) — sin contraseñas.
-- Los prompts de login/registro esperan contraseña mínima, pero la validación final
-  la hace el backend (zod supervisa el formato local).
-
-## Dependencias
-
-- `npm audit` sin vulnerabilidades al momento de la Fundación (se documenta en CI).
-- `npm ci` como regla en CI para lockfile reproducible.
-
-## CI
-
-- Workflow `frontend-ci.yml`: typecheck + lint + test:run + build + npm audit.
-- Workflow `frontend-codeql.yml`: análisis SAST JS/TS en push y PR a `main`.
+- Tokens en `sessionStorage`, nunca `localStorage`.
+- Login y registro solicitan capacidad `web`.
+- No se imprimen tokens ni códigos de invitación en consola.
+- React renderiza datos como texto; no se usa `dangerouslySetInnerHTML`.
+- Invitaciones usan cuerpos JSON; no se colocan tokens o códigos en query strings.
+- Mensajes rápidos envían `publicTemplateId`; la operación de envío no acepta texto libre.
+- Identidad pública usa `publicProfileId`; no se muestra la primary key interna.
+- Viajes y telemetría son de solo lectura en la web.
+- Acciones SOS, cierre de alertas, vinculación/calibración de wearable y control de viajes no existen en el cliente web.
+- 2FA muestra la clave manual únicamente durante el flujo de configuración.
+- Links de mapa usan OpenStreetMap y `rel="noreferrer"`.

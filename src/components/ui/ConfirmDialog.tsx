@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -16,10 +16,6 @@ export interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-/**
- * Diálogo de confirmación reutilizable para acciones de viaje.
- * `loading` bloquea el botón y evita el doble envío.
- */
 export function ConfirmDialog({
   open,
   title,
@@ -36,19 +32,9 @@ export function ConfirmDialog({
     <Modal open={open} onClose={onCancel} title={title}>
       <div className="space-y-4">
         <p className="text-sm text-secondary">{description}</p>
-
-        {error ? (
-          <Alert tone="error" role="alert">
-            {error}
-          </Alert>
-        ) : null}
-
+        {error ? <Alert tone="error">{error}</Alert> : null}
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={onCancel} disabled={loading}>
             Cancelar
           </Button>
           <Button

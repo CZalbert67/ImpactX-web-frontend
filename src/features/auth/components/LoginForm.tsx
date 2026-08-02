@@ -20,7 +20,7 @@ export function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { correo: "", password: "" },
+    defaultValues: { identifier: "", password: "" },
   });
 
   const onSubmit = handleSubmit((values) => login.mutate(values));
@@ -43,18 +43,17 @@ export function LoginForm() {
       ) : null}
 
       <FormField
-        label="Correo electrónico"
+        label="Correo o nombre de usuario"
         required
-        error={errors.correo?.message}
+        error={errors.identifier?.message}
       >
         {(fieldId) => (
           <Input
             id={fieldId}
-            type="email"
-            autoComplete="email"
-            placeholder="tucorreo@ejemplo.com"
-            invalid={Boolean(errors.correo)}
-            {...register("correo")}
+            autoComplete="username"
+            placeholder="correo@ejemplo.com o tu_usuario"
+            invalid={Boolean(errors.identifier)}
+            {...register("identifier")}
           />
         )}
       </FormField>

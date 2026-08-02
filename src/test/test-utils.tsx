@@ -10,7 +10,7 @@ import type { SessionSnapshot } from "@/features/auth/types/session";
 export const TEST_USER: AuthUser = {
   id: "00000000-0000-0000-0000-000000000009",
   username: "maria.test",
-  appId: "app-1",
+  publicProfileId: "USR-TEST000000000000000000",
   nombre: "María López",
   correo: "maria@test.invalid",
   telefono: null,

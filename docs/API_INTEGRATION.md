@@ -1,46 +1,46 @@
-# ImpactX Frontend — Integración con la API
+# Integración con la API de ImpactX
 
-Cliente HTTP único, autenticación real contra el backend (Rutas V1) y manejo de
-errores normalizado.
+## Backend
 
-## Base URL
+```text
+https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net
+```
 
-`VITE_API_BASE_URL` (ver `.env.example`). Por defecto apunta al backend real de
-ImpactX:
-`https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net`.
+El documento de contrato se obtiene desde `/openapi/v1.json` mediante `npm run api:generate`.
 
-## Cliente (`src/api/client.ts`)
+## Autenticación
 
-- `publicClient` — sin credenciales (login, register, refresh).
-- `apiClient` — adjunta `Authorization: Bearer <token>` automáticamente a todo lo
-  que no es una ruta pública de auth, y reintenta una vez con refresh-token
-  (single-flight) cuando recibe 401.
-- `timeout` 20 s y `CancelToken`/`signal` soportado.
+Login y registro envían siempre:
 
-## Autenticación (`src/features/auth/`)
+```json
+{"client":"web"}
+```
 
-1. `login`/`register` llaman a `POST /api/v1/auth/login` / `/register`.
-2. El backend responde `AuthResponse` con `success`, `token`, `refreshToken`,
-   `usuario`.
-3. `setSession()` persiste en `sessionStorage` y actualiza el store (Zustand).
-4. Guards (`ProtectedRoute`, `PublicRoute`) deciden el flujo. `RootRedirect`
-   redirige según la sesión.
-5. `logout` revoca la sesión y limpia storage.
+El login usa `identifier`, por lo que acepta correo o nombre de usuario. Los tokens se guardan en `sessionStorage`, se adjuntan con el interceptor Axios y el refresh se ejecuta en modo single-flight.
 
-## Almacenamiento
+## Módulos integrados
 
-- Tokens: `sessionStorage` (sesión por pestaña), nunca `localStorage`.
-- Claves: `impactx.session.v1`.
+| Módulo | Rutas principales |
+| --- | --- |
+| Vehículos | `/api/v1/vehicles` |
+| Familia | `/api/v1/family-subscriptions/*` |
+| Monitoreo | `/api/v1/monitoring-relationships/*` |
+| Mensajes rápidos | `/api/v1/quick-messages/*` |
+| Viajes | GET `/api/v1/trips`, `/active`, `/{id}/telemetry` |
+| Alertas | GET `/api/v1/alerts` |
+| Incidentes | `/api/v1/incidents/*` |
+| Contactos | `/api/v1/contacts/*` |
+| Dispositivos | `/api/v1/devices/*` |
+| Notificaciones | `/api/v1/notifications/*` |
+| Rutas | `/api/v1/routes/*` |
+| Perfil | `/api/v1/profile/*` |
+| Configuración | `/api/v1/settings/*` |
+| Wearables | GET `/api/v1/wearable/all` y diagnóstico legacy autorizado |
 
-## Error handling
+## Errores
 
-- `AppApiError` (RFC-7807 `ProblemDetails`) con `status`, `title`, `detail`.
-- `extractError` prioriza `detail` > `title` > `message` > `mensaje`.
-- 401/403 → `isAuthError`. 429 → mensaje de reintento. Error de red → `network`.
+`AppApiError` normaliza `ProblemDetails`, códigos 400/401/403/404/409/413/429 y errores de red. Las mutaciones invalidan únicamente las claves de TanStack Query afectadas.
 
-## Tipado de contrato
+## Contratos manuales
 
-- `src/api/generated/schema.d.ts` regenerable con `npm run api:generate` desde el
-  OpenAPI del backend (`/openapi/v1.json`).
-- El tipado de `AuthResponse` se mantiene manual en `types/api.ts` para no depender
-  del generador en flujos antiguos.
+Los módulos nuevos conservan DTOs manuales explícitos para evitar exponer identificadores internos. El esquema OpenAPI generado sigue siendo la referencia para tipos compartidos y auditoría del servidor.

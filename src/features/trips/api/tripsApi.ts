@@ -1,6 +1,6 @@
 import apiClient from "@/api/client";
 import { AppApiError } from "@/api/errors";
-import type { StartTripRequest, Trip, TripsSummary } from "@/features/trips/types";
+import type { Trip, TripsSummary } from "@/features/trips/types";
 import { parseTripFromTrip } from "@/features/trips/types/trip";
 import {
   buildPaginationParams,
@@ -13,11 +13,6 @@ import type { PaginatedResult } from "@/features/trips/utils/pagination";
 export interface TripsListParams {
   pageSize?: number | string;
   continuationToken?: string | null;
-  signal?: AbortSignal;
-}
-
-export interface StartTripParams {
-  body: StartTripRequest;
   signal?: AbortSignal;
 }
 
@@ -48,18 +43,10 @@ function parseTripsSummary(value: unknown): TripsSummary {
   };
 }
 
-function encodeTripId(tripId: string): string {
-  return encodeURIComponent(tripId);
-}
-
 /**
  * Capa de acceso HTTP de viajes. Rutas auditadas contra el OpenAPI real:
  *   GET  /api/v1/trips                    (paginada por X-Continuation-Token)
  *   GET  /api/v1/trips/active
- *   POST /api/v1/trips/start
- *   POST /api/v1/trips/{id}/pause
- *   POST /api/v1/trips/{id}/resume
- *   POST /api/v1/trips/{id}/finish
  *   GET  /api/v1/analytics/trips/summary
  *
  * No existe endpoint de «detalle de viaje»: el detalle se reconstruye desde
@@ -98,42 +85,6 @@ export const tripsApi = {
       if (error instanceof AppApiError && error.status === 404) return null;
       throw error;
     }
-  },
-
-  async startTrip(params: StartTripParams): Promise<Trip | null> {
-    const { data } = await apiClient.post<unknown>(
-      "/api/v1/trips/start",
-      params.body,
-      { signal: params.signal },
-    );
-    return data ? parseTripFromTrip(data) : null;
-  },
-
-  async pauseTrip(
-    tripId: string,
-    params: { signal?: AbortSignal } = {},
-  ): Promise<void> {
-    await apiClient.post(`/api/v1/trips/${encodeTripId(tripId)}/pause`, null, {
-      signal: params.signal,
-    });
-  },
-
-  async resumeTrip(
-    tripId: string,
-    params: { signal?: AbortSignal } = {},
-  ): Promise<void> {
-    await apiClient.post(`/api/v1/trips/${encodeTripId(tripId)}/resume`, null, {
-      signal: params.signal,
-    });
-  },
-
-  async finishTrip(
-    tripId: string,
-    params: { signal?: AbortSignal } = {},
-  ): Promise<void> {
-    await apiClient.post(`/api/v1/trips/${encodeTripId(tripId)}/finish`, null, {
-      signal: params.signal,
-    });
   },
 
   async getTripsSummary(

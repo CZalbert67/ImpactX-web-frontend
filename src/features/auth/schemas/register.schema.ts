@@ -1,11 +1,6 @@
 import { z } from "zod";
 import type { RegisterRequest } from "@/features/auth/types/api";
 
-/**
- * Validación alineada al backend:
- *   RegisterRequest { nombre (min1, max200), correo email max256,
- *                     telefono? (max20), password (8..100) }
- */
 export const registerSchema = z.object({
   nombre: z
     .string()
@@ -32,9 +27,10 @@ export type RegisterInputValues = z.infer<typeof registerSchema>;
 export function toRegisterRequest(values: RegisterInputValues): RegisterRequest {
   const telefono = values.telefono?.trim();
   return {
-    nombre: values.nombre,
+    nombre: values.nombre.trim(),
     correo: values.correo.trim(),
     password: values.password,
     telefono: telefono && telefono.length > 0 ? telefono : undefined,
+    client: "web",
   };
 }

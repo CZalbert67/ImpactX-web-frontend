@@ -1,7 +1,6 @@
 import { Link } from "react-router";
 import type { Trip } from "@/features/trips/types";
 import { TripStatusBadge } from "@/features/trips/components/TripStatusBadge";
-import { TripActionControls } from "@/features/trips/components/TripActionControls";
 import {
   formatLocalDateTime,
   formatDuration,
@@ -47,8 +46,7 @@ export function TripListItem({ trip }: TripListItemProps) {
         </div>
       </dl>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <TripActionControls trip={trip} />
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <Link
             to={`/app/trips/${trip.id}`}
