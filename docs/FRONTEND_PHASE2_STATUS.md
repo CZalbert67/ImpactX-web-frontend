@@ -9,15 +9,31 @@ Contrato de referencia: `https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.
 
 ## 1. Resumen ejecutivo
 
-La implementación de Fase 2 **está a medio camino y no compila**.
+La implementación de Fase 2 **fue corregida y ya compila**: el bloque de reparación (pasos 1–7 del §21) quedó aplicado en el working tree y toda la validación automatizada está en verde.
 
-Se reconstruyeron los módulos de Viajes y Telemetría eliminando casi por completo el Dashboard demo de la Frontend Foundation y conectando consultas reales a endpoints auditados contra el OpenAPI (`/api/v1/trips`, `/api/v1/trips/active`, `/api/v1/trips/{id}/telemetry`, `/api/v1/trips/start|pause|resume|finish`, `/api/v1/analytics/trips/summary`). La arquitectura (TanStack Query + Axios + hooks por feature + parsing defensivo) es correcta y respeta el contrato real: **no se inventan endpoints ni cifras**.
+Se reconstruyeron los módulos de Viajes y Telemetría eliminando el Dashboard demo de la Frontend Foundation y conectando consultas reales a endpoints auditados contra el OpenAPI (`/api/v1/trips`, `/api/v1/trips/active`, `/api/v1/trips/{id}/telemetry`, `/api/v1/trips/start|pause|resume|finish`, `/api/v1/analytics/trips/summary`). La arquitectura (TanStack Query + Axios + hooks por feature + parsing defensivo) es correcta y respeta el contrato real: **no se inventan endpoints ni cifras**.
 
-Sin embargo el trabajo quedó interrumpido con **14 errores de TypeScript**, **3 errores y 2 warnings de ESLint**, **4 pruebas fallidas** (obsoletas del dashboard demo), y por lo tanto **`npm run build` falla** (EXITCODE=2). Los errores son mecánicos y acotados: un `isValidTripGuid` que no existe (debería ser `isValidGuid`), una re-exportación que falta en el barrel de tipos (`StartTripRequest`), un archivo huérfano que referencia el `dashboard/types.ts` eliminado, variables/imports sin usar y un conflicto de tipos entre el schema Zod (campos opcionales) y `useForm`.
+Después de las correcciones, el estado técnico es:
 
-El `npm audit` está limpio (0 vulnerabilidades).
+| Comprobación | Resultado |
+| --- | --- |
+| TypeScript (`npm run typecheck`) | **0 errores** |
+| ESLint (`npm run lint`) | **0 errores y 0 warnings** |
+| Pruebas (`npm run test`) | **42/42 aprobadas** (10 archivos) |
+| `DashboardPage.test.tsx` | **5/5 aprobadas** |
+| Build (`npm run build`) | **Aprobado** (EXIT=0) |
+| `npm audit --audit-level=high` | **0 vulnerabilidades** |
 
-Diagnóstico: el diseño y la capa de datos de Fase 2 están básicamente completos y bien hechos; faltan correcciones de tipado/limpieza, actualizar el test del dashboard y cerrar un par de fallas de invalidación de caché antes de declarar la fase concluida.
+Correcciones aplicadas destacadas: se eliminó el `ActiveTripCard` demo huérfano (`src/features/dashboard/components/ActiveTripCard.tsx`); se repararon los exports de `isValidTripGuid` y `StartTripRequest`; se reconciliaron los tipos Zod ↔ React Hook Form en `StartTripDialog`; las funciones `velocitySeries`/`altitudeSeries` se movieron a `src/features/telemetry/utils/series.ts` (fin de los warnings `react-refresh`); las 4 mutaciones de viaje invalidan `queryKeys.tripsSummary`; y `summary.isPending` participa en el cálculo de `isLoading` del dashboard.
+
+> **IMPORTANTE — La Fase 2 NO se declara concluida.** El código está verde en el working tree, pero todavía **faltan**:
+> 1. **Commit y push** del bloque introducido.
+> 2. **Pull Request y Azure Preview** (CI/Preview con la variable `VITE_API_BASE_URL` definida).
+> 3. **Validación manual contra el backend desplegado** (escenario end-to-end).
+> 4. **Aprobación y merge** de la rama.
+> 5. **Despliegue y verificación en producción**.
+
+Diagnóstico: la capa de datos y la implementación de Fase 2 están completas y en verde; el resto del trabajo es de proceso (commit, PR/preview, validación contra el backend desplegado, aprobación/merge y producción), no de código.
 
 ---
 
@@ -71,27 +87,30 @@ Diagnóstico: el diseño y la capa de datos de Fase 2 están básicamente comple
 
 ## 3. Funcionalidades completamente implementadas
 
-Clasificación **funcional y conectada a la API real** (salvando los bloqueos de compilación):
+Clasificación **funcional y conectada a la API real** (verificada: typecheck/lint/tests/build en verde):
 
-1. **Creación de viaje** — `POST /api/v1/trips/start` con `StartTripRequest` tipado desde OpenAPI, formulario React-Hook-Form + Zod, modal `StartTripDialog`, bloqueo de doble envío, error visible.
+1. **Creación de viaje** — `POST /api/v1/trips/start` con `StartTripRequest` tipado desde OpenAPI, formulario React-Hook-Form + Zod, modal `StartTripDialog`, bloqueo de doble envío, error visible. *(Tipos Zod ↔ RHF reconciliados.)*
 2. **Acciones de viaje** — `pause`, `resume`, `finish` (mutaciones, confirmación en modal, `aria-live`).
 3. **Listado de viajes** — `GET /api/v1/trips` paginado por `X-Continuation-Token` con «Cargar más» (uso infinito, sin scroll).
 4. **Viaje activo** — `GET /api/v1/trips/active` con tratamiento de `404` → `null`.
 5. **Telemetría por viaje (solo lectura)** — `GET /api/v1/trips/{id}/telemetry` paginada, tabla + gráficas SVG propias (sin dependencias), muestreo sin alterar valores.
 6. **Estados de UI** — carga (`DashboardSkeleton`, `TripListSkeleton`, skeletons de tarjeta), error (con retry), vacío (`EmptyState`) en Dashboard, Viajes, Detalle y Telemetría.
-7. **Reintentos de TanStack Query** — `retryPolicy` que no reintenta 400/401/403/404/409, reintenta red/5xx/429, respeta `Retry-After`.
+7. **Reintentos de TanStack Query** — `retryPolicy` que no reintenta 400/401/403/404/409, reintenta red/5xx/429, respeta `Retry-After` (y ya sin la constante muerta `MAX_DELAY_MS`).
 8. **Rutas y navegación** — nuevas rutas registradas y protegidas; los items de nav «Viajes» y «Telemetría» quedaron activos.
 9. **Autenticación en las llamadas HTTP** — `apiClient` inyecta `Bearer`, single-flight refresh ante 401, logout limpia sesión.
+10. **Invalidación de caché tras mutaciones** — start/pause/resume/finish invalidan `["trips"]`, `["dashboard"]` **y ahora `tripsSummary`** (el resumen del dashboard deja de quedar obsoleto).
+11. **Estado de carga del dashboard** — `summary.isPending` participa en `isLoading` de `useDashboard` (no se pinta «ready» antes de tener el summary).
+
+> Fase 2 **no está declarada concluida** (ver §1): quedan pendientes commit/push, PR + Azure Preview, validación manual, aprobación/merge y despliegue en producción.
 
 ---
 
 ## 4. Funcionalidades parcialmente implementadas
 
-1. **Dashboard real** — estructura completa (conexión, resumen, viaje activo, recientes, accesos rápidos), pero: el summary de `TripsSummary` no se refresca tras las mutaciones (el `queryKey` que se invalida no cubre `["analytics",...]`); `GET /api/v1/analytics/dashboard` (que sí existe en OpenAPI) **no se consume**; el `queryKey ["dashboard"]` se invalida pero no se usa como raíz de ninguna consulta; `summary.isPending` no participa en el cálculo de `isLoading`.
+1. **Dashboard real** — estructura completa (conexión, resumen, viaje activo, recientes, accesos rápidos). Ya se invalidó `tripsSummary` tras mutaciones y `summary.isPending` participa en `isLoading`. **Residual:** `GET /api/v1/analytics/dashboard` (que sí existe en OpenAPI) **no se consume**; el `queryKey ["dashboard"]` se invalida en las mutaciones pero no se usa como raíz de ninguna consulta (decidir su uso o eliminarlo, ver §21 paso 6).
 2. **Detalle de viaje** — reconstruido desde listado/caché (no existe endpoint de detalle). Limitación documentada: si el viaje está fuera de la primera página y no se paginó hasta él, se muestra «no encontrado» (404 lógico).
 3. **Nav de Telemetría** — el item «Telemetría» apunta a `/app/trips` (la telemetría se elige por viaje). Funcional pero con fricción de UX.
-4. **Pruebas del dashboard** — el archivo `DashboardPage.test.tsx` sigue siendo del dashboard demo y **falla** (4 tests).
-5. **Retry-After** — `AppApiError` ahora lo expone, pero `retryDelayQuery` de `retryPolicy` no lo usa en resultados prácticos (debe iterarse); además `MAX_DELAY_MS` sin usar.
+4. **Pruebas de páginas** — `DashboardPage.test.tsx` reescrito con mocks de `tripsApi` y **5/5 verde**; aún **no hay** tests con mock para las páginas de Viajes ni para `useTripTelemetry` (el resto de la suite permanece en pruebas de bajo nivel en `api/`).
 
 ---
 
@@ -103,7 +122,7 @@ Clasificación **funcional y conectada a la API real** (salvando los bloqueos de
 - **Wearables, dispositivos, contactos, monitores, notificaciones, suscripción, perfil, configuración, rutas frecuentes** (Fase 3, todos `soon: true`).
 - **Consumo de `GET /api/v1/analytics/dashboard`** para el dashboard (endpoint existe; no integrado).
 - Validación numérica/adición para campos de formulario más allá de `StartTripRequest` (p. ej. no hay formularios de edición de viaje).
-- Tests/mocks de red para las features nuevas (no hay MSW; solo hay tests de bajo nivel en `api/`).
+- Tests con mock para las páginas de Viajes y `useTripTelemetry` (solo el dashboard cuenta con mocks de `tripsApi`; no hay MSW).
 
 ---
 
@@ -159,6 +178,7 @@ Clasificación **funcional y conectada a la API real** (salvando los bloqueos de
 | `pages/TripTelemetryPage.tsx` + `pages/index.ts` | Página |
 | `types/telemetry.ts` + `types/index.ts` | `TelemetryPointDto` + parseo defensivo |
 | `utils/sample.ts` | Muestreo de series (sin alterar valores) |
+| `utils/series.ts` | `SeriesDatum` + `toSeries`/`velocitySeries`/`altitudeSeries` (extraídas de `TimeSeriesChart`) |
 
 **Dashboard (nuevos)**
 | Archivo | Propósito |
@@ -182,14 +202,15 @@ Todos los eliminados eran **documentación/demo puro** de la «Frontend Foundati
 | --- | --- | --- |
 | `src/features/dashboard/demo-data.ts` | demo-data | ✔️ Sí (datos demo). |
 | `src/features/dashboard/hooks/useDashboardDemo.ts` | hook de demo | ✔️ Sí (simula 350ms con datos demo). |
-| `src/features/dashboard/types.ts` | tipos del dashboard demo | ✔️ Sí, era el contrato demo — **pero** `ActiveTripCard.tsx` quedó huérfano y por eso ahora hay TS2307 (ver §15). |
+| `src/features/dashboard/types.ts` | tipos del dashboard demo | ✔️ Sí, era el contrato demo. |
 | `EmergencyContactsCard.tsx` | demo (contactos) | ✔️ Sí — no es de Fase 2. |
 | `NotificationsCard.tsx` | demo (notificaciones) | ✔️ Sí — Fase 3. |
 | `RecentAlertsCard.tsx` | demo (alertas) | ✔️ Sí — Fase 3. |
 | `SafetyStatusCard.tsx` | demo (estado de seguridad) | ✔️ Sí — no tiene back directo en alcance. |
 | `WearableCard.tsx` | demo (wearable) | ✔️ Sí — Fase 3. |
+| `src/features/dashboard/components/ActiveTripCard.tsx` | demo huérfano (importaba `@/features/dashboard/types`, eliminado) | ✔️ Sí — borrado en la corrección; se usa `trips/components/ActiveTripCard.tsx`. |
 
-**Conclusión:** las eliminaciones fueron apropiadas. No se encontró ninguna eliminación **accidental** que rompiera algo más allá del propio huérfano `ActiveTripCard.tsx` (que debió borrarse junto con `types.ts`). `QuickActionsCard`, `RecentTripsCard` y `WelcomeCard` fueron modificadas, no borradas.
+**Conclusión:** las eliminaciones fueron apropiadas. Tras las correcciones ya no queda ningún huérfano residual que rompa el build; el `ActiveTripCard` demo se borró como parte del bloque de reparación. `QuickActionsCard`, `RecentTripsCard` y `WelcomeCard` fueron modificadas, no borradas.
 
 ---
 
@@ -202,10 +223,10 @@ Todos los eliminados eran **documentación/demo puro** de la «Frontend Foundati
 | `/register` | Pública (PublicRoute) | RegisterPage | ok | auth API |
 | `/unauthorized` | Pública | UnauthorizedPage | ok | — |
 | `/app` | Protegida | AppShell → Navigate `/app/dashboard` | ok | — |
-| `/app/dashboard` | Protegida | DashboardPage | ⚠️ compila mal (bloquea) | `useTrips`, `useActiveTrip`, `useTripsSummary` (API real) |
-| `/app/trips` | Protegida | TripsPage | ✅ código ok (bloqueado por tsc) | `GET /api/v1/trips`, `GET /api/v1/trips/active` |
-| `/app/trips/:tripId` | Protegida | TripDetailPage | ⚠️ errores tsc en la ruta | caché listado + relectura real |
-| `/app/trips/:tripId/telemetry` | Protegida | TripTelemetryPage | ⚠️ errores tsc | `GET /api/v1/trips/{id}/telemetry` |
+| `/app/dashboard` | Protegida | DashboardPage | ✅ ok | `useTrips`, `useActiveTrip`, `useTripsSummary` (API real) |
+| `/app/trips` | Protegida | TripsPage | ✅ ok | `GET /api/v1/trips`, `GET /api/v1/trips/active` |
+| `/app/trips/:tripId` | Protegida | TripDetailPage | ✅ ok | caché listado + relectura real |
+| `/app/trips/:tripId/telemetry` | Protegida | TripTelemetryPage | ✅ ok | `GET /api/v1/trips/{id}/telemetry` |
 | `/app/*` (otras) | Protegida | ComingSoonPage | ok | — |
 | `*` | 404 | NotFoundPage | ok | — |
 
@@ -240,12 +261,11 @@ Nota: las rutas heredadas de la nav (`/app/alertas`, `/app/contactos`, etc.) sig
 - View lógico cubre loading/error/empty/ready; conectividad "online/offline" según red.
 - Tarjetas: `WelcomeCard`, `ConnectionStatusCard`, `ActiveTripCard` (trips), `TripsSummaryCard`, `RecentTripsCard`, `QuickActionsCard`.
 - El dashboard **no inventa métricas**: si el DTO no trae `distanciaTotalKm`/`duracionPromedioMin`/`total` finitos muestra «Información no disponible».
-- **Fallas actuales:**
-  1. `queryKeys.tripsSummary = ["analytics","trips","summary"]` NO se invalida en `useStartTrip/Pause/Resume/Finish` (solo `["trips"]` y `["dashboard"]`), por lo que el resumen queda estancado tras un viaje nuevo.
-  2. `queryKeys.dashboard = ["dashboard"]` se usa solo para invalidar y nunca como queryKey de trabajo (inútil).
-  3. `summary.isPending` no participa en `isLoading` del view (el dashboard puede pintar «ready» antes de tener summary).
-  4. No se consume `GET /api/v1/analytics/dashboard`.
-- **UI de estados implementada**: skeleton loading, error con reintento, empty (sin viajes → EmptyState + botón «Iniciar viaje»).
+- **Correcciones aplicadas:** `queryKeys.tripsSummary` ya se invalida en `useStartTrip/Pause/Resume/Finish` (el resumen deja de quedar estancado), y `summary.isPending` participa en `isLoading` del view (no pinta «ready» sin summary).
+- **Puntos abiertos:**
+  1. `queryKeys.dashboard = ["dashboard"]` se usa solo para invalidar y no como queryKey de trabajo (decidir si se consume `GET /api/v1/analytics/dashboard` o se elimina la clave).
+  2. No se consume `GET /api/v1/analytics/dashboard` pese a existir en el OpenAPI.
+- **UI de estados implementada**: skeleton loading, error con reintento, empty (sin viajes → EmptyState + botón «Iniciar viaje»). Cubierto por `DashboardPage.test.tsx` (5/5, con mocks de `tripsApi`).
 
 ---
 
@@ -258,7 +278,7 @@ Nota: las rutas heredadas de la nav (`/app/alertas`, `/app/contactos`, etc.) sig
 - **Cambio de estado laboral**: `classifyTripState` reconoce alias en es/en. `canPause/canResume/canFinish` se derivan del estado real.
 - **Deuda**:
    - `useTripDetail` limitado a primera página (sin más páginas puede dar falsos 404).
-   - Errores TS pendientes (ver §15).
+   - Sin tests con mock para las páginas de Viajes (ver §4).
    - La nav de «Telemetría» conduce a `/app/trips` (elección manual del viaje).
 
 ---
@@ -269,7 +289,7 @@ Nota: las rutas heredadas de la nav (`/app/alertas`, `/app/contactos`, etc.) sig
 - `useTripTelemetry` deshabilitada si el GUID del viaje es inválido (nunca llama con GUID inválido).
 - Muestra: gráfica velocidad (km/h) y altitud (m) contra tiempo (SVG propio, sin librerías), tabla completa accesible, botón «Cargar más».
 - **Importante:** **no se grafica ni selecciona lat/lng de forma inconsistente**; la tabla sí muestra las coordenadas.
-- Punto pendiente: `TimeSeriesChart` exporta las helpers `velocitySeries`/`altitudeSeries` desde el propio componente → warnings `react-refresh/only-export-components`.
+- Las helpers de series (`SeriesDatum`, `toSeries`, `velocitySeries`, `altitudeSeries`) viven en `src/features/telemetry/utils/series.ts`; `TimeSeriesChart` es únicamente el componente (cero warnings `react-refresh`).
 
 ---
 
@@ -277,8 +297,8 @@ Nota: las rutas heredadas de la nav (`/app/alertas`, `/app/contactos`, etc.) sig
 
 | Ubicación | Qué hay | Estado |
 | --- | --- | --- |
-| `src/features/dashboard/DashboardPage.test.tsx` | 4 tests que esperan «Datos demo», «ImpactX Band (simulación)», «Contactos de emergencia», «Hacia Centro de Guadalajara» | **falla** (demo eliminado) |
-| `src/features/dashboard/components/ActiveTripCard.tsx` | Huérfano: import del tipo `@/features/dashboard/types` (eliminado) | Dead/demo residual — TS2307 |
+| `src/features/dashboard/DashboardPage.test.tsx` | Reescrito con mocks de `tripsApi` (ready/empty/error/loading + bienvenida) sobre el dashboard real | ✔️ 5/5 aprobadas, sin datos demo |
+| `src/features/dashboard/components/ActiveTripCard.tsx` | Huérfano del demo (importaba `@/features/dashboard/types` eliminado) | **eliminado** (usado: `trips/components/ActiveTripCard.tsx`) |
 | `src/config/env.ts` | `VITE_API_BASE_URL` se lee de `.env` (no en git) | correcto |
 | `vitest.config.ts` | define `import.meta.env.VITE_API_BASE_URL = "https://api.test.invalid"` para tests | correcto para tests; no es demo |
 
@@ -288,66 +308,46 @@ Nota: las rutas heredadas de la nav (`/app/alertas`, `/app/contactos`, etc.) sig
 
 ## 15. Errores de TypeScript
 
-`npm run typecheck` → **EXIT=2**, listado completo:
+`npm run typecheck` → **EXIT=0, 0 errores**.
 
-1. `src/api/retryPolicy.ts(18,7)` — **TS6133**: `MAX_DELAY_MS` declarado y nunca usado.
-2. `src/features/dashboard/components/ActiveTripCard.tsx(5,33)` — **TS2307**: `@/features/dashboard/types` no se encuentra (eliminado). Archivo huérfano.
-3. `src/features/telemetry/hooks/useTripTelemetry.ts(5,10)` — **TS2724**: `guid` no exporta `isValidTripGuid` (existe `isValidGuid`).
-4. `src/features/telemetry/pages/TripTelemetryPage.tsx(12,10)` — **TS2724**: ídem.
-5. `src/features/trips/api/tripsApi.ts(3,15)` — **TS2305**: `@/features/trips/types` no exporta `StartTripRequest`.
-6. `src/features/trips/components/StartTripDialog.tsx(37,5)` — **TS2322**: `Resolver` de `zodResolver` no encaja con `useForm<StartTripFormValues>` (input opcional vs output required).
-7. `src/features/trips/components/StartTripDialog.tsx(55,34)` — **TS2345**: el argumento `TFieldValues` no es asignable a `toStartTripRequest`.
-8. `src/features/trips/components/TripActionControls.tsx(66,9)` — **TS6133**: `isLoading` declarado y no usado.
-9. `src/features/trips/hooks/useStartTrip.ts(4,15)` — **TS2305**: `@/features/trips/types` no exporta `StartTripRequest`.
-10. `src/features/trips/hooks/useTripDetail.ts(7,10)` — **TS2724**: `isValidTripGuid` (ídem).
-11. `src/features/trips/pages/TripDetailPage.tsx(4,1)` — **TS6133**: `Button` importado sin usar.
-12. `src/features/trips/pages/TripDetailPage.tsx(11,10)` — **TS2724**: `isValidTripGuid` (ídem).
-13. `src/features/trips/schemas/startTrip.schema.ts(2,15)` — **TS2305**: `@/features/trips/types` no exporta `StartTripRequest`.
-14. `src/features/trips/utils/index.ts(1,10)` — **TS2724**: `isValidTripGuid` no exporta desde `guid`.
+Los 14 errores del estado previo fueron corregidos:
 
-**Causa raíz:** 3 causas raíz:
-- `guid.ts` exporta `isValidGuid`, pero en todo el código se importa `isValidTripGuid` (debería reexportarse o corregirse la importación en 5 sitios).
-- `types/index.ts` (barrel) no reexporta `StartTripRequest` (que sí está definida y exportada en `types/trip.ts`).
-- `StartTripDialog` usa `useForm<StartTripFormValues>` con un schema Zod cuyos campos son opcionales en input (`optional()`) → el resolver y el submit tipan distinto.
+1. **TS2724** — `guid.ts` no exportaba `isValidTripGuid`: se agregó `export const isValidTripGuid = isValidGuid;` en `src/features/trips/utils/guid.ts`. (Afectaba a `useTripTelemetry`, `TripTelemetryPage`, `useTripDetail`, `TripDetailPage`, `trips/utils/index.ts`.)
+2. **TS2305** — barrel `types/index.ts` no reexportaba `StartTripRequest`: se añadió `export type { StartTripRequest } from "@/features/trips/types/trip";`. (Afectaba a `tripsApi`, `useStartTrip`, `startTrip.schema`.)
+3. **TS2307** — `ActiveTripCard.tsx` huérfano que importaba `@/features/dashboard/types` (eliminado): el archivo demo fue **borrado**; el dashboard usa `@/features/trips/components/ActiveTripCard`.
+4. **TS6133 (unused)** — eliminados: `MAX_DELAY_MS` en `retryPolicy.ts`, `isLoading` en `TripActionControls.tsx`, e import de `Button` en `TripDetailPage.tsx`.
+5. **TS2322 / TS2345 (resolver)** — `StartTripFormValues` ahora usa `z.input<typeof startTripSchema>` (en lugar de `z.infer`), alineando el input opcional del schema con `useForm` y el `zodResolver`; `toStartTripRequest` acepta ese tipo. Ver `src/features/trips/schemas/startTrip.schema.ts`.
+
+**Causa raíz resuelta:** las tres causas identificadas (export faltante de `isValidTripGuid`, barrel sin `StartTripRequest`, y desajuste Zod ↔ RHF) fueron abordadas sin inventar API ni cambiar el contrato.
 
 ---
 
 ## 16. Errores de ESLint
 
-`npm run lint` → **EXIT=1** (3 errores + 2 warnings):
+`npm run lint` → **EXIT=0, 0 errores y 0 warnings**.
 
-1. **error** `src/api/retryPolicy.ts(18,7)` — `@typescript-eslint/no-unused-vars`: `MAX_DELAY_MS` sin usar.
-2. **error** `src/features/trips/components/TripActionControls.tsx(66,9)` — `no-unused-vars`: `isLoading`.
-3. **error** `src/features/trips/pages/TripDetailPage.tsx(4,10)` — `no-unused-vars`: import de `Button`.
-4. **warning** `src/features/telemetry/components/TimeSeriesChart.tsx(106/110)` — `react-refresh/only-export-components`: `velocitySeries`/`altitudeSeries` se exportan desde un componente.
-
-Los 3 errores son los mismos «unused» que TS. No reporta errores más allá de éstos.
+Los 3 errores `no-unused-vars` (imports/variables muertas en `retryPolicy.ts`, `TripActionControls.tsx` y `TripDetailPage.tsx`) se eliminaron junto con los TS6133 de §15, y los **2 warnings `react-refresh/only-export-components`** desaparecieron al mover `velocitySeries`/`altitudeSeries` (y `SeriesDatum`) al módulo `src/features/telemetry/utils/series.ts`: `TimeSeriesChart.tsx` vuelve a ser un componente puro.
 
 ---
 
 ## 17. Resultado de las pruebas
 
-`npm run test:run` → **EXIT=1** — `1 archivo falla / 9 pasan`, `4 tests fallan / 37 pasan`.
+`npm run test` → **EXIT=0, 10 archivos y 42/42 pruebas aprobadas**.
 
-Único archivo fallido: `src/features/dashboard/DashboardPage.test.tsx` (4 casos). Todos esperan el **dashboard demo** que ya se eliminó:
-- «muestra un estado de carga accesible» → busca skeleton previo + «viajes recientes» (carga con fallos de red en vitest apuntando a `https://api.test.invalid`).
-- «da la bienvenida» → busca heading `Hola, María` (el dashboard entra en estado error por red en tests).
-- «renderiza datos demo marcados explícitamente» → busca «Datos demo», «estado general», «ImpactX Band (simulación)», «contactos…» → ya no existen.
-- «muestra el viaje activo demo con su destino» → «Hacia Centro de Guadalajara» → no existe.
+- **`src/features/dashboard/DashboardPage.test.tsx` → 5/5 aprobadas.** Fue reescrito por completo: ahora valida el **dashboard real** con `vi.mock("@/features/trips/api/tripsApi")` (se mockean `getActiveTrip`, `getTrips`, `getTripsSummary`) y `renderApp` autenticado. Casos cubiertos: bienvenida al usuario; vista «ready» con viaje activo + resumen + viajes recientes + estado «Conectado»; estado vacío; estado de error recuperable (con botón de reintento); y skeleton de carga durante la espera. Ya no depende de ningún dato demo.
+- El resto (9 archivos) también pasan: `api/client.test.ts`, `api/errors.test.ts`, `app/App.test.tsx`, `app/router/ProtectedRoute.test.tsx`, `components/ui/Button.test.tsx`, `features/auth/schemas/login.schema.test.ts`, `features/auth/schemas/register.schema.test.ts`, `features/auth/store/auth.store.test.ts`, `features/theme/theme.test.tsx`.
 
-El resto (9 archivos) pasan: `api/client.test.ts`, `api/errors.test.ts`, `app/App.test.tsx`, `router/ProtectedRoute.test.tsx`, `ui/Button.test.tsx`, `auth/*schema*.test.ts`, `auth/store.auth.store.test.ts`, `theme/theme.test.tsx`.
-
-> Nota: el `QueryClient` global de tests usa `retry` para red/5xx con retrasos de 1 s; las llamadas de red en tests apuntan a `api.test.invalid`, lo que produciría reintentos lentos. Convendrá mockear `tripsApi`/`telemetryApi` en los tests de páginas.
+Nota: el `QueryClient` de tests sigue usando la política de reintentos real; en el dashboard las llamadas de red se evitan mockeando `tripsApi` (nada apunta a `api.test.invalid`). Quedan fuera de la suite los tests con mock de `telemetryApi`/páginas de Viajes (ver §4).
 
 ---
 
 ## 18. Resultado del build
 
-`VITE_API_BASE_URL="…azurewebsites.net" npm run build` → **EXIT=2**.
+`npm run build` → **EXIT=0 (aprobado)**.
 
-El build falla en la fase `tsc -b` con los mismos **14 errores** de §15, por lo que `vite build` no se ejecuta. No hay errores de Vite independientes.
+La fase `tsc -b` pasa sin errores (§15) y `vite build` completa la generación de `dist/` correctamente. No hay errores de Vite.
 
-Relevante para deploy: `.env` es ignorado por git; los workflows configurados (`frontend-ci.yml`, `azure-static-web-apps-*.yml`) **no** definen `VITE_API_BASE_URL`. Esto significa que en CI/Azure el build pasa `tsc` (una vez corregidos los errores TS) pero `import.meta.env.VITE_API_BASE_URL` quedaría `undefined`, y en `src/api/client.ts` `getEnv()` lanzaría en **tiempo de ejecución** («Falta VITE_API_BASE_URL»), con la app en blanco. Actualmente ya está rojo en TS de todas formas.
+Relevante para deploy (**pendiente, ver §21/§24**): `.env` es ignorado por git; los workflows configurados (`frontend-ci.yml`, `azure-static-web-apps-*.yml`) **no** definen `VITE_API_BASE_URL`. Con el build ahora verde, en CI/Azure `import.meta.env.VITE_API_BASE_URL` quedaría `undefined` y `getEnv()` en `src/api/client.ts` lanzaría en **tiempo de ejecución** («Falta VITE_API_BASE_URL»), con la app en blanco en preview/CI. Definir la variable en los entornos de GitHub Actions/Azure (o inyectarla como constante de build) **antes de declarar concluida** la fase.
 
 ---
 
@@ -360,71 +360,70 @@ Relevante para deploy: `.env` es ignorado por git; los workflows configurados (`
 ## 20. Riesgos técnicos y funcionales
 
 **Técnicos**
-1. **Build/CI rojo** — 14 errores TS (raíces identificadas en §15). Bloquea `typecheck`, `lint` (parcialmente), `test:run` y el despliegue.
-2. **CI y Azure sin `VITE_API_BASE_URL`** — riesgo de app en blanco en producción/preview (la validación de entorno en `client.ts` ocurre en tiempo de ejecución). Falta definir la variable en los entornos de GitHub Actions/Azure o inyectarla como constante de build.
-3. **Invalidación de summary** — las mutaciones no invalidan `queryKeys.tripsSummary`, así que el resumen del dashboard queda obsoleto tras start/pause/resume/finish.
-4. **`useTripDetail` limitado a primera página** — falsos «no encontrado» para viajes antiguos no paginados.
-5. **Tests sin mocking de red** — el nuevo dashboard/viajes/telemetría carecen de tests con mocks (el test demo obsoleto queda roto hasta reescribírselo).
-6. **`react-refresh` warnings** en `TimeSeriesChart` (separar series del componente).
-7. **Nav dirigido a `/app/trips`** para “Telemetría” (fricción, no pendiente de tarea).
+1. **CI y Azure sin `VITE_API_BASE_URL`** *(vigente, crítico)* — riesgo de app en blanco en preview/CI/producción: la validación de entorno en `client.ts` ocurre en **tiempo de ejecución** y, con el build verde, el error ya no queda tapado por `tsc`. Falta definir la variable en los entornos de GitHub Actions/Azure o inyectarla como constante de build antes del merge.
+2. **`useTripDetail` limitado a primera página** — falsos «no encontrado» para viajes antiguos no paginados. Sin cambio previsto en Fase 2.
+3. **`queryKeys.dashboard` sin uso como raíz** — se invalida en las mutaciones, pero ninguna consulta lo usa; `GET /api/v1/analytics/dashboard` no se consume (decisión pendiente, §21 paso 6).
+4. **Cobertura de páginas incompleta** — `DashboardPage.test.tsx` ya está con mocks (5/5), pero Viajes y `useTripTelemetry` aún no tienen tests con mock.
+5. **Nav dirigido a `/app/trips`** para "telemetría" (fricción, no pendiente de bloqueo).
+6. **Sin mock de red a nivel e2e (MSW)** — la suite mockea `tripsApi` vía `vi.mock`; no hay server HTTP de e2e.
 
 **Funcionales**
-8. **Encaje del dashboard** — no hay dashboard con histórico anual/estado global ni uso de `/analytics/dashboard`. La tarjeta «Resumen de viajes» depende del DTO real: con el contrato actual el summary se muestra «Información no disponible» la mayoría del tiempo (valores en null).
-9. **Paginación consumida** — se asume el arreglo y el header `X-Continuation-Token` (documentado en OpenAPI); si el backend devuelve otra forma el parseo defensivo devolverá items vacíos.
-10. **Estado doble "ready"/"empty"** — el dashboard da `empty` solo cuando no hay viaje activo ni listados; si `summary` falla en silencio, no hay señal de error.
+7. **Encaje del dashboard** — no hay dashboard con histórico anual/estado global ni uso de `/analytics/dashboard`. La tarjeta «Resumen de viajes» depende del DTO real: con el contrato actual el summary se muestra «Información no disponible» la mayoría del tiempo (valores en null).
+8. **Paginación consumida** — se asume el arreglo y el header `X-Continuation-Token` (documentado en OpenAPI); si el backend devuelve otra forma, el parseo defensivo devolverá items vacíos.
+9. **Estado doble "ready"/"empty"** — el dashboard da `empty` solo cuando no hay viaje activo ni listados; si `summary` falla en silencio, no hay señal de error.
+
+> **Riesgos de proceso (Fase 2 NO concluida):** pendientes commit/push, PR + Azure Preview, validación manual contra el backend desplegado, aprobación/merge y despliegue en producción (§1, §24). Un preview sin `VITE_API_BASE_URL` se vería en blanco (riesgo #1).
 
 ---
 
 ## 21. Orden exacto recomendado para terminar Fase 2
 
-Bloques pequeños, ordenados y verificables. Tras cada bloque correr `npm run typecheck` (y al final `lint`, `test:run`, `build`).
+Estado: **pasos 1–7 COMPLETADOS y verificados en verde** (typecheck 0, lint 0, tests 42/42, build OK). Pendientes: **pasos 8–10 (CI/env, validación manual y commit) y todo el flujo de publicación**.
 
-1. **Reparar exports de base** (desbloquea 12 de 14):
-   - `guid.ts`: agregar `export const isValidTripGuid = isValidGuid;` (más simple: corregir 5 imports a `isValidGuid`).
-   - `types/index.ts`: reexportar `export type { StartTripRequest } from "./trip"` (o mover reexport al barrel).
-   - Verificar con `npm run typecheck` que hayan caído los TS2305/TS2724.
-2. **Eliminar el huérfano** `src/features/dashboard/components/ActiveTripCard.tsx` (era demo; ya existe `trips/components/ActiveTripCard.tsx` que es el que se usa). Verificar imports y eliminarlo con `git rm`.
-3. **Eliminar variables/imports sin usar** (TS6133):
-   - `retryPolicy.ts`: borrar `MAX_DELAY_MS` (o usarlo en el fallback exponencial).
-   - `TripActionControls`: quitar `const isLoading`.
-   - `TripDetailPage`: quitar import de `Button`.
-4. **Reconciliar tipos de `StartTripDialog` con Zod**:
-   - Definir `StartTripFormValues` como output del schema y usar `useForm` con el `input` type, o quitar los `.optional()` sobrepuestos y tipar `resolver` correctamente. Correr typecheck para los 2 errores TS2322/TS2345 del resolver.
-5. **Corregir `TimeSeriesChart`** para el warning de fast-refresh: exportar `toSeries`/`velocitySeries`/`altitudeSeries` desde un módulo separado (p. ej. `telemetry/utils/series.ts`).
-6. **Mejorar la invalidación de caché**:
-   - Invalidar `queryKeys.tripsSummary` en las 4 mutaciones (además de `["trips"]`).
-   - Decidir si se consume `GET /api/v1/analytics/dashboard` y, si se usa, definir query key root; caso contrario eliminar `["dashboard"]` (que hoy no tiene efecto).
-   - Incluir `summary.isPending` en `isLoading` del dashboard.
-7. **Reescribir `DashboardPage.test.tsx`**:
-   - Mockear `tripsApi`/`useDashboard` (vi.mock de `@/features/trips/api/tripsApi` + `@/features/dashboard/hooks/useDashboard`), renderizar el dashboard real y probar los 3 estados (loading/empty/error) + tarjetas.
-   - Si se quiere cobertura de `useTripTelemetry`/`useTrips`, crear tests con mock de `telemetryApi`/`tripsApi`.
-8. **Validación de build + CI**:
+**✔️ Bloques de código ya ejecutados (1–7):**
+1. **Reparar exports de base** — ✔️ `guid.ts`: `export const isValidTripGuid = isValidGuid;`; barrel `types/index.ts`: `export type { StartTripRequest } from "./trip"`. Desaparecieron los TS2305/TS2724.
+2. **Eliminar el huérfano** — ✔️ borrado `src/features/dashboard/components/ActiveTripCard.tsx` (demo); sigue usándose `trips/components/ActiveTripCard.tsx`.
+3. **Eliminar variables/imports sin usar** — ✔️ `MAX_DELAY_MS` en `retryPolicy.ts`, `const isLoading` en `TripActionControls`, import de `Button` en `TripDetailPage`.
+4. **Reconciliar tipos de `StartTripDialog` con Zod** — ✔️ `StartTripFormValues = z.input<typeof startTripSchema>`; `useForm` tipado contra el input del schema; resuelve TS2322/TS2345.
+5. **Corregir `TimeSeriesChart`** — ✔️ `SeriesDatum`, `toSeries`, `velocitySeries` y `altitudeSeries` movidos a `telemetry/utils/series.ts`; `TimeSeriesChart` queda como componente puro (0 warnings `react-refresh`).
+6. **Mejorar la invalidación de caché** — ✔️ las 4 mutaciones invalidan `queryKeys.tripsSummary`; ✔️ `summary.isPending` integrado en `isLoading` del dashboard. Pendiente *solicitado* dentro de este bloque: decidir uso de `GET /api/v1/analytics/dashboard` y destino de `["dashboard"]`.
+7. **Reescribir `DashboardPage.test.tsx`** — ✔️ mock de `tripsApi` vía `vi.mock`, dashboard real, casos ready/empty/error/loading + bienvenida (5/5). Opcional: ampliar cobertura a `useTripTelemetry`/`useTrips`.
+
+**Bloques pendientes:**
+8. **Validación de build + CI/env**:
    - Definir `VITE_API_BASE_URL` como variable de entorno (preferred) o de repo env para `frontend-ci.yml` y Azure SWA; DOCUMENTAR que es obligatoria en el build. (No tocar el contenido de workflows sin aprobación — anotar en README/docs.)
-   - Correr `npm run typecheck`, `npm run lint`, `npm run test:run`, `npm run build`, `npm audit --audit-level=high` — todo debe pasar.
+   - Reconfirmar en orden `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`, `npm audit --audit-level=high` — ya todo en verde (ver §15–§19).
 9. **Verificación manual contra el backend real** (con una cuenta autenticada):
-   - Dashboard carga viajes/summary.
+   - Dashboard carga viajes/summary/viaje activo.
    - Iniciar → pausar → reanudar → finalizar un viaje; telemetría visible en el detalle.
    - Reintento y estados de error/offline visibles.
-10. **Commit limpio** (cuando se apruebe el flujo) separando: `feat(api)`, `feat(trips)`, `feat(telemetry)`, `fix(dashboard-demo)`, `chore(ci/env)`.
+10. **Cierre de flujo** (cuando se apruebe): commit del bloque con mensajes separados (`feat(api)`, `feat(trips)`, `feat(telemetry)`, `fix(dashboard-demo)`, `chore(ci/env)`), **push**, PR con Azure Preview y validación del entorno, aprobación/merge y despliegue en producción (§22).
 
 ---
 
 ## 22. Criterios para declarar concluida la Fase 2
 
-- **Sin datos demo presentados como reales**: ninguna prueba, badge, componente ni hook usa datasets demo; `DashboardPage.test.tsx` debe validar el dashboard real (con mock). ✔️ (pendiente actualizar el test)
-- **Dashboard conectado al backend**: `useDashboard` responde solo con endpoints reales; decisión de uso/no-uso de `/analytics/dashboard` documentada y validada.
-- **Viajes conectados al backend**: listado + viaje activo + start/pause/resume/finish + paginación con token real.
-- **Telemetría vinculada a TripId o ViajeId**: `GET /trips/{id}/telemetry`, sin ingesta manual en web.
-- **Autenticación y rutas protegidas funcionando**: acceso público/privado correcto; refresh con vuelo único, sesión y logout; navegación funcional.
-- **Estados de carga, error, vacío y reintento**: skeleton/empty/error(retry) en Dashboard, Viajes, Detalle y Telemetría; política de retry de Query validada.
-- **Typecheck aprobado**: `npm run typecheck` exit 0.
-- **Lint aprobado**: `npm run lint` exit 0 (sin warnings de react-refresh).
-- **Pruebas aprobadas**: `npm run test:run` sin fallos; suite de dashboard/viajes actualizada y mockeada.
-- **Build aprobado**: `npm run build` exit 0.
-- **Auditoría sin vulnerabilidades altas o críticas**: `npm audit --audit-level=high` sin findings (ya OK).
-- **Preview de Azure funcionando**: despliegue de PR produciendo SWA preview accesible y sin error de env.
-- **Producción en Azure funcionando**: `main` desplegado; app operativa con `VITE_API_BASE_URL` resuelta.
-- **Integración validada contra la API desplegada**: escenario end-to-end (iniciar/viajes/telemetría) verificado manualmente/automáticamente contra el backend Azure.
+Estado: **criterios de código ✔️ cumplidos; la Fase 2 NO está concluida** (faltan los criterios de proceso y despliegue, §21 bloques 8–10 y checklist de cierre abajo).
+
+**Criterios TÉCNICOS DE CÓDIGO (ya cumplidos en working tree):**
+- ✔️ **Sin datos demo presentados como reales** — ninguna prueba, badge, componente ni hook usa datasets demo; `DashboardPage.test.tsx` valida el dashboard real con mock (5/5).
+- ✔️ **Viajes conectados al backend** — listado + viaje activo + start/pause/resume/finish + paginación con token real.
+- ✔️ **Telemetría vinculada a TripId** — `GET /trips/{id}/telemetry`, sin ingesta manual en web.
+- ✔️ **Autenticación y rutas protegidas funcionando** — acceso público/privado correcto; refresh con vuelo único, sesión y logout; navegación funcional.
+- ✔️ **Estados de carga, error, vacío y reintento** — skeleton/empty/error(retry) en Dashboard, Viajes, Detalle y Telemetría; política de retry de Query validada.
+- ✔️ **Typecheck aprobado** — `npm run typecheck` exit 0 (0 errores).
+- ✔️ **Lint aprobado** — `npm run lint` exit 0 (0 errores y 0 warnings; sin `react-refresh` legacy).
+- ✔️ **Pruebas aprobadas** — `npm run test` exit 0; **42/42** (dashboard **5/5** con mocks de `tripsApi`).
+- ✔️ **Build aprobado** — `npm run build` exit 0.
+- ✔️ **Auditoría sin vulnerabilidades** — `npm audit --audit-level=high`: 0 findings.
+
+**⚪ Criterios de cierre RESTANTES (pendientes — imprescindibles para la conclusión):**
+- ⚪ **Commit y push** del bloque corregido.
+- ⚪ **CI verde en GitHub Actions** (con `VITE_API_BASE_URL` definida, §18/§20).
+- ⚪ **Preview de Azure funcionando** — despliegue de PR produciendo SWA preview accesible y sin error de env.
+- ⚪ **Integración validada contra la API desplegada** — escenario end-to-end (iniciar/pausar/reanudar/finalizar/telemetría) verificado contra el backend Azure.
+- ⚪ **Aprobación y merge** de la rama.
+- ⚪ **Producción en Azure funcionando** — `main` desplegado; app operativa con `VITE_API_BASE_URL` resuelta.
 
 ---
 
@@ -442,6 +441,14 @@ Bloques pequeños, ordenados y verificables. Tras cada bloque correr `npm run ty
 
 ## 24. Próxima tarea recomendada
 
-Ejecutar el **bloque de reparación base (pasos 1–4 del §21)** para dejar la rama **compilable** (`typecheck` y `lint` verdes con cero errores) y, a continuación, **reescribir/completar el test del dashboard** (paso 7), manteniendo el alcance estrictamente dentro de la Fase 2 (sin Fase 3), y volver a correr la validación completa. Tras eso, la siguiente iteración validará contra el backend desplegado y definirá el manejo de `VITE_API_BASE_URL` en CI/deploy (paso 8).
+Los **pasos 1–7 del §21 ya están ejecutados y verificados** (typecheck/lint/tests/build en verde, §15–§19). La siguiente tarea es **cerrar el flujo de publicación**, manteniendo el alcance estrictamente dentro de la Fase 2 (sin Fase 3):
+
+1. **Commit y push** del bloque de correcciones (mensajes separados por área, ver §21 paso 10).
+2. **Abrir la PR** y comprobar que el **CI pasa** con `VITE_API_BASE_URL` definida (paso 8 del §21) y que el **Azure Preview** despliega sin error de env.
+3. **Validación manual contra el backend desplegado** (paso 9): dashboard con viajes/summary, ciclo iniciar → pausar → reanudar → finalizar y telemetría en el detalle, más estados de error/offline.
+4. **Aprobación y merge**, y **despliegue/verificación en producción**.
+5. Reconfirmar los criterios de §22 antes de proclamar la fase concluida.
+
+> La Fase 2 **NO se declara concluida** hasta completar commit/push, PR + preview, validación manual, aprobación/merge y producción (ver §1).
 
 Nada de la Fase 3 se toca en este orden propuesto.
