@@ -1,6 +1,6 @@
 # ImpactX Web Frontend
 
-Panel web React de ImpactX conectado al backend productivo en Azure y al contrato API V1 congelado `2026.08.04`.
+Panel web React de ImpactX conectado al backend productivo en Azure y al contrato API V1 congelado `2026.08.05`.
 
 La web administra los recursos permitidos para el cliente `web`. Los viajes y la telemetría son de solo lectura; iniciar, pausar, reanudar, finalizar y enviar telemetría corresponde exclusivamente al Galaxy Watch 8.
 
@@ -33,7 +33,7 @@ Configuración de producción incluida en `.env.example`:
 
 ```text
 VITE_API_BASE_URL=https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net
-VITE_API_CONTRACT_VERSION=2026.08.04
+VITE_API_CONTRACT_VERSION=2026.08.05
 ```
 
 ## Validación completa
@@ -49,12 +49,12 @@ El script comprueba la paleta original, fronteras de capacidad web, contrato Ope
 - Registro V2, login, refresh y sesión web.
 - Dashboard.
 - Vehículos y vehículo principal.
-- Plan familiar, miembros, invitaciones y renovación simulada.
-- Relaciones de monitoreo y permisos.
+- Plan y grupo unificado, miembros, permisos, contactos SOS e invitaciones.
+- Monitoreo recíproco del grupo con permisos por persona.
 - Mensajes rápidos.
 - Viajes y telemetría en modo consulta.
 - Alertas e incidentes.
-- Contactos de emergencia mediante invitaciones aceptadas.
+- Contactos SOS priorizados entre integrantes del grupo, sin invitaciones duplicadas.
 - Notificaciones.
 - Rutas frecuentes e historial.
 - Perfil, ficha médica opcional, preferencias y onboarding.
@@ -68,7 +68,7 @@ Las páginas principales antiguas de dispositivos y wearables fueron retiradas. 
 Al entrar al panel se validan:
 
 - `apiVersion: v1`
-- `contractVersion: 2026.08.04`
+- `contractVersion: 2026.08.05`
 - `status: frozen`
 - capacidades publicadas para `web`
 

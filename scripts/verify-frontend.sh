@@ -5,7 +5,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$ROOT"
 
 EXPECTED_THEME_SHA="fea329e321983c723bd72908ce27cf924f39124c3341f8f9bfb3d3b436c0b5d3"
-EXPECTED_CONTRACT_VERSION="2026.08.04"
+EXPECTED_CONTRACT_VERSION="2026.08.05"
 PRODUCTION_API="https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net"
 ACTUAL_THEME_SHA=$(sha256sum src/styles/themes.css | awk '{print $1}')
 
@@ -79,24 +79,29 @@ fi
 
 echo "OK: viajes/telemetría son lectura web y no hay operaciones reservadas"
 
-printf '\n========== CONTACTOS CANÓNICOS ==========\n'
-rg -q '"/api/v1/contacts/invitations"' src/features/platform/api/platformApi.ts
-rg -q '/api/v1/contacts/\$\{idPath\(id\)\}/primary' src/features/platform/api/platformApi.ts
-if rg -n '/api/v1/contacts/.+(make-primary|restore)|contactsApi\.(create|makePrimaryLegacy)\b' src; then
-  echo "ERROR: rutas legacy de contactos encontradas"
+printf '\n========== CONTACTOS SOS UNIFICADOS ==========\n'
+rg -q 'GroupAccessManager' src/features/platform/pages/ContactsPage.tsx
+rg -q 'sosContactLimit' src/features/family/components/GroupAccessManager.tsx
+rg -q 'Prioridad de contacto SOS' src/features/family/components/GroupAccessManager.tsx
+if rg -n 'contactsApi\.(createInvitation|acceptInvitation|rejectInvitation)|monitoringApi\.createInvitation' \
+  src/features/platform/pages/ContactsPage.tsx src/features/monitoring/pages/MonitoringPage.tsx; then
+  echo "ERROR: la interfaz todavía crea invitaciones separadas de SOS o monitoreo"
   exit 1
 fi
-echo "OK: contactos V1 por invitaciones"
+echo "OK: SOS es una prioridad configurable entre integrantes del grupo"
 
 printf '\n========== ONBOARDING DE REGISTRO ==========\n'
 rg -q 'navigate\("/onboarding"' src/features/auth/hooks/useRegister.ts
 rg -q 'profileApi\.updateMedical' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
 rg -q 'vehiclesApi\.create' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
-rg -q 'contactsApi\.createInvitation' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
-rg -q 'monitoringApi\.createInvitation' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
+rg -q 'familyApi\.createInvitation' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
+if rg -n 'contactsApi\.createInvitation|monitoringApi\.createInvitation' src/features/onboarding/pages/RegistrationOnboardingPage.tsx; then
+  echo "ERROR: onboarding todavía crea invitaciones separadas"
+  exit 1
+fi
 rg -q 'currentStep: 8' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
 rg -q 'PublicIdCard' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
-echo "OK: cuenta, ID público, vehículo, ficha médica e invitación integrados"
+echo "OK: cuenta, ID público, vehículo, ficha médica e invitación única de grupo integrados"
 
 printf '\n========== PLAN Y CAPACIDAD FAMILIAR ==========\n'
 rg -q 'label: "Plan"' src/features/onboarding/pages/RegistrationOnboardingPage.tsx
@@ -108,8 +113,10 @@ rg -q 'familyApi\.activate' src/features/onboarding/pages/RegistrationOnboarding
 rg -q 'summary\.totalActivePeople' src/features/family/utils/familyCapacity.ts
 rg -q 'summary\.totalPeopleLimit' src/features/family/utils/familyCapacity.ts
 rg -q 'summary\.availableMemberSlots' src/features/family/utils/familyCapacity.ts
-rg -q 'currentUserRole === "Owner"' src/features/family/pages/FamilySubscriptionPage.tsx
+rg -q 'canManagePlan' src/features/family/pages/FamilySubscriptionPage.tsx
 rg -q 'Solo la persona titular puede cambiar' src/features/family/pages/FamilySubscriptionPage.tsx
+rg -q 'Abandonar grupo' src/features/family/pages/FamilySubscriptionPage.tsx
+rg -q 'revokeInvitation' src/features/family/api/familyApi.ts
 rg -q 'disabled=\{availableInvitationSlots <= 0\}' src/features/family/pages/FamilySubscriptionPage.tsx
 echo "OK: capacidad real del backend, plan exclusivo del titular y cupos reservados"
 
@@ -123,15 +130,18 @@ rg -q 'useQuickMessageUnreadCount' src/components/layout/NavList.tsx
 rg -q 'useNotifications' src/components/layout/NavList.tsx
 echo "OK: invitaciones, mensajes y notificaciones se actualizan sin recarga manual"
 
-printf '\n========== RELACIONES DIRECCIONALES =========='
-
-rg -q 'MonitoredRequestsMonitor' src/features/monitoring/pages/MonitoringPage.tsx
-rg -q 'Quiero que me monitoree' src/features/monitoring/pages/MonitoringPage.tsx
-rg -q 'Yo quiero monitorearla' src/features/monitoring/pages/MonitoringPage.tsx
-rg -q 'RelationshipGuide' src/features/family/pages/FamilySubscriptionPage.tsx
-rg -q 'RelationshipGuide' src/features/monitoring/pages/MonitoringPage.tsx
-rg -q 'RelationshipGuide' src/features/platform/pages/ContactsPage.tsx
-echo "OK: miembro, monitor y contacto diferenciados; dirección de monitoreo explícita"
+printf '\n========== GRUPO, PRIVACIDAD Y MONITOREO ==========\n'
+rg -q 'GroupAccessManager' src/features/family/pages/FamilySubscriptionPage.tsx
+rg -q 'GroupAccessManager' src/features/monitoring/pages/MonitoringPage.tsx
+rg -q 'GroupAccessManager' src/features/platform/pages/ContactsPage.tsx
+rg -q 'viewMedicalProfile' src/features/family/components/GroupAccessManager.tsx
+rg -q 'confirmMedicalConsent' src/features/family/components/GroupAccessManager.tsx
+if rg -n 'Quiero que me monitoree|Yo quiero monitorearla|Invitación de monitoreo' \
+  src/features/family/pages src/features/monitoring/pages src/features/platform/pages/ContactsPage.tsx; then
+  echo "ERROR: la interfaz conserva el modelo anterior de relaciones separadas"
+  exit 1
+fi
+echo "OK: integrantes conectados, privacidad por persona y consentimiento médico explícito"
 
 printf '\n========== CONVERSACIONES =========='
 

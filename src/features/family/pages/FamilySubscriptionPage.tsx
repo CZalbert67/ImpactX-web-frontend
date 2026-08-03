@@ -17,15 +17,14 @@ import { Alert } from "@/components/ui/Alert";
 import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Checkbox } from "@/components/ui/Checkbox";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
-import { RelationshipGuide } from "@/features/relationships/components/RelationshipGuide";
 import { resolveFamilyCapacity } from "@/features/family/utils/familyCapacity";
+import { GroupAccessManager } from "@/features/family/components/GroupAccessManager";
 import {
   useAcceptFamilyInvitation,
   useActivateFamily,
@@ -40,6 +39,7 @@ import {
   useRedeemFamilyInvitation,
   useRejectFamilyInvitation,
   useRemoveFamilyMember,
+  useRevokeFamilyInvitation,
   useRenewFamily,
 } from "@/features/family/hooks";
 import type {
@@ -266,7 +266,7 @@ function MemberList({
     <Card>
       <div className="mb-4 flex items-center gap-2">
         <Users className="size-4 text-brand" aria-hidden="true" />
-        <h2 className="font-semibold">Miembros familiares</h2>
+        <h2 className="font-semibold">Integrantes del grupo</h2>
       </div>
       {members.length === 0 ? (
         <EmptyState icon={Users} title="Sin miembros" description="Las personas aceptadas aparecerán aquí." />
@@ -305,7 +305,7 @@ function MemberList({
 export function FamilySubscriptionPage() {
   const current = useCurrentFamilySubscription();
   const members = useFamilyMembers(Boolean(current.data));
-  const invitations = useFamilyInvitations(true);
+  const invitations = useFamilyInvitations(current.data?.canManagePlan ?? false);
   const incomingInvitations = useIncomingFamilyInvitations(true);
   const activate = useActivateFamily();
   const changePlan = useChangeFamilyPlan();
@@ -316,20 +316,21 @@ export function FamilySubscriptionPage() {
   const createInvitation = useCreateFamilyInvitation();
   const acceptInvitation = useAcceptFamilyInvitation();
   const rejectInvitation = useRejectFamilyInvitation();
+  const revokeInvitation = useRevokeFamilyInvitation();
   const redeemInvitation = useRedeemFamilyInvitation();
 
   const [targetType, setTargetType] = useState<"username" | "publicProfileId" | "email">("username");
   const [target, setTarget] = useState("");
-  const [createMonitoring, setCreateMonitoring] = useState(true);
   const [redeemCode, setRedeemCode] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState<string | null>(null);
   const [removeCandidate, setRemoveCandidate] = useState<FamilyMember | null>(null);
+  const [revokeCandidate, setRevokeCandidate] = useState<FamilyInvitation | null>(null);
   const [cancelConfirm, setCancelConfirm] = useState(false);
   const [leaveConfirm, setLeaveConfirm] = useState(false);
 
   const summary = current.data ?? null;
-  const isOwner = summary?.currentUserRole === "Owner";
+  const isOwner = summary?.canManagePlan ?? summary?.currentUserRole === "Owner";
   const queriedPendingInvitations = (invitations.data ?? []).filter(
     (invitation) => invitation.status === "Pending",
   ).length;
@@ -343,6 +344,12 @@ export function FamilySubscriptionPage() {
     members.data ?? [],
     queriedPendingInvitations,
   );
+  const canJoinAnotherGroup = !summary || (
+    isOwner
+    && canonicalPlanName(summary.planName) === "Free"
+    && activePeople === 1
+    && pendingOutgoingInvitations === 0
+  );
   const busy = [
     activate,
     changePlan,
@@ -353,6 +360,7 @@ export function FamilySubscriptionPage() {
     createInvitation,
     acceptInvitation,
     rejectInvitation,
+    revokeInvitation,
     redeemInvitation,
   ].some((mutation) => mutation.isPending);
 
@@ -368,6 +376,7 @@ export function FamilySubscriptionPage() {
         createInvitation.error,
         acceptInvitation.error,
         rejectInvitation.error,
+        revokeInvitation.error,
         redeemInvitation.error,
       ].find(Boolean),
     [
@@ -380,6 +389,7 @@ export function FamilySubscriptionPage() {
       createInvitation.error,
       acceptInvitation.error,
       rejectInvitation.error,
+      revokeInvitation.error,
       redeemInvitation.error,
     ],
   );
@@ -388,7 +398,7 @@ export function FamilySubscriptionPage() {
     setNotice(null);
     const mutation = summary ? changePlan : activate;
     mutation.mutate(planName, {
-      onSuccess: () => setNotice(summary ? "Solicitud de cambio de plan aplicada." : "Suscripción familiar activada."),
+      onSuccess: () => setNotice(summary ? "Solicitud de cambio de plan aplicada." : "Plan y grupo activados."),
     });
   };
 
@@ -404,7 +414,6 @@ export function FamilySubscriptionPage() {
       return;
     }
     const input: CreateFamilyInvitationInput = {
-      createMonitoringRelationship: createMonitoring,
       [targetType]: clean,
     };
     createInvitation.mutate(input, {
@@ -426,8 +435,8 @@ export function FamilySubscriptionPage() {
     <div className="space-y-6">
       <PageHeader
         icon={Users}
-        title="Plan familiar"
-        description="Administra el plan compartido, los miembros y las invitaciones. Los pagos de esta versión son simulados."
+        title="Mi plan y grupo"
+        description="Todos los planes incluyen un grupo. El titular administra la suscripción y cada integrante conserva beneficios individuales."
       />
 
       {notice ? (
@@ -483,8 +492,6 @@ export function FamilySubscriptionPage() {
         </Alert>
       ) : null}
 
-      <RelationshipGuide />
-
       {summary ? (
         <div className="grid gap-4 lg:grid-cols-2">
           <MemberList
@@ -497,7 +504,7 @@ export function FamilySubscriptionPage() {
           <Card>
             <div className="mb-4 flex items-center gap-2">
               <MailPlus className="size-4 text-brand" aria-hidden="true" />
-              <h2 className="font-semibold">Invitar a un miembro</h2>
+              <h2 className="font-semibold">Invitar al grupo</h2>
             </div>
             {isOwner ? (
               <div className="space-y-4">
@@ -519,10 +526,9 @@ export function FamilySubscriptionPage() {
                     autoComplete="off"
                   />
                 </div>
-                <label className="flex items-start gap-2.5 rounded-lg bg-panel-soft p-3 text-sm text-secondary">
-                  <Checkbox checked={createMonitoring} onChange={(event) => setCreateMonitoring(event.target.checked)} />
-                  Al aceptar, esta persona también podrá monitorear al titular con los permisos autorizados.
-                </label>
+                <Alert tone="info">
+                  Una sola invitación integra a la persona al grupo. Después, cada integrante decide qué comparte con los demás y a quién designa como contacto SOS.
+                </Alert>
                 <Button onClick={submitInvitation} loading={createInvitation.isPending} disabled={availableInvitationSlots <= 0}>
                   Crear invitación
                 </Button>
@@ -554,6 +560,10 @@ export function FamilySubscriptionPage() {
         </div>
       ) : null}
 
+      {summary ? (
+        <GroupAccessManager onNotice={setNotice} />
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <div className="mb-4 flex items-center gap-2">
@@ -569,7 +579,7 @@ export function FamilySubscriptionPage() {
             />
             <Button
               loading={redeemInvitation.isPending}
-              disabled={!redeemCode.trim()}
+              disabled={!redeemCode.trim() || !canJoinAnotherGroup}
               onClick={() =>
                 redeemInvitation.mutate(redeemCode.trim(), {
                   onSuccess: () => {
@@ -582,6 +592,11 @@ export function FamilySubscriptionPage() {
               Canjear
             </Button>
           </div>
+          {!canJoinAnotherGroup ? (
+            <Alert tone="warning" className="mt-3">
+              Para entrar a otro grupo primero debes abandonar el actual o dejar tu grupo Gratuito sin miembros ni invitaciones pendientes.
+            </Alert>
+          ) : null}
         </Card>
 
         {summary ? (
@@ -602,7 +617,7 @@ export function FamilySubscriptionPage() {
                 </>
               ) : (
                 <Button variant="ghost" className="text-error" leftIcon={<UserMinus className="size-4" aria-hidden="true" />} onClick={() => setLeaveConfirm(true)}>
-                  Salir del plan
+                  Abandonar grupo
                 </Button>
               )}
             </div>
@@ -619,6 +634,11 @@ export function FamilySubscriptionPage() {
           <p className="mb-3 text-xs text-muted">
             Esta sección se actualiza automáticamente mientras la página está abierta.
           </p>
+          {!canJoinAnotherGroup && incomingInvitations.data?.length ? (
+            <Alert tone="warning" className="mb-3">
+              Ya perteneces a un grupo que no puede suspenderse. Sal del grupo actual o libera tu grupo Gratuito antes de aceptar otra invitación.
+            </Alert>
+          ) : null}
           {incomingInvitations.isPending ? <div className="skeleton h-28" /> : null}
           {incomingInvitations.isError ? (
             <ErrorState
@@ -657,7 +677,7 @@ export function FamilySubscriptionPage() {
                           onSuccess: () => setNotice("Invitación aceptada."),
                         })
                       }
-                      disabled={busy}
+                      disabled={busy || !canJoinAnotherGroup}
                     >
                       Aceptar
                     </Button>
@@ -715,6 +735,17 @@ export function FamilySubscriptionPage() {
                       Expira: {formatDate(invitation.expiresAtUtc)} · {invitation.publicInvitationId}
                     </p>
                   </div>
+                  {invitation.status === "Pending" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-error"
+                      disabled={busy}
+                      onClick={() => setRevokeCandidate(invitation)}
+                    >
+                      Revocar
+                    </Button>
+                  ) : null}
                 </li>
               ))}
             </ul>
@@ -723,10 +754,30 @@ export function FamilySubscriptionPage() {
       </div>
 
       <ConfirmDialog
+        open={Boolean(revokeCandidate)}
+        title="Revocar invitación"
+        description={revokeCandidate ? `Se liberará el espacio reservado para ${invitationTarget(revokeCandidate)}.` : ""}
+        confirmLabel="Revocar invitación"
+        danger
+        loading={revokeInvitation.isPending}
+        error={revokeInvitation.isError ? messageOf(revokeInvitation.error) : null}
+        onConfirm={() => {
+          if (!revokeCandidate) return;
+          revokeInvitation.mutate(revokeCandidate.publicInvitationId, {
+            onSuccess: () => {
+              setRevokeCandidate(null);
+              setNotice("Invitación revocada y espacio liberado.");
+            },
+          });
+        }}
+        onCancel={() => !revokeInvitation.isPending && setRevokeCandidate(null)}
+      />
+
+      <ConfirmDialog
         open={Boolean(removeCandidate)}
-        title="Quitar miembro"
-        description={removeCandidate ? `Se quitará a ${removeCandidate.displayName || removeCandidate.username} del plan familiar.` : ""}
-        confirmLabel="Quitar miembro"
+        title="Eliminar del grupo"
+        description={removeCandidate ? `Se quitará a ${removeCandidate.displayName || removeCandidate.username} del grupo del plan.` : ""}
+        confirmLabel="Eliminar del grupo"
         danger
         loading={removeMember.isPending}
         error={removeMember.isError ? messageOf(removeMember.error) : null}
@@ -744,25 +795,25 @@ export function FamilySubscriptionPage() {
 
       <ConfirmDialog
         open={cancelConfirm}
-        title="Cancelar plan familiar"
+        title="Cancelar plan y grupo"
         description="La suscripción quedará cancelada y los miembros volverán al plan gratuito según las reglas del backend."
         confirmLabel="Cancelar plan"
         danger
         loading={cancel.isPending}
         error={cancel.isError ? messageOf(cancel.error) : null}
-        onConfirm={() => cancel.mutate(undefined, { onSuccess: () => { setCancelConfirm(false); setNotice("Plan familiar cancelado."); } })}
+        onConfirm={() => cancel.mutate(undefined, { onSuccess: () => { setCancelConfirm(false); setNotice("Plan y grupo cancelados."); } })}
         onCancel={() => !cancel.isPending && setCancelConfirm(false)}
       />
 
       <ConfirmDialog
         open={leaveConfirm}
-        title="Salir del plan familiar"
+        title="Abandonar el grupo"
         description="Dejarás de heredar los beneficios del titular y volverás al plan gratuito."
-        confirmLabel="Salir del plan"
+        confirmLabel="Abandonar grupo"
         danger
         loading={leave.isPending}
         error={leave.isError ? messageOf(leave.error) : null}
-        onConfirm={() => leave.mutate(undefined, { onSuccess: () => { setLeaveConfirm(false); setNotice("Saliste del plan familiar."); } })}
+        onConfirm={() => leave.mutate(undefined, { onSuccess: () => { setLeaveConfirm(false); setNotice("Saliste del grupo del plan."); } })}
         onCancel={() => !leave.isPending && setLeaveConfirm(false)}
       />
     </div>

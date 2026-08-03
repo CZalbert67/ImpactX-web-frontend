@@ -47,26 +47,14 @@ export type MedicalOnboardingValues = z.infer<typeof medicalOnboardingSchema>;
 
 export const protectionOnboardingSchema = z
   .object({
-    invitationKind: z.enum(["contact", "monitor"]),
     targetType: z.enum(["username", "publicProfileId", "email"]),
     target: z
       .string()
       .trim()
       .min(2, "Escribe el usuario, ID público o correo de la persona")
       .max(256, "El identificador no puede superar 256 caracteres"),
-    relationship: optionalText(100, "La relación no puede superar 100 caracteres"),
-    priority: z.enum(["Primary", "Secondary"]),
-    makePrimaryWhenAccepted: z.boolean(),
   })
   .superRefine((values, context) => {
-    if (values.invitationKind === "contact" && values.relationship.length === 0) {
-      context.addIssue({
-        code: "custom",
-        path: ["relationship"],
-        message: "Indica qué relación tiene contigo",
-      });
-    }
-
     if (values.targetType === "email") {
       const email = z.string().email().safeParse(values.target);
       if (!email.success) {

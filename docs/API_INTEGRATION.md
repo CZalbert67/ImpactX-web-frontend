@@ -7,7 +7,7 @@ API:      https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.n
 OpenAPI:  /openapi/v1.json
 Contrato: /api/v1/meta/contract
 Web:      /api/v1/meta/clients/web
-Versión:  2026.08.04
+Versión:  2026.08.05
 ```
 
 `npm run api:generate` actualiza `src/api/generated/schema.d.ts` desde el OpenAPI productivo.
@@ -25,13 +25,13 @@ Los tokens se conservan en `sessionStorage`, se adjuntan mediante Axios y el ref
 | Contrato | `/api/v1/meta/contract`, `/api/v1/meta/clients/web` |
 | Cuenta | `/api/v1/account/*` |
 | Vehículos | `/api/v1/vehicles/*` |
-| Familia | `/api/v1/family-subscriptions/*` |
-| Monitoreo | `/api/v1/monitoring-relationships/*` |
+| Plan y grupo | `/api/v1/family-subscriptions/*`, incluidos `/members/access` y abandono voluntario |
+| Monitoreo | consulta de relaciones unificadas mediante `/api/v1/monitoring-relationships/*` |
 | Mensajes rápidos | `/api/v1/quick-messages/*` |
 | Viajes | GET `/api/v1/trips`, `/active` y `/{id}/telemetry` |
 | Alertas | GET `/api/v1/alerts/*` |
 | Incidentes | `/api/v1/incidents/*` permitidos para web |
-| Contactos | `/api/v1/contacts/*` basado en invitaciones |
+| Contactos SOS | prioridades entre integrantes mediante `/api/v1/family-subscriptions/members/*/access` |
 | Notificaciones | `/api/v1/notifications/*` |
 | Rutas | `/api/v1/routes/*` |
 | Perfil | `/api/v1/profile/*` |
@@ -58,3 +58,7 @@ El panel consulta automáticamente:
 Las consultas se suspenden cuando la pestaña está oculta y se reanudan al
 recuperar foco o conexión. La invitación familiar entrante se obtiene desde
 `GET /api/v1/family-subscriptions/invitations/incoming`.
+
+## Modelo unificado de personas
+
+La web crea una sola invitación de grupo. Al aceptarla, el backend conecta a todos los integrantes mediante políticas direccionales de privacidad. La interfaz no crea invitaciones adicionales de monitoreo ni contactos SOS. Cada usuario define qué comparte y asigna prioridades SOS entre integrantes del mismo grupo.

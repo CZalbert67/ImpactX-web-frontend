@@ -32,4 +32,4 @@ Auth solicita tokens con `client: web`. El cliente de viajes y telemetría solo 
 
 ## Navegación funcional
 
-Todas las opciones visibles del sidebar tienen página funcional: dashboard, vehículos, plan familiar, monitoreo, mensajes, viajes, rutas, alertas, incidentes, contactos, notificaciones, perfil, configuración y cuenta/privacidad.
+Todas las opciones visibles del sidebar tienen página funcional: dashboard, vehículos, plan y grupo, monitoreo, mensajes, viajes, rutas, alertas, incidentes, contactos, notificaciones, perfil, configuración y cuenta/privacidad.

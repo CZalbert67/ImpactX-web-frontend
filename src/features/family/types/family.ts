@@ -53,6 +53,10 @@ export interface FamilySubscriptionSummary {
   nextBillingAtUtc?: string | null;
   graceEndsAtUtc?: string | null;
   autoRenew?: boolean;
+  canManagePlan: boolean;
+  canInviteMembers: boolean;
+  canLeaveGroup: boolean;
+  sosContactLimit: number;
   latestPayment: SimulatedPayment | null;
 }
 
@@ -87,7 +91,38 @@ export interface CreateFamilyInvitationInput {
   username?: string;
   publicProfileId?: string;
   email?: string;
-  createMonitoringRelationship: boolean;
+}
+
+export interface FamilyAccessPermissions {
+  viewRoutes: boolean;
+  viewLocation: boolean;
+  viewEmergencyLocation: boolean;
+  viewIncidents: boolean;
+  receiveCriticalAlerts: boolean;
+  viewMedicalProfile: boolean;
+  sendMessages: boolean;
+  viewTelemetry: boolean;
+  receiveNotifications: boolean;
+}
+
+export interface FamilyMemberAccess {
+  publicRelationshipId: string;
+  publicSubscriptionId: string;
+  subjectPublicProfileId: string;
+  subjectUsername: string;
+  subjectName: string;
+  viewerPublicProfileId: string;
+  viewerUsername: string;
+  viewerName: string;
+  permissions: FamilyAccessPermissions;
+  medicalConsentGranted: boolean;
+  sosPriority: number | null;
+  updatedAtUtc: string;
+}
+
+export interface UpdateFamilyMemberAccessInput extends FamilyAccessPermissions {
+  confirmMedicalConsent: boolean;
+  sosPriority: number | null;
 }
 
 export interface CreateFamilyInvitationResponse {

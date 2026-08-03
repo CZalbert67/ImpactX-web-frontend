@@ -5,6 +5,7 @@ import { familyApi } from "@/features/family/api/familyApi";
 import type {
   CreateFamilyInvitationInput,
   FamilyPlanName,
+  UpdateFamilyMemberAccessInput,
 } from "@/features/family/types";
 
 export function useCurrentFamilySubscription() {
@@ -19,6 +20,15 @@ export function useFamilyMembers(enabled = true) {
   return useQuery({
     queryKey: queryKeys.familyMembers,
     queryFn: ({ signal }) => familyApi.getMembers(signal),
+    enabled,
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.invitations),
+  });
+}
+
+export function useFamilyMemberAccess(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.familyAccess,
+    queryFn: ({ signal }) => familyApi.getMemberAccess(signal),
     enabled,
     ...liveQueryOptions(LIVE_QUERY_INTERVAL.invitations),
   });
@@ -94,6 +104,20 @@ export function useRemoveFamilyMember() {
   });
 }
 
+export function useUpdateFamilyMemberAccess() {
+  const invalidate = useInvalidateFamily();
+  return useMutation({
+    mutationFn: ({
+      targetPublicProfileId,
+      input,
+    }: {
+      targetPublicProfileId: string;
+      input: UpdateFamilyMemberAccessInput;
+    }) => familyApi.updateMemberAccess(targetPublicProfileId, input),
+    onSuccess: invalidate,
+  });
+}
+
 export function useCreateFamilyInvitation() {
   const invalidate = useInvalidateFamily();
   return useMutation({
@@ -117,6 +141,15 @@ export function useRejectFamilyInvitation() {
   return useMutation({
     mutationFn: (publicInvitationId: string) =>
       familyApi.rejectInvitation(publicInvitationId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useRevokeFamilyInvitation() {
+  const invalidate = useInvalidateFamily();
+  return useMutation({
+    mutationFn: (publicInvitationId: string) =>
+      familyApi.revokeInvitation(publicInvitationId),
     onSuccess: invalidate,
   });
 }

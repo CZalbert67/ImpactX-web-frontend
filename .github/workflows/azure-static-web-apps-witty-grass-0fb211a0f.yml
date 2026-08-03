@@ -24,7 +24,7 @@ jobs:
        contents: read
     env:
       VITE_API_BASE_URL: https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net
-      VITE_API_CONTRACT_VERSION: 2026.08.04
+      VITE_API_CONTRACT_VERSION: 2026.08.05
     steps:
       - uses: actions/checkout@v4
         with:

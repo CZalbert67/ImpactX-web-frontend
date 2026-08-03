@@ -146,6 +146,10 @@ export interface NotificationItem {
   tipo: string;
   referenciaId: string | null;
   referenciaTipo: string | null;
+  publicRelationshipId: string | null;
+  evento: string | null;
+  deepLink: string | null;
+  entityId: string | null;
   leida: boolean;
   leidaEn: string | null;
   creadoEn: string;

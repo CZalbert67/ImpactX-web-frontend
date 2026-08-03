@@ -19,16 +19,12 @@ import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useSession } from "@/features/auth/hooks/useSession";
 import { familyApi } from "@/features/family/api/familyApi";
 import type {
+  CreateFamilyInvitationInput,
   FamilyPlanName,
   FamilySubscriptionSummary,
 } from "@/features/family/types";
-import { monitoringApi } from "@/features/monitoring/api/monitoringApi";
-import type { MonitoringInvitationPermissions } from "@/features/monitoring/types";
-import { contactsApi, profileApi } from "@/features/platform/api/platformApi";
-import type {
-  ContactInvitationInput,
-  MedicalProfile,
-} from "@/features/platform/types";
+import { profileApi } from "@/features/platform/api/platformApi";
+import type { MedicalProfile } from "@/features/platform/types";
 import {
   medicalOnboardingSchema,
   protectionOnboardingSchema,
@@ -46,7 +42,6 @@ import { VehicleMakeModelFields } from "@/features/vehicles/components/VehicleMa
 import { VEHICLE_TYPES, VEHICLE_USES } from "@/features/vehicles/types";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { Checkbox } from "@/components/ui/Checkbox";
 import { FormField } from "@/components/ui/FormField";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -54,16 +49,6 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Textarea } from "@/components/ui/Textarea";
 import { cn } from "@/lib/cn";
 
-const MONITORING_DEFAULT_PERMISSIONS: MonitoringInvitationPermissions = {
-  viewRoutes: true,
-  viewLocation: true,
-  viewEmergencyLocation: true,
-  viewIncidents: true,
-  receiveCriticalAlerts: true,
-  sendMessages: true,
-  viewTelemetry: true,
-  receiveNotifications: true,
-};
 
 const FLOW_STEPS = [
   { label: "Cuenta", icon: UserRoundCheck },
@@ -131,7 +116,7 @@ function stepFromBackend(
 }
 
 type InvitationTarget = Pick<
-  ContactInvitationInput,
+  CreateFamilyInvitationInput,
   "username" | "publicProfileId" | "email"
 >;
 
@@ -252,7 +237,7 @@ function PlanStep({ current, loading, error, onSubmit }: PlanStepProps) {
         <p className="text-xs font-semibold uppercase tracking-wide text-brand">
           Paso 2 de 5
         </p>
-        <h1 className="mt-1 text-2xl font-semibold">Elige tu plan familiar</h1>
+        <h1 className="mt-1 text-2xl font-semibold">Elige tu plan y grupo</h1>
         <p className="mt-1 text-sm text-muted">
           El plan Gratuito ya está seleccionado. Solo cambia la opción si deseas
           activar un plan de pago simulado.
@@ -652,19 +637,11 @@ function ProtectionStep({
   } = useForm<ProtectionOnboardingValues>({
     resolver: zodResolver(protectionOnboardingSchema),
     defaultValues: {
-      invitationKind: "contact",
       targetType: "username",
       target: "",
-      relationship: "Familiar",
-      priority: "Primary",
-      makePrimaryWhenAccepted: true,
     },
   });
 
-  const kind = useWatch({
-    control,
-    name: "invitationKind",
-  });
   const targetType = useWatch({
     control,
     name: "targetType",
@@ -677,46 +654,22 @@ function ProtectionStep({
           Paso 5 de 5
         </p>
         <h1 className="mt-1 text-2xl font-semibold">
-          Crea tu red de protección
+          Invita a tu grupo de protección
         </h1>
         <p className="mt-1 text-sm text-muted">
-          Invita ahora a una persona de confianza. Podrás agregar más desde el
-          panel después.
+          Una sola invitación integra a la persona a tu plan. Después, cada
+          integrante decide qué datos comparte y a quién designa como contacto
+          SOS.
         </p>
       </div>
 
       {error ? <Alert tone="error">{messageOf(error)}</Alert> : null}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex cursor-pointer gap-3 rounded-xl border border-line bg-panel-soft p-4 has-[:checked]:border-[var(--color-primary)]">
-          <input
-            type="radio"
-            value="contact"
-            className="mt-1 accent-[var(--color-primary)]"
-            {...register("invitationKind")}
-          />
-          <span>
-            <span className="block font-semibold">Contacto de emergencia</span>
-            <span className="mt-1 block text-xs text-muted">
-              Persona principal para recibir apoyo durante una emergencia.
-            </span>
-          </span>
-        </label>
-        <label className="flex cursor-pointer gap-3 rounded-xl border border-line bg-panel-soft p-4 has-[:checked]:border-[var(--color-primary)]">
-          <input
-            type="radio"
-            value="monitor"
-            className="mt-1 accent-[var(--color-primary)]"
-            {...register("invitationKind")}
-          />
-          <span>
-            <span className="block font-semibold">Monitor</span>
-            <span className="mt-1 block text-xs text-muted">
-              Podrá consultar la información autorizada de tus viajes y alertas.
-            </span>
-          </span>
-        </label>
-      </div>
+      <Alert tone="info" title="Modelo unificado">
+        Ya no se envían invitaciones separadas de monitor y contacto de
+        emergencia. Todos los integrantes pueden comunicarse y protegerse entre
+        sí con permisos individuales.
+      </Alert>
 
       <div className="grid gap-4 sm:grid-cols-[13rem_1fr]">
         <FormField label="Buscar mediante" required>
@@ -755,51 +708,6 @@ function ProtectionStep({
         </FormField>
       </div>
 
-      {kind === "contact" ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            label="Relación contigo"
-            required
-            error={errors.relationship?.message}
-          >
-            {(fieldId) => (
-              <Input
-                id={fieldId}
-                placeholder="Familiar, pareja, amistad…"
-                invalid={Boolean(errors.relationship)}
-                {...register("relationship")}
-              />
-            )}
-          </FormField>
-          <FormField
-            label="Prioridad"
-            required
-            error={errors.priority?.message}
-          >
-            {(fieldId) => (
-              <Select
-                id={fieldId}
-                className="h-10"
-                options={[
-                  { value: "Primary", label: "Principal" },
-                  { value: "Secondary", label: "Secundaria" },
-                ]}
-                {...register("priority")}
-              />
-            )}
-          </FormField>
-          <label className="flex items-start gap-2.5 rounded-xl border border-line bg-panel-soft p-4 text-sm text-secondary sm:col-span-2">
-            <Checkbox {...register("makePrimaryWhenAccepted")} />
-            Convertirlo en mi contacto principal cuando acepte.
-          </label>
-        </div>
-      ) : (
-        <Alert tone="info">
-          La invitación de monitoreo iniciará con permisos de rutas, ubicación,
-          incidentes, alertas, telemetría, mensajes y notificaciones. La ficha
-          médica requiere consentimiento adicional y no se comparte por defecto.
-        </Alert>
-      )}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
         <Button
@@ -811,7 +719,7 @@ function ProtectionStep({
           Terminar sin invitar
         </Button>
         <Button type="submit" loading={loading}>
-          Enviar invitación y terminar
+          Enviar invitación de grupo
         </Button>
       </div>
     </form>
@@ -859,8 +767,7 @@ function Completion({
         <Alert tone="warning" title="Guarda este código de invitación">
           <p className="mb-3">
             Se muestra una sola vez. Compártelo únicamente con la persona que
-            invitaste como{" "}
-            {invitation.kind === "contact" ? "contacto" : "monitor"}.
+            invitaste a tu grupo de protección.
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <code className="flex-1 rounded-lg bg-panel-raised px-3 py-2 text-center font-semibold text-primary">
@@ -1026,37 +933,19 @@ export function RegistrationOnboardingPage() {
       const target = values.target.trim();
       const targetFields = invitationTarget(values.targetType, target);
 
-      let result: RegistrationInvitationResult;
-      if (values.invitationKind === "contact") {
-        const input: ContactInvitationInput = {
-          ...targetFields,
-          relationship: values.relationship.trim(),
-          priority: values.priority,
-          makePrimaryWhenAccepted: values.makePrimaryWhenAccepted,
-        };
-        const response = await contactsApi.createInvitation(input);
-        result = { kind: "contact", manualCode: response.manualCode };
-      } else {
-        const response = await monitoringApi.createInvitation({
-          ...targetFields,
-          direction: "MonitoredRequestsMonitor",
-          permissions: MONITORING_DEFAULT_PERMISSIONS,
-        });
-        result = { kind: "monitor", manualCode: response.manualCode };
-      }
-
+      const response = await familyApi.createInvitation(targetFields);
       await profileApi.updateOnboarding({
         currentStep: 8,
         status: "Completed",
       });
-      return result;
+      return { kind: "group", manualCode: response.manualCode };
     },
     onSuccess: async (result) => {
       setInvitationResult(result);
       setStep(6);
       await Promise.all([
         refreshAfterStep(),
-        queryClient.invalidateQueries({ queryKey: queryKeys.contacts }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.family }),
         queryClient.invalidateQueries({ queryKey: queryKeys.monitoring }),
       ]);
     },

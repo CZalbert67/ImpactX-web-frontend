@@ -34,7 +34,7 @@ export function DashboardPage() {
             <div className="lg:col-span-2"><RecentTripsCard trips={dashboard.recentTrips} /></div>
             <QuickActionsCard actions={[
               { id: "vehicles", label: "Administrar vehículos", to: "/app/vehicles" },
-              { id: "family", label: "Ver plan familiar", to: "/app/family" },
+              { id: "family", label: "Ver plan y grupo", to: "/app/family" },
               { id: "monitoring", label: "Abrir monitoreo", to: "/app/monitoring" },
               { id: "messages", label: "Mensajes rápidos", to: "/app/messages" },
               { id: "trips", label: "Consultar viajes", to: "/app/trips" },

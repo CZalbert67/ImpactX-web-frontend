@@ -4,13 +4,13 @@ Fecha: 2026-08-03
 
 ## Candidato de integración V1
 
-El frontend fue alineado con el backend ImpactX desplegado y con el contrato `2026.08.04`. La paleta original se conserva sin cambios.
+El frontend fue alineado con el backend ImpactX desplegado y con el contrato `2026.08.05`. La paleta original se conserva sin cambios.
 
 ## Implementado
 
 - Registro V2 y autenticación web.
 - Validación de contrato y capacidades antes de abrir el panel.
-- Dashboard, vehículos, plan familiar y monitoreo.
+- Dashboard, vehículos, plan y grupo y monitoreo.
 - Mensajes rápidos, alertas, incidentes y contactos canónicos.
 - Viajes y telemetría de solo lectura, controlados exclusivamente por Galaxy Watch 8.
 - Notificaciones, rutas, perfil, onboarding, configuración y 2FA.

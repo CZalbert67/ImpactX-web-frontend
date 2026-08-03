@@ -48,28 +48,20 @@ describe("onboarding de registro", () => {
     ).toBe(true);
   });
 
-  it("exige relación para un contacto de emergencia", () => {
+  it("rechaza una invitación de grupo con correo inválido", () => {
     expect(
       protectionOnboardingSchema.safeParse({
-        invitationKind: "contact",
-        targetType: "username",
-        target: "persona_confianza",
-        relationship: "",
-        priority: "Primary",
-        makePrimaryWhenAccepted: true,
+        targetType: "email",
+        target: "correo-invalido",
       }).success,
     ).toBe(false);
   });
 
-  it("acepta una invitación de monitor por ID público", () => {
+  it("acepta una invitación de grupo por ID público", () => {
     expect(
       protectionOnboardingSchema.safeParse({
-        invitationKind: "monitor",
         targetType: "publicProfileId",
         target: "PUB-123456",
-        relationship: "",
-        priority: "Secondary",
-        makePrimaryWhenAccepted: false,
       }).success,
     ).toBe(true);
   });

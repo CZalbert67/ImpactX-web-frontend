@@ -20,6 +20,7 @@ export const queryKeys = {
   family: ["family-subscriptions"] as const,
   familyCurrent: ["family-subscriptions", "current"] as const,
   familyMembers: ["family-subscriptions", "members"] as const,
+  familyAccess: ["family-subscriptions", "members", "access"] as const,
   familyInvitations: ["family-subscriptions", "invitations"] as const,
   familyIncomingInvitations: ["family-subscriptions", "invitations", "incoming"] as const,
 

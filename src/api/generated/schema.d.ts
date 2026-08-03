@@ -3708,6 +3708,145 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/family-subscriptions/members/access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/family-subscriptions/members/{targetPublicProfileId}/access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    targetPublicProfileId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateFamilyMemberAccessRequest"];
+                    "text/json": components["schemas"]["UpdateFamilyMemberAccessRequest"];
+                    "application/*+json": components["schemas"]["UpdateFamilyMemberAccessRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/family-subscriptions/invitations": {
         parameters: {
             query?: never;
@@ -4051,6 +4190,78 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/family-subscriptions/invitations/{publicInvitationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    publicInvitationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -12533,6 +12744,8 @@ export interface components {
             frecuenciaCardiaca?: number | string;
             severidad?: string;
             viajeId?: null | string;
+            /** Format: uuid */
+            clientEventId?: null | string;
         };
         Disable2FaRequest: {
             code?: string;
@@ -12655,6 +12868,11 @@ export interface components {
             /** Format: date-time */
             graceEndsAtUtc?: null | string;
             autoRenew?: boolean;
+            canManagePlan?: boolean;
+            canInviteMembers?: boolean;
+            canLeaveGroup?: boolean;
+            /** Format: int32 */
+            sosContactLimit?: number | string;
             latestPayment?: null | components["schemas"]["SimulatedPaymentDto"];
         };
         IncidentActionResponse: {
@@ -12917,6 +13135,9 @@ export interface components {
             referenciaId?: null | string;
             referenciaTipo?: null | string;
             publicRelationshipId?: null | string;
+            evento?: null | string;
+            deepLink?: null | string;
+            entityId?: null | string;
             leida?: boolean;
             /** Format: date-time */
             leidaEn?: null | string;
@@ -13139,6 +13360,8 @@ export interface components {
             frecuenciaCardiaca?: null | string;
             modo?: string;
             viajeId?: null | string;
+            /** Format: uuid */
+            clientEventId?: null | string;
         };
         StartTripRequest: {
             dispositivoId?: string;
@@ -13367,6 +13590,20 @@ export interface components {
         UpdateEmergencyContactRequest: {
             relationship?: null | string;
             priority?: null | string;
+        };
+        UpdateFamilyMemberAccessRequest: {
+            viewRoutes?: boolean;
+            viewLocation?: boolean;
+            viewEmergencyLocation?: boolean;
+            viewIncidents?: boolean;
+            receiveCriticalAlerts?: boolean;
+            viewMedicalProfile?: boolean;
+            sendMessages?: boolean;
+            viewTelemetry?: boolean;
+            receiveNotifications?: boolean;
+            confirmMedicalConsent?: boolean;
+            /** Format: int32 */
+            sosPriority?: null | number | string;
         };
         UpdateMedicalProfileRequest: {
             tipoSangre?: null | string;
