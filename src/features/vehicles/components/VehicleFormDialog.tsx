@@ -6,6 +6,7 @@ import { FormField } from "@/components/ui/FormField";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
+import { VehicleMakeModelFields } from "@/features/vehicles/components/VehicleMakeModelFields";
 import type {
   CreateVehicleInput,
   Vehicle,
@@ -147,32 +148,16 @@ function VehicleForm({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Marca" required>
-          {(fieldId) => (
-            <Input
-              id={fieldId}
-              value={state.marca}
-              maxLength={100}
-              onChange={(event) =>
-                setState((value) => ({ ...value, marca: event.target.value }))
-              }
-              placeholder="Nissan"
-            />
-          )}
-        </FormField>
-        <FormField label="Modelo" required>
-          {(fieldId) => (
-            <Input
-              id={fieldId}
-              value={state.modelo}
-              maxLength={100}
-              onChange={(event) =>
-                setState((value) => ({ ...value, modelo: event.target.value }))
-              }
-              placeholder="Versa"
-            />
-          )}
-        </FormField>
+        <VehicleMakeModelFields
+          make={state.marca}
+          model={state.modelo}
+          onMakeChange={(marca) =>
+            setState((value) => ({ ...value, marca }))
+          }
+          onModelChange={(modelo) =>
+            setState((value) => ({ ...value, modelo }))
+          }
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

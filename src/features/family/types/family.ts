@@ -20,7 +20,7 @@ export type FamilyInvitationStatus =
   | "Revoked"
   | "Consumed";
 
-export type FamilyPlanName = "Free" | "Basic" | "Premium";
+export type FamilyPlanName = "Free" | "Standard" | "Premium";
 
 export interface SimulatedPayment {
   publicPaymentId: string;
@@ -41,12 +41,18 @@ export interface FamilySubscriptionSummary {
   ownerName: string;
   acceptedMembers: number;
   invitedMemberLimit: number;
+  totalActivePeople: number;
+  totalPeopleLimit: number;
+  pendingInvitationCount: number;
   availableMemberSlots: number;
   vehicleLimitPerUser: number;
   pendingAdjustment: boolean;
   pendingPlanName: string | null;
   periodStartUtc: string;
   periodEndUtc: string;
+  nextBillingAtUtc?: string | null;
+  graceEndsAtUtc?: string | null;
+  autoRenew?: boolean;
   latestPayment: SimulatedPayment | null;
 }
 
@@ -68,6 +74,13 @@ export interface FamilyInvitation {
   status: FamilyInvitationStatus;
   createdAtUtc: string;
   expiresAtUtc: string;
+}
+
+export interface IncomingFamilyInvitation extends FamilyInvitation {
+  ownerPublicProfileId: string;
+  ownerUsername: string;
+  ownerName: string;
+  planName: FamilyPlanName;
 }
 
 export interface CreateFamilyInvitationInput {

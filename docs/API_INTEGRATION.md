@@ -1,46 +1,60 @@
 # Integración con la API de ImpactX
 
-## Backend
+## Backend y contrato
 
 ```text
-https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net
+API:      https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net
+OpenAPI:  /openapi/v1.json
+Contrato: /api/v1/meta/contract
+Web:      /api/v1/meta/clients/web
+Versión:  2026.08.04
 ```
 
-El documento de contrato se obtiene desde `/openapi/v1.json` mediante `npm run api:generate`.
+`npm run api:generate` actualiza `src/api/generated/schema.d.ts` desde el OpenAPI productivo.
 
 ## Autenticación
 
-Login y registro envían siempre:
+Login y registro envían `client: "web"`. El registro usa el contrato V2: username, teléfono, contraseña fuerte, aceptación legal y consentimientos opcionales. Una cuenta nueva comienza en Free; el frontend nunca permite elegir un plan durante el registro.
 
-```json
-{"client":"web"}
-```
-
-El login usa `identifier`, por lo que acepta correo o nombre de usuario. Los tokens se guardan en `sessionStorage`, se adjuntan con el interceptor Axios y el refresh se ejecuta en modo single-flight.
+Los tokens se conservan en `sessionStorage`, se adjuntan mediante Axios y el refresh se ejecuta en modo single-flight.
 
 ## Módulos integrados
 
 | Módulo | Rutas principales |
 | --- | --- |
-| Vehículos | `/api/v1/vehicles` |
+| Contrato | `/api/v1/meta/contract`, `/api/v1/meta/clients/web` |
+| Cuenta | `/api/v1/account/*` |
+| Vehículos | `/api/v1/vehicles/*` |
 | Familia | `/api/v1/family-subscriptions/*` |
 | Monitoreo | `/api/v1/monitoring-relationships/*` |
 | Mensajes rápidos | `/api/v1/quick-messages/*` |
-| Viajes | GET `/api/v1/trips`, `/active`, `/{id}/telemetry` |
-| Alertas | GET `/api/v1/alerts` |
-| Incidentes | `/api/v1/incidents/*` |
-| Contactos | `/api/v1/contacts/*` |
-| Dispositivos | `/api/v1/devices/*` |
+| Viajes | GET `/api/v1/trips`, `/active` y `/{id}/telemetry` |
+| Alertas | GET `/api/v1/alerts/*` |
+| Incidentes | `/api/v1/incidents/*` permitidos para web |
+| Contactos | `/api/v1/contacts/*` basado en invitaciones |
 | Notificaciones | `/api/v1/notifications/*` |
 | Rutas | `/api/v1/routes/*` |
 | Perfil | `/api/v1/profile/*` |
 | Configuración | `/api/v1/settings/*` |
-| Wearables | GET `/api/v1/wearable/all` y diagnóstico legacy autorizado |
 
-## Errores
+No se crean pantallas principales de dispositivos o wearable. La vinculación, permisos, sincronización y diagnóstico operativo pertenecen a móvil/wearable.
 
-`AppApiError` normaliza `ProblemDetails`, códigos 400/401/403/404/409/413/429 y errores de red. Las mutaciones invalidan únicamente las claves de TanStack Query afectadas.
+## Errores y caché
 
-## Contratos manuales
+`AppApiError` normaliza `ProblemDetails`, estados 400/401/403/404/409/413/429 y errores de red. Las mutaciones invalidan únicamente las claves de TanStack Query afectadas.
 
-Los módulos nuevos conservan DTOs manuales explícitos para evitar exponer identificadores internos. El esquema OpenAPI generado sigue siendo la referencia para tipos compartidos y auditoría del servidor.
+El panel comprueba el contrato antes de renderizar el área autenticada. La versión esperada se define con `VITE_API_CONTRACT_VERSION`.
+
+## Datos que cambian por acciones de otras personas
+
+El panel consulta automáticamente:
+
+- mensajes rápidos cada 3 segundos;
+- invitaciones familiares cada 5 segundos;
+- relaciones de monitoreo cada 5 segundos;
+- notificaciones cada 8 segundos;
+- alertas e incidentes cada 10 segundos en sus respectivas pantallas.
+
+Las consultas se suspenden cuando la pestaña está oculta y se reanudan al
+recuperar foco o conexión. La invitación familiar entrante se obtiene desde
+`GET /api/v1/family-subscriptions/invitations/incoming`.

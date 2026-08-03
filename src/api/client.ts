@@ -22,6 +22,11 @@ function createInstance(): AxiosInstance {
  */
 export const publicClient: AxiosInstance = createInstance();
 
+publicClient.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => Promise.reject(AppApiError.from(error)),
+);
+
 /**
  * Cliente autenticado: inyecta `Authorization: Bearer <token>` y gestiona
  * un único refresh en vuelo con reintento de la petición original.

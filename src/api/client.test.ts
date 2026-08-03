@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AxiosResponse } from "axios";
-import { apiClient } from "@/api/client";
+import { apiClient, publicClient } from "@/api/client";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN, TEST_USER } from "@/test/test-utils";
 
@@ -81,6 +81,29 @@ describe("cliente API", () => {
     const captured = installFakeAdapter("ok");
     await apiClient.post("/api/v1/auth/refresh", { refreshToken: "x" });
     expect(captured[0]?.authorization).toBeNull();
+  });
+
+
+  it("neutraliza los errores de las rutas públicas", async () => {
+    publicClient.defaults.adapter = async (config) => {
+      const err = new Error("Network Error: detalle interno") as Error & {
+        config?: unknown;
+        response?: { status: number; data: unknown };
+      };
+      err.config = config;
+      err.response = {
+        status: 500,
+        data: {
+          title: "Fallo de infraestructura",
+          detail: "Cosmos timeout en contenedor Usuarios",
+        },
+      };
+      throw err;
+    };
+
+    await expect(
+      publicClient.get("/api/v1/auth/registration-contract"),
+    ).rejects.toThrow("Ocurrió un inconveniente");
   });
 
   it("no registra tokens en consola al fallar", async () => {

@@ -13,6 +13,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { RelationshipGuide } from "@/features/relationships/components/RelationshipGuide";
 import { Select } from "@/components/ui/Select";
 import { PermissionsEditor } from "@/features/monitoring/components/PermissionsEditor";
 import {
@@ -87,6 +88,8 @@ export function MonitoringPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [targetType, setTargetType] = useState<"username" | "publicProfileId" | "email">("username");
   const [target, setTarget] = useState("");
+  const [inviteDirection, setInviteDirection] =
+    useState<MonitoringRelationship["direction"]>("MonitoredRequestsMonitor");
   const [invitePermissions, setInvitePermissions] = useState(DEFAULT_PERMISSIONS);
   const [manualCode, setManualCode] = useState<string | null>(null);
   const [responseCode, setResponseCode] = useState("");
@@ -109,6 +112,7 @@ export function MonitoringPage() {
       return;
     }
     const input: CreateMonitoringInvitationInput = {
+      direction: inviteDirection,
       permissions: invitePermissions,
       [targetType]: clean,
     };
@@ -141,6 +145,8 @@ export function MonitoringPage() {
         description="Administra relaciones direccionales y permisos para ubicación, incidentes, rutas, telemetría y mensajes."
         actions={<Button leftIcon={<MailPlus className="size-4" aria-hidden="true" />} onClick={() => setInviteOpen(true)}>Invitar</Button>}
       />
+
+      <RelationshipGuide />
 
       {notice ? <Alert tone={notice.startsWith("Escribe") ? "warning" : "success"}>{notice}</Alert> : null}
       {firstError ? <Alert tone="error">{messageOf(firstError)}</Alert> : null}
@@ -181,8 +187,15 @@ export function MonitoringPage() {
         <div className="grid gap-4 lg:grid-cols-2">
           {relationships.data.map((relationship) => {
             const other = counterpart(relationship, currentProfileId);
-            const incoming = relationship.status === "Pending" && !other.userIsMonitor;
-            const canEditPermissions = !other.userIsMonitor && relationship.status === "Accepted";
+            const incoming =
+              relationship.status === "Pending"
+              && (relationship.direction === "MonitoredRequestsMonitor"
+                ? other.userIsMonitor
+                : !other.userIsMonitor);
+            const canEditPermissions =
+              !other.userIsMonitor && relationship.status === "Accepted";
+            const canBlock =
+              !other.userIsMonitor && relationship.status === "Accepted";
             return (
               <Card key={relationship.publicRelationshipId} className="flex h-full flex-col">
                 <div className="flex items-start justify-between gap-3">
@@ -195,7 +208,11 @@ export function MonitoringPage() {
                       {other.userIsMonitor ? "Tú monitoreas" : "Te monitorea"} · {other.publicProfileId ?? relationship.publicRelationshipId}
                     </p>
                   </div>
-                  <Badge tone="neutral">{relationship.direction === "MonitorInvitesMonitored" ? "Invitación del monitor" : "Solicitud de monitor"}</Badge>
+                  <Badge tone="neutral">
+                    {relationship.direction === "MonitorInvitesMonitored"
+                      ? "El monitor invitó"
+                      : "La persona pidió un monitor"}
+                  </Badge>
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-secondary sm:grid-cols-3">
@@ -239,7 +256,7 @@ export function MonitoringPage() {
                       Permisos
                     </Button>
                   ) : null}
-                  {relationship.status === "Accepted" ? (
+                  {canBlock ? (
                     <Button size="sm" variant="ghost" className="text-warning" leftIcon={<Ban className="size-3.5" aria-hidden="true" />} onClick={() => setBlockTarget(relationship)}>Bloquear</Button>
                   ) : null}
                   {!["Revoked", "Rejected", "Expired"].includes(relationship.status) ? (
@@ -252,8 +269,38 @@ export function MonitoringPage() {
         </div>
       ) : null}
 
-      <Modal open={inviteOpen} onClose={createInvitation.isPending ? () => undefined : () => setInviteOpen(false)} title="Invitar a monitoreo" description="El código se mostrará una sola vez. No se coloca en la URL.">
+      <Modal open={inviteOpen} onClose={createInvitation.isPending ? () => undefined : () => setInviteOpen(false)} title="Crear relación de monitoreo" description="Elige claramente quién podrá consultar los datos autorizados.">
         <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="cursor-pointer rounded-xl border border-line bg-panel-soft p-4 has-[:checked]:border-[var(--color-primary)]">
+              <input
+                type="radio"
+                name="monitoring-direction"
+                value="MonitoredRequestsMonitor"
+                checked={inviteDirection === "MonitoredRequestsMonitor"}
+                onChange={() => setInviteDirection("MonitoredRequestsMonitor")}
+                className="mr-2 accent-[var(--color-primary)]"
+              />
+              <span className="font-semibold">Quiero que me monitoree</span>
+              <p className="mt-2 text-xs text-muted">
+                La persona invitada podrá consultar mis datos según los permisos que yo autorice.
+              </p>
+            </label>
+            <label className="cursor-pointer rounded-xl border border-line bg-panel-soft p-4 has-[:checked]:border-[var(--color-primary)]">
+              <input
+                type="radio"
+                name="monitoring-direction"
+                value="MonitorInvitesMonitored"
+                checked={inviteDirection === "MonitorInvitesMonitored"}
+                onChange={() => setInviteDirection("MonitorInvitesMonitored")}
+                className="mr-2 accent-[var(--color-primary)]"
+              />
+              <span className="font-semibold">Yo quiero monitorearla</span>
+              <p className="mt-2 text-xs text-muted">
+                La persona invitada autorizará que yo consulte sus datos.
+              </p>
+            </label>
+          </div>
           {createInvitation.isError ? <Alert tone="error">{messageOf(createInvitation.error)}</Alert> : null}
           <div className="grid gap-3 sm:grid-cols-[11rem_1fr]">
             <Select

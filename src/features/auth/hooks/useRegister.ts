@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { AppApiError } from "@/api/client";
+import { AppApiError } from "@/api/errors";
 import { authApi } from "@/features/auth/api/authApi";
 import {
   toRegisterRequest,
@@ -15,33 +15,47 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: async (values: RegisterInputValues) => {
-      const response = await authApi.register(toRegisterRequest(values));
+      try {
+        const response = await authApi.register(toRegisterRequest(values));
 
-      if (
-        response.success &&
-        response.token &&
-        response.refreshToken &&
-        response.usuario
-      ) {
-        setSession(
-          toSnapshot(
-            response.token,
-            response.refreshToken,
-            response.usuario,
-          ),
-        );
-        return response;
+        if (
+          response.success &&
+          response.token &&
+          response.refreshToken &&
+          response.usuario
+        ) {
+          setSession(
+            toSnapshot(
+              response.token,
+              response.refreshToken,
+              response.usuario,
+            ),
+          );
+          return response;
+        }
+
+        throw new AppApiError({
+          status: 400,
+          message:
+            "No pudimos crear la cuenta con esos datos. Revísalos e inténtalo nuevamente.",
+          title: "Registro no completado",
+        });
+      } catch (error) {
+        const normalized = AppApiError.from(error);
+        throw new AppApiError({
+          status: normalized.status,
+          code: normalized.code,
+          retryAfterSeconds: normalized.retryAfterSeconds,
+          message:
+            normalized.status === 0
+              ? normalized.message
+              : "No pudimos crear la cuenta con esos datos. Revísalos e inténtalo nuevamente.",
+          title: "Registro no completado",
+        });
       }
-
-      throw new AppApiError({
-        status: 400,
-        message:
-          response.mensaje ?? "No se pudo completar el registro.",
-        title: "Registro no completado",
-      });
     },
     onSuccess: () => {
-      navigate("/app/dashboard", { replace: true });
+      navigate("/onboarding", { replace: true });
     },
   });
 }

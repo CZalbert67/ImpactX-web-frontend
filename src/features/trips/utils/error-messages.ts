@@ -1,41 +1,29 @@
 import { AppApiError } from "@/api/errors";
 
-/**
- * Mensajes en español para los errores de las acciones de viaje. Nunca se
- * expone `Exception.Message` crudo: se mapea por status y, como último
- * recurso, se usa el mensaje ya normalizado del `AppApiError`.
- */
+/** Mensajes neutrales y accionables para la interfaz de viajes. */
 export function tripActionErrorMessage(error: unknown): string {
   if (error instanceof AppApiError) {
     switch (error.status) {
       case 400:
-        return "La solicitud no es válida. Revisa los datos.";
+        return "Revisa la información e inténtalo nuevamente.";
       case 401:
-        return "Tu sesión expiró. Vuelve a iniciar sesión e inténtalo de nuevo.";
+        return "Tu sesión terminó. Vuelve a iniciar sesión.";
       case 403:
-        return "No tienes permisos para realizar esta acción.";
+        return "Esta acción no está disponible para tu cuenta.";
       case 404:
         return "El viaje ya no está disponible.";
       case 409:
-        return "El estado actual del viaje no permite esta acción.";
+        return "El viaje cambió de estado. Actualiza la información e inténtalo nuevamente.";
       case 413:
-        return "La solicitud es demasiado grande para el servidor.";
+        return "No pudimos procesar la información enviada.";
       case 429:
-        return "Demasiadas solicitudes. Inténtalo de nuevo en un momento.";
+        return "Has realizado varios intentos. Espera un momento antes de continuar.";
       case 0:
-        return "No se pudo conectar con la API. Revisa tu conexión.";
+        return "No pudimos conectarnos. Revisa tu conexión e inténtalo nuevamente.";
       default:
-        if (error.status >= 500) {
-          return "Ocurrió un error temporal en la API. Inténtalo en un momento.";
-        }
+        return "Ocurrió un inconveniente. Inténtalo nuevamente en unos momentos.";
     }
-
-    if (error.message.trim() !== "") return error.message;
-    return "No se pudo completar la acción.";
   }
 
-  if (error instanceof Error && error.message.trim() !== "") {
-    return "No se pudo completar la acción.";
-  }
-  return "Ocurrió un error inesperado.";
+  return "No pudimos completar la acción. Inténtalo nuevamente.";
 }

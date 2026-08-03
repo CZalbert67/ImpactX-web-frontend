@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
+import { LIVE_QUERY_INTERVAL, liveQueryOptions } from "@/api/liveQuery";
 import { monitoringApi } from "@/features/monitoring/api/monitoringApi";
 import type {
   CreateMonitoringInvitationInput,
@@ -11,6 +12,7 @@ export function useMonitoringRelationships() {
   return useQuery({
     queryKey: queryKeys.monitoring,
     queryFn: ({ signal }) => monitoringApi.getAll(signal),
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.relationships),
   });
 }
 

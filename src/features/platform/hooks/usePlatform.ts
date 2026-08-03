@@ -1,20 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
+import { LIVE_QUERY_INTERVAL, liveQueryOptions } from "@/api/liveQuery";
 import {
   alertsApi,
   contactsApi,
-  devicesApi,
   incidentsApi,
   notificationsApi,
   profileApi,
   routesApi,
   settingsApi,
-  wearablesApi,
 } from "@/features/platform/api";
 import type {
-  ContactInput,
+  ContactInvitationInput,
+  ContactResponseInput,
   ContactUpdateInput,
-  DeviceRegistrationInput,
   DriverProfile,
   IncidentFilters,
   MedicalProfile,
@@ -32,13 +31,22 @@ function useRefresh(keys: readonly (readonly unknown[])[]) {
 }
 
 export function useAlerts() {
-  return useQuery({ queryKey: queryKeys.alerts, queryFn: ({ signal }) => alertsApi.getAll(signal) });
+  return useQuery({ queryKey: queryKeys.alerts, queryFn: ({ signal }) => alertsApi.getAll(signal), ...liveQueryOptions(LIVE_QUERY_INTERVAL.activity) });
 }
 
 export function useIncidents(filters: IncidentFilters = {}) {
   return useQuery({
     queryKey: [...queryKeys.incidents, filters] as const,
     queryFn: ({ signal }) => incidentsApi.getAll(filters, signal),
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.activity),
+  });
+}
+
+export function useActiveIncidents() {
+  return useQuery({
+    queryKey: queryKeys.activeIncidents,
+    queryFn: ({ signal }) => incidentsApi.getActive(signal),
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.activity),
   });
 }
 
@@ -50,8 +58,26 @@ export function useIncident(id: string | null) {
   });
 }
 
+export function useIncidentMap(id: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...queryKeys.incident(id), "map"] as const,
+    queryFn: () => incidentsApi.getMap(id),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useCloseIncident() {
+  const refresh = useRefresh([queryKeys.incidents, queryKeys.activeIncidents]);
+  return useMutation({
+    mutationFn: ({ id, metodoCierre, nota }: { id: string; metodoCierre: string; nota?: string }) =>
+      incidentsApi.close(id, metodoCierre, nota),
+    onSuccess: refresh,
+  });
+}
+
 export function useMarkFalseAlarm() {
-  const refresh = useRefresh([queryKeys.incidents]);
+  const refresh = useRefresh([queryKeys.incidents, queryKeys.activeIncidents]);
   return useMutation({
     mutationFn: ({ id, nota }: { id: string; nota?: string }) => incidentsApi.markFalseAlarm(id, nota),
     onSuccess: refresh,
@@ -59,7 +85,7 @@ export function useMarkFalseAlarm() {
 }
 
 export function useUpdateIncidentNote() {
-  const refresh = useRefresh([queryKeys.incidents]);
+  const refresh = useRefresh([queryKeys.incidents, queryKeys.activeIncidents]);
   return useMutation({
     mutationFn: ({ id, nota }: { id: string; nota: string }) => incidentsApi.updateNote(id, nota),
     onSuccess: refresh,
@@ -67,18 +93,43 @@ export function useUpdateIncidentNote() {
 }
 
 export function useContacts() {
-  return useQuery({ queryKey: queryKeys.contacts, queryFn: ({ signal }) => contactsApi.getAll(signal) });
+  return useQuery({
+    queryKey: queryKeys.contacts,
+    queryFn: ({ signal }) => contactsApi.getAll(signal),
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.invitations),
+  });
 }
 
-export function useCreateContact() {
+export function useCreateContactInvitation() {
   const refresh = useRefresh([queryKeys.contacts]);
-  return useMutation({ mutationFn: (input: ContactInput) => contactsApi.create(input), onSuccess: refresh });
+  return useMutation({
+    mutationFn: (input: ContactInvitationInput) =>
+      contactsApi.createInvitation(input),
+    onSuccess: refresh,
+  });
+}
+
+export function useAcceptContactInvitation() {
+  const refresh = useRefresh([queryKeys.contacts]);
+  return useMutation({
+    mutationFn: (input: ContactResponseInput) => contactsApi.accept(input),
+    onSuccess: refresh,
+  });
+}
+
+export function useRejectContactInvitation() {
+  const refresh = useRefresh([queryKeys.contacts]);
+  return useMutation({
+    mutationFn: (input: ContactResponseInput) => contactsApi.reject(input),
+    onSuccess: refresh,
+  });
 }
 
 export function useUpdateContact() {
   const refresh = useRefresh([queryKeys.contacts]);
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: ContactUpdateInput }) => contactsApi.update(id, input),
+    mutationFn: ({ id, input }: { id: string; input: ContactUpdateInput }) =>
+      contactsApi.update(id, input),
     onSuccess: refresh,
   });
 }
@@ -93,27 +144,13 @@ export function useMakePrimaryContact() {
   return useMutation({ mutationFn: (id: string) => contactsApi.makePrimary(id), onSuccess: refresh });
 }
 
-export function useDevices() {
-  return useQuery({ queryKey: queryKeys.devices, queryFn: ({ signal }) => devicesApi.getAll(signal) });
-}
-
-export function useRegisterDevice() {
-  const refresh = useRefresh([queryKeys.devices]);
-  return useMutation({ mutationFn: (input: DeviceRegistrationInput) => devicesApi.register(input), onSuccess: refresh });
-}
-
-export function useDeleteDevice() {
-  const refresh = useRefresh([queryKeys.devices]);
-  return useMutation({ mutationFn: (id: string) => devicesApi.remove(id), onSuccess: refresh });
-}
-
-export function useDeleteAllDevices() {
-  const refresh = useRefresh([queryKeys.devices]);
-  return useMutation({ mutationFn: () => devicesApi.removeAll(), onSuccess: refresh });
+export function useBlockContact() {
+  const refresh = useRefresh([queryKeys.contacts]);
+  return useMutation({ mutationFn: (id: string) => contactsApi.block(id), onSuccess: refresh });
 }
 
 export function useNotifications() {
-  return useQuery({ queryKey: queryKeys.notifications, queryFn: ({ signal }) => notificationsApi.getAll(signal) });
+  return useQuery({ queryKey: queryKeys.notifications, queryFn: ({ signal }) => notificationsApi.getAll(signal), ...liveQueryOptions(LIVE_QUERY_INTERVAL.notifications) });
 }
 
 export function useToggleNotificationRead() {
@@ -259,12 +296,4 @@ export function useEnable2Fa() {
 export function useDisable2Fa() {
   const refresh = useRefresh([queryKeys.settings, queryKeys.fullProfile]);
   return useMutation({ mutationFn: (code: string) => settingsApi.disable2Fa(code), onSuccess: refresh });
-}
-
-export function useWearables() {
-  return useQuery({ queryKey: queryKeys.wearables, queryFn: ({ signal }) => wearablesApi.getAll(signal) });
-}
-
-export function useWearableDiagnostics() {
-  return useQuery({ queryKey: queryKeys.wearableDiagnostics, queryFn: ({ signal }) => wearablesApi.getDiagnostics(signal) });
 }

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
-import { AppApiError } from "@/api/client";
+import { AppApiError } from "@/api/errors";
 import { authApi } from "@/features/auth/api/authApi";
 import {
   toLoginRequest,
@@ -23,29 +23,44 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (values: LoginFormValues) => {
-      const response = await authApi.login(toLoginRequest(values));
+      try {
+        const response = await authApi.login(toLoginRequest(values));
 
-      if (
-        response.success &&
-        response.token &&
-        response.refreshToken &&
-        response.usuario
-      ) {
-        setSession(
-          toSnapshot(
-            response.token,
-            response.refreshToken,
-            response.usuario,
-          ),
-        );
-        return response;
+        if (
+          response.success &&
+          response.token &&
+          response.refreshToken &&
+          response.usuario
+        ) {
+          setSession(
+            toSnapshot(
+              response.token,
+              response.refreshToken,
+              response.usuario,
+            ),
+          );
+          return response;
+        }
+
+        throw new AppApiError({
+          status: 401,
+          message:
+            "No pudimos iniciar sesión. Revisa tus datos e inténtalo nuevamente.",
+          title: "Inicio de sesión no completado",
+        });
+      } catch (error) {
+        const normalized = AppApiError.from(error);
+        throw new AppApiError({
+          status: normalized.status,
+          code: normalized.code,
+          retryAfterSeconds: normalized.retryAfterSeconds,
+          message:
+            normalized.status === 0
+              ? normalized.message
+              : "No pudimos iniciar sesión. Revisa tus datos e inténtalo nuevamente.",
+          title: "Inicio de sesión no completado",
+        });
       }
-
-      throw new AppApiError({
-        status: 401,
-        message: response.mensaje ?? "Credenciales inválidas.",
-        title: "Acceso denegado",
-      });
     },
     onSuccess: () => {
       navigate(intended, { replace: true });

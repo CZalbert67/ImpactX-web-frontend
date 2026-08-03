@@ -1,6 +1,7 @@
 import apiClient from "@/api/client";
 import type {
   QuickMessage,
+  QuickMessageRecipient,
   QuickMessageTemplate,
   SendQuickMessageInput,
   UnreadCountResponse,
@@ -10,6 +11,14 @@ import type {
 const BASE = "/api/v1/quick-messages";
 
 export const messagesApi = {
+  async getRecipients(signal?: AbortSignal): Promise<QuickMessageRecipient[]> {
+    const { data } = await apiClient.get<QuickMessageRecipient[]>(
+      `${BASE}/recipients`,
+      { signal },
+    );
+    return Array.isArray(data) ? data : [];
+  },
+
   async getTemplates(signal?: AbortSignal): Promise<QuickMessageTemplate[]> {
     const { data } = await apiClient.get<QuickMessageTemplate[]>(
       `${BASE}/templates`,
@@ -73,5 +82,12 @@ export const messagesApi = {
     await apiClient.patch(
       `${BASE}/${encodeURIComponent(publicMessageId)}/read`,
     );
+  },
+
+  async markConversationRead(otherPublicProfileId: string): Promise<number> {
+    const { data } = await apiClient.patch<{ marked?: number }>(
+      `${BASE}/conversations/${encodeURIComponent(otherPublicProfileId)}/read`,
+    );
+    return Number.isFinite(data?.marked) ? Number(data.marked) : 0;
   },
 };

@@ -56,6 +56,7 @@ export interface CreateMonitoringInvitationInput {
   username?: string;
   publicProfileId?: string;
   email?: string;
+  direction: MonitoringRequestDirection;
   permissions: MonitoringInvitationPermissions;
 }
 

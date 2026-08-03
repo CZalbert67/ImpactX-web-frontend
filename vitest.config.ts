@@ -11,6 +11,7 @@ export default defineConfig({
     "import.meta.env.VITE_API_BASE_URL": JSON.stringify(
       "https://api.test.invalid",
     ),
+    "import.meta.env.VITE_API_CONTRACT_VERSION": JSON.stringify("2026.08.04"),
   },
   test: {
     environment: "jsdom",

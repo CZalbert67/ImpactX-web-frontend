@@ -3,6 +3,7 @@ import type {
   CreateFamilyInvitationInput,
   CreateFamilyInvitationResponse,
   FamilyInvitation,
+  IncomingFamilyInvitation,
   FamilyMember,
   FamilyPlanName,
   FamilySubscriptionSummary,
@@ -67,6 +68,16 @@ export const familyApi = {
   async getInvitations(signal?: AbortSignal): Promise<FamilyInvitation[]> {
     const { data } = await apiClient.get<FamilyInvitation[]>(
       `${BASE}/invitations`,
+      { signal },
+    );
+    return Array.isArray(data) ? data : [];
+  },
+
+  async getIncomingInvitations(
+    signal?: AbortSignal,
+  ): Promise<IncomingFamilyInvitation[]> {
+    const { data } = await apiClient.get<IncomingFamilyInvitation[]>(
+      `${BASE}/invitations/incoming`,
       { signal },
     );
     return Array.isArray(data) ? data : [];

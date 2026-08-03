@@ -30,12 +30,8 @@ function isNetworkError(error: unknown): boolean {
 }
 
 function errorMessage(error: unknown): string {
-  if (error instanceof AppApiError) {
-    return error.status >= 500
-      ? "La API presenta un error temporal. Inténtalo en un momento."
-      : error.message;
-  }
-  return "No se pudo conectar con la API.";
+  if (error instanceof AppApiError) return error.message;
+  return "No pudimos cargar la información. Inténtalo nuevamente.";
 }
 
 /**

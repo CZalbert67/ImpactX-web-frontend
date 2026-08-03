@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
+import { LIVE_QUERY_INTERVAL, liveQueryOptions } from "@/api/liveQuery";
 import { familyApi } from "@/features/family/api/familyApi";
 import type {
   CreateFamilyInvitationInput,
@@ -10,6 +11,7 @@ export function useCurrentFamilySubscription() {
   return useQuery({
     queryKey: queryKeys.familyCurrent,
     queryFn: ({ signal }) => familyApi.getCurrent(signal),
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.invitations),
   });
 }
 
@@ -18,6 +20,7 @@ export function useFamilyMembers(enabled = true) {
     queryKey: queryKeys.familyMembers,
     queryFn: ({ signal }) => familyApi.getMembers(signal),
     enabled,
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.invitations),
   });
 }
 
@@ -26,6 +29,16 @@ export function useFamilyInvitations(enabled = true) {
     queryKey: queryKeys.familyInvitations,
     queryFn: ({ signal }) => familyApi.getInvitations(signal),
     enabled,
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.invitations),
+  });
+}
+
+export function useIncomingFamilyInvitations(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.familyIncomingInvitations,
+    queryFn: ({ signal }) => familyApi.getIncomingInvitations(signal),
+    enabled,
+    ...liveQueryOptions(LIVE_QUERY_INTERVAL.invitations),
   });
 }
 
@@ -34,6 +47,7 @@ function useInvalidateFamily() {
   return async () => {
     await Promise.all([
       client.invalidateQueries({ queryKey: queryKeys.family }),
+      client.invalidateQueries({ queryKey: queryKeys.familyIncomingInvitations }),
       client.invalidateQueries({ queryKey: queryKeys.vehicles }),
       client.invalidateQueries({ queryKey: queryKeys.monitoring }),
     ]);

@@ -1,4 +1,7 @@
 export const queryKeys = {
+  apiContract: ["meta", "contract"] as const,
+  webCapabilities: ["meta", "clients", "web"] as const,
+  registrationContract: ["auth", "registration-contract"] as const,
   profile: ["auth", "profile"] as const,
   plans: ["plans"] as const,
   dashboard: ["dashboard"] as const,
@@ -18,6 +21,7 @@ export const queryKeys = {
   familyCurrent: ["family-subscriptions", "current"] as const,
   familyMembers: ["family-subscriptions", "members"] as const,
   familyInvitations: ["family-subscriptions", "invitations"] as const,
+  familyIncomingInvitations: ["family-subscriptions", "invitations", "incoming"] as const,
 
   monitoring: ["monitoring-relationships"] as const,
   monitoringDetail: (publicRelationshipId: string) =>
@@ -41,9 +45,9 @@ export const queryKeys = {
 
   alerts: ["alerts"] as const,
   incidents: ["incidents"] as const,
+  activeIncidents: ["incidents", "active"] as const,
   incident: (id: string) => ["incidents", id] as const,
   contacts: ["contacts"] as const,
-  devices: ["devices"] as const,
   notifications: ["notifications"] as const,
   routesFrequent: ["routes", "frequent"] as const,
   routesHistory: ["routes", "history"] as const,
@@ -53,6 +57,5 @@ export const queryKeys = {
   profileMedical: ["profile", "medical"] as const,
   profileOnboarding: ["profile", "onboarding"] as const,
   settings: ["settings"] as const,
-  wearables: ["wearables"] as const,
-  wearableDiagnostics: ["wearables", "diagnostics"] as const,
+  accountRetention: ["account", "retention"] as const,
 } as const;

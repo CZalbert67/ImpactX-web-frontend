@@ -101,7 +101,7 @@ describe("Página de Dashboard (datos reales)", () => {
       await screen.findByText(/aún no hay viajes/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/los viajes iniciados desde móvil o wearable aparecerán/i),
+      screen.getByText(/los viajes iniciados desde el galaxy watch 8 aparecerán/i),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /iniciar viaje/i }),

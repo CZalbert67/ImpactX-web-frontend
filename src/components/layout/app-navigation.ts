@@ -10,11 +10,10 @@ import {
   Settings,
   ShieldAlert,
   ShieldCheck,
-  Smartphone,
   TriangleAlert,
+  UserCog,
   UserRound,
   Users,
-  Watch,
   type LucideProps,
 } from "lucide-react";
 
@@ -36,12 +35,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "rutas", label: "Rutas", to: "/app/routes", icon: MapPinned },
   { id: "alertas", label: "Alertas", to: "/app/alerts", icon: TriangleAlert },
   { id: "incidentes", label: "Incidentes", to: "/app/incidents", icon: ShieldAlert },
-  { id: "wearables", label: "Wearables", to: "/app/wearables", icon: Watch },
-  { id: "dispositivos", label: "Dispositivos", to: "/app/devices", icon: Smartphone },
   { id: "contactos", label: "Contactos", to: "/app/contacts", icon: Contact },
   { id: "notificaciones", label: "Notificaciones", to: "/app/notifications", icon: Bell },
   { id: "perfil", label: "Perfil", to: "/app/profile", icon: UserRound },
   { id: "configuracion", label: "Configuración", to: "/app/settings", icon: Settings },
+  { id: "cuenta", label: "Cuenta y privacidad", to: "/app/account", icon: UserCog },
 ] as const;
 
 export function findNavItem(pathname: string): NavItem | undefined {

@@ -1,24 +1,24 @@
 # ImpactX Web Frontend
 
-Panel web de ImpactX conectado al backend productivo en Azure. El frontend permite administrar la cuenta, vehículos, familia, monitoreo y recursos web autorizados, manteniendo el control de viajes y la ingesta de telemetría exclusivamente en móvil y wearable.
+Panel web React de ImpactX conectado al backend productivo en Azure y al contrato API V1 congelado `2026.08.04`.
+
+La web administra los recursos permitidos para el cliente `web`. Los viajes y la telemetría son de solo lectura; iniciar, pausar, reanudar, finalizar y enviar telemetría corresponde exclusivamente al Galaxy Watch 8.
 
 ## Stack
 
-- React 19 + TypeScript 5.9 estricto
+- React 19 + TypeScript estricto
 - Vite 8
 - React Router 8
-- TanStack Query 5 + Axios
+- TanStack Query + Axios
 - React Hook Form + Zod
 - Zustand
-- Tailwind CSS 4 con los tres temas originales
+- Tailwind CSS 4
 - Vitest + React Testing Library
 
 ## Requisitos
 
 - Node.js `>= 22.22.2`
 - npm `>= 10.9.0`
-
-Las versiones mínimas reflejan los requisitos de React Router 8 y JSDOM incluidos en el lockfile.
 
 ## Instalación
 
@@ -29,44 +29,54 @@ npm run api:generate
 npm run dev
 ```
 
-La URL predeterminada es:
+Configuración de producción incluida en `.env.example`:
 
 ```text
-https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net
+VITE_API_BASE_URL=https://impactx-api-backend-h0eyf9c4fxd8dsbc.westus-01.azurewebsites.net
+VITE_API_CONTRACT_VERSION=2026.08.04
 ```
 
-## Validación
+## Validación completa
 
 ```bash
 bash scripts/verify-frontend.sh
 ```
 
-La validación ejecuta generación OpenAPI, typecheck, lint, pruebas y build. También comprueba que la paleta original no haya cambiado y que la capa web no incluya mutaciones de control de viajes o telemetría.
+El script comprueba la paleta original, fronteras de capacidad web, contrato OpenAPI, typecheck, lint, pruebas y build.
 
 ## Módulos web
 
-- Autenticación por correo o usuario, siempre con capacidad `web`.
-- Dashboard y consulta de viajes/telemetría.
+- Registro V2, login, refresh y sesión web.
+- Dashboard.
 - Vehículos y vehículo principal.
-- Suscripción familiar, miembros e invitaciones.
+- Plan familiar, miembros, invitaciones y renovación simulada.
 - Relaciones de monitoreo y permisos.
-- Mensajes rápidos oficiales y personalizados.
+- Mensajes rápidos.
+- Viajes y telemetría en modo consulta.
 - Alertas e incidentes.
-- Rutas frecuentes e historial.
-- Contactos de emergencia.
-- Dispositivos y tokens de notificación.
+- Contactos de emergencia mediante invitaciones aceptadas.
 - Notificaciones.
-- Wearables en modo consulta.
+- Rutas frecuentes e historial.
 - Perfil, ficha médica opcional, preferencias y onboarding.
 - Configuración y 2FA.
+- Exportación, consentimientos, retención y eliminación de cuenta.
 
-## Límite de capacidad web
+Las páginas principales antiguas de dispositivos y wearables fueron retiradas. El wearable se administra desde la aplicación móvil y el estado relevante se consulta mediante los módulos autorizados.
 
-El frontend web **no** inicia, pausa, reanuda ni finaliza viajes; tampoco envía telemetría, crea alertas SOS ni vincula/calibra wearables. Aunque el OpenAPI generado describe el contrato completo del servidor, esos métodos no existen en la capa HTTP ni en la interfaz web.
+## Contrato y seguridad
+
+Al entrar al panel se validan:
+
+- `apiVersion: v1`
+- `contractVersion: 2026.08.04`
+- `status: frozen`
+- capacidades publicadas para `web`
+
+Ante una versión incompatible, el panel se bloquea para evitar operar contra un contrato no revisado.
 
 ## Temas
 
-La paleta de `src/styles/themes.css` se conserva byte por byte respecto al `main` recibido. Temas disponibles:
+`src/styles/themes.css` se conserva byte por byte respecto al frontend recibido. Temas disponibles:
 
 - ImpactX Neon
 - Profesional
@@ -74,9 +84,9 @@ La paleta de `src/styles/themes.css` se conserva byte por byte respecto al `main
 
 ## Documentación
 
+- `docs/FRONTEND_COMPLETION_V1.md`
 - `docs/FRONTEND_ARCHITECTURE.md`
 - `docs/API_INTEGRATION.md`
+- `docs/WEB_CAPABILITY_BOUNDARIES.md`
 - `docs/DESIGN_SYSTEM.md`
 - `docs/FRONTEND_SECURITY.md`
-- `docs/FRONTEND_PHASE2_STATUS.md`
-- `docs/WEB_CAPABILITY_BOUNDARIES.md`

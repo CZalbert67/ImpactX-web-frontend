@@ -4,6 +4,296 @@
  */
 
 export interface paths {
+    "/api/v1/account/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AccountExportV2Dto"];
+                        "application/json": components["schemas"]["AccountExportV2Dto"];
+                        "text/json": components["schemas"]["AccountExportV2Dto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AccountRetentionDto"];
+                        "application/json": components["schemas"]["AccountRetentionDto"];
+                        "text/json": components["schemas"]["AccountRetentionDto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/consents/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RevokeConsentsRequest"];
+                    "text/json": components["schemas"]["RevokeConsentsRequest"];
+                    "application/*+json": components["schemas"]["RevokeConsentsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["UserProfileDto"];
+                        "application/json": components["schemas"]["UserProfileDto"];
+                        "text/json": components["schemas"]["UserProfileDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["DeleteAccountV2Request"];
+                    "text/json": components["schemas"]["DeleteAccountV2Request"];
+                    "application/*+json": components["schemas"]["DeleteAccountV2Request"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DeleteAccountV2Response"];
+                        "application/json": components["schemas"]["DeleteAccountV2Response"];
+                        "text/json": components["schemas"]["DeleteAccountV2Response"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/alerts/detect": {
         parameters: {
             query?: never;
@@ -13,6 +303,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -28,13 +319,6 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
                 /** @description Bad Request */
                 400: {
                     headers: {
@@ -97,6 +381,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -181,6 +466,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -254,6 +540,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -327,6 +614,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -536,6 +824,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -624,6 +913,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -697,6 +987,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -757,6 +1048,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -820,6 +1112,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -852,6 +1145,162 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meta/contract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiContractSnapshotDto"];
+                        "application/json": components["schemas"]["ApiContractSnapshotDto"];
+                        "text/json": components["schemas"]["ApiContractSnapshotDto"];
+                    };
+                };
+                /** @description Not Modified */
+                304: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meta/clients/{client}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    client: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ClientCapabilityContractDto"];
+                        "application/json": components["schemas"]["ClientCapabilityContractDto"];
+                        "text/json": components["schemas"]["ClientCapabilityContractDto"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/registration-contract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RegistrationContractDto"];
+                        "application/json": components["schemas"]["RegistrationContractDto"];
+                        "text/json": components["schemas"]["RegistrationContractDto"];
                     };
                 };
                 /** @description Internal Server Error */
@@ -1597,463 +2046,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/contacts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Tamaño de página (1 a 100, default 20). */
-                    pageSize?: number | string;
-                    /** @description Token opaco de continuación devuelto en el header X-Continuation-Token de la respuesta anterior. No se debe inventar ni modificar. */
-                    continuationToken?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["CreateContactoRequest"];
-                    "text/json": components["schemas"]["CreateContactoRequest"];
-                    "application/*+json": components["schemas"]["CreateContactoRequest"];
-                };
-            };
-            responses: {
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Error */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/contacts/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["UpdateContactoRequest"];
-                    "text/json": components["schemas"]["UpdateContactoRequest"];
-                    "application/*+json": components["schemas"]["UpdateContactoRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/contacts/make-primary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["MakePrimaryRequest"];
-                    "text/json": components["schemas"]["MakePrimaryRequest"];
-                    "application/*+json": components["schemas"]["MakePrimaryRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/api/v1/contacts/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/devices": {
         parameters: {
             query?: never;
@@ -2061,6 +2053,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -2113,6 +2106,7 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -2180,6 +2174,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -2259,6 +2254,7 @@ export interface paths {
             };
         };
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -2328,6 +2324,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -2389,6 +2386,784 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Tamaño de página (1 a 100, default 20). */
+                    pageSize?: number | string;
+                    /** @description Token opaco de continuación devuelto en el header X-Continuation-Token de la respuesta anterior. No se debe inventar ni modificar. */
+                    continuationToken?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contacts/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateEmergencyContactRequest"];
+                    "text/json": components["schemas"]["UpdateEmergencyContactRequest"];
+                    "application/*+json": components["schemas"]["UpdateEmergencyContactRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/contacts/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateEmergencyContactInvitationRequest"];
+                    "text/json": components["schemas"]["CreateEmergencyContactInvitationRequest"];
+                    "application/*+json": components["schemas"]["CreateEmergencyContactInvitationRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CreateEmergencyContactInvitationResponse"];
+                        "application/json": components["schemas"]["CreateEmergencyContactInvitationResponse"];
+                        "text/json": components["schemas"]["CreateEmergencyContactInvitationResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contacts/invitations/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RespondEmergencyContactInvitationRequest"];
+                    "text/json": components["schemas"]["RespondEmergencyContactInvitationRequest"];
+                    "application/*+json": components["schemas"]["RespondEmergencyContactInvitationRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contacts/invitations/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RespondEmergencyContactInvitationRequest"];
+                    "text/json": components["schemas"]["RespondEmergencyContactInvitationRequest"];
+                    "application/*+json": components["schemas"]["RespondEmergencyContactInvitationRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/contacts/{id}/primary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/contacts/{id}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/family-subscriptions/current": {
         parameters: {
             query?: never;
@@ -2396,6 +3171,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -2458,6 +3234,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -2546,6 +3323,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -2623,6 +3401,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -2683,6 +3462,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -2741,6 +3521,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -2804,6 +3585,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -2874,6 +3656,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -2932,6 +3715,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -2978,6 +3762,7 @@ export interface paths {
             };
         };
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -3066,6 +3851,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/family-subscriptions/invitations/incoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/family-subscriptions/invitations/{publicInvitationId}/accept": {
         parameters: {
             query?: never;
@@ -3075,6 +3921,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -3146,6 +3993,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -3217,6 +4065,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -3299,6 +4148,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -3359,6 +4209,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/incidents/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["IncidenteListItemDto"][];
+                        "application/json": components["schemas"]["IncidenteListItemDto"][];
+                        "text/json": components["schemas"]["IncidenteListItemDto"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/incidents/{id}": {
         parameters: {
             query?: never;
@@ -3366,6 +4281,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -3430,6 +4346,191 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/incidents/{id}/confirm-ok": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["IncidentActionResponse"];
+                        "application/json": components["schemas"]["IncidentActionResponse"];
+                        "text/json": components["schemas"]["IncidentActionResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/incidents/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["IncidentCloseRequest"];
+                    "text/json": components["schemas"]["IncidentCloseRequest"];
+                    "application/*+json": components["schemas"]["IncidentCloseRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["IncidentActionResponse"];
+                        "application/json": components["schemas"]["IncidentActionResponse"];
+                        "text/json": components["schemas"]["IncidentActionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/incidents/{id}/mark-false-alarm": {
         parameters: {
             query?: never;
@@ -3443,6 +4544,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -3529,6 +4631,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -3609,6 +4712,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -3680,6 +4784,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -3735,6 +4840,316 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/mobile/sync/bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MobileSyncSnapshotDto"];
+                        "application/json": components["schemas"]["MobileSyncSnapshotDto"];
+                        "text/json": components["schemas"]["MobileSyncSnapshotDto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mobile/sync/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile. */
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MobileSyncChangesDto"];
+                        "application/json": components["schemas"]["MobileSyncChangesDto"];
+                        "text/json": components["schemas"]["MobileSyncChangesDto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mobile/sync/push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MobileSyncPushRequest"];
+                    "text/json": components["schemas"]["MobileSyncPushRequest"];
+                    "application/*+json": components["schemas"]["MobileSyncPushRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MobileSyncPushResponse"];
+                        "application/json": components["schemas"]["MobileSyncPushResponse"];
+                        "text/json": components["schemas"]["MobileSyncPushResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mobile/sync/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MobileSyncAckRequest"];
+                    "text/json": components["schemas"]["MobileSyncAckRequest"];
+                    "application/*+json": components["schemas"]["MobileSyncAckRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MobileSyncAckResponse"];
+                        "application/json": components["schemas"]["MobileSyncAckResponse"];
+                        "text/json": components["schemas"]["MobileSyncAckResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/monitoring-relationships": {
         parameters: {
             query?: never;
@@ -3742,6 +5157,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -3804,6 +5220,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -3892,6 +5309,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -3976,6 +5394,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -4058,6 +5477,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -4125,6 +5545,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -4194,6 +5615,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -4261,6 +5683,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -4328,6 +5751,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -4395,6 +5819,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -4463,6 +5888,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -4531,6 +5957,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -4604,6 +6031,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -4667,6 +6095,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -4726,6 +6155,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -4793,6 +6223,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -4879,6 +6310,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -4952,6 +6384,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -5026,6 +6459,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -5098,6 +6532,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -5166,6 +6601,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -5252,6 +6688,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -5336,6 +6773,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -5388,6 +6826,7 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -5445,6 +6884,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -5511,6 +6951,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -5597,6 +7038,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -5654,6 +7096,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -5722,6 +7165,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -5783,6 +7227,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /** @description Clientes permitidos: mobile. */
         put: {
             parameters: {
                 query?: never;
@@ -5858,6 +7303,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /** @description Clientes permitidos: web. */
         put: {
             parameters: {
                 query?: never;
@@ -5967,13 +7413,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/quick-messages/templates": {
+    "/api/v1/quick-messages/recipients": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -6020,6 +7467,68 @@ export interface paths {
             };
         };
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quick-messages/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -6116,6 +7625,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -6188,6 +7698,7 @@ export interface paths {
             };
         };
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -6258,6 +7769,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -6344,6 +7856,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -6406,6 +7919,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -6459,6 +7973,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/quick-messages/conversations/{otherPublicProfileId}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    otherPublicProfileId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/api/v1/quick-messages/{publicMessageId}/read": {
         parameters: {
             query?: never;
@@ -6472,6 +8058,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -6537,6 +8124,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -6588,6 +8176,7 @@ export interface paths {
             };
         };
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -6662,6 +8251,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -6734,6 +8324,7 @@ export interface paths {
             };
         };
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -6808,6 +8399,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -6877,6 +8469,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -6942,6 +8535,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -6987,6 +8581,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -7063,6 +8658,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -7125,6 +8721,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -7203,6 +8800,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -7277,6 +8875,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -7330,6 +8929,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/subscriptions/effective": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Clientes permitidos: mobile, web. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["EffectiveSubscriptionDto"];
+                        "application/json": components["schemas"]["EffectiveSubscriptionDto"];
+                        "text/json": components["schemas"]["EffectiveSubscriptionDto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/subscriptions/history": {
         parameters: {
             query?: never;
@@ -7337,6 +9001,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -7404,6 +9069,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -7419,6 +9085,195 @@ export interface paths {
                 };
             };
             responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SuscripcionDto"];
+                        "application/json": components["schemas"]["SuscripcionDto"];
+                        "text/json": components["schemas"]["SuscripcionDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subscriptions/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangePlanRequest"];
+                    "text/json": components["schemas"]["ChangePlanRequest"];
+                    "application/*+json": components["schemas"]["ChangePlanRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SubscriptionPaymentResultDto"];
+                        "application/json": components["schemas"]["SubscriptionPaymentResultDto"];
+                        "text/json": components["schemas"]["SubscriptionPaymentResultDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Error */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subscriptions/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RenewSubscriptionRequest"];
+                    "text/json": components["schemas"]["RenewSubscriptionRequest"];
+                    "application/*+json": components["schemas"]["RenewSubscriptionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SubscriptionPaymentResultDto"];
+                        "application/json": components["schemas"]["SubscriptionPaymentResultDto"];
+                        "text/json": components["schemas"]["SubscriptionPaymentResultDto"];
+                    };
+                };
                 /** @description Bad Request */
                 400: {
                     headers: {
@@ -7481,6 +9336,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -7556,6 +9412,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -7621,6 +9478,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -7694,6 +9552,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -7771,6 +9630,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -7844,6 +9704,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -7917,6 +9778,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Clientes permitidos: wearable. */
         post: {
             parameters: {
                 query?: never;
@@ -8050,7 +9912,11 @@ export interface paths {
             };
         };
         put?: never;
-        /** @description Ingesta por lotes de telemetría de un viaje (1 a 100 eventos). Cada evento requiere un EventId (GUID) generado por el cliente y un timestamp UTC. Los reintentos con eventos idénticos son seguros: los eventos ya recibidos se reportan como duplicados y no se vuelven a insertar. Reenviar un EventId con contenido diferente devuelve 409. */
+        /**
+         * @description Ingesta por lotes de telemetría de un viaje (1 a 100 eventos, hasta 256 KiB). La versión 1 conserva GPS/velocidad; la versión 2 agrega batchId, secuencia offline, procedencia del Galaxy Watch 8, acelerómetro, giroscopio, biometría, orientación y calidad de sensores. Cada evento requiere EventId y timestamp UTC. Los reintentos con eventos idénticos son seguros; reenviar un EventId con contenido diferente devuelve 409.
+         *
+         *     Clientes permitidos: wearable.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -8147,6 +10013,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: wearable. */
         patch: {
             parameters: {
                 query?: never;
@@ -8363,6 +10230,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -8408,6 +10276,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -8482,6 +10351,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -8527,6 +10397,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -8601,6 +10472,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -8646,6 +10518,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -8720,6 +10593,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -8765,6 +10639,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -8839,6 +10714,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: {
@@ -8904,6 +10780,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/onboarding/legal-acceptance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, web. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AcceptLegalDocumentsRequest"];
+                    "text/json": components["schemas"]["AcceptLegalDocumentsRequest"];
+                    "application/*+json": components["schemas"]["AcceptLegalDocumentsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile/username": {
         parameters: {
             query?: never;
@@ -8911,6 +10863,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -8956,6 +10909,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -9030,6 +10984,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -9075,6 +11030,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -9149,6 +11105,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -9199,6 +11156,7 @@ export interface paths {
             };
         };
         put?: never;
+        /** @description Clientes permitidos: mobile, web. */
         post: {
             parameters: {
                 query?: never;
@@ -9285,6 +11243,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Clientes permitidos: mobile, web. */
         get: {
             parameters: {
                 query?: never;
@@ -9345,6 +11304,7 @@ export interface paths {
                 };
             };
         };
+        /** @description Clientes permitidos: mobile, web. */
         put: {
             parameters: {
                 query?: never;
@@ -9421,6 +11381,7 @@ export interface paths {
             };
         };
         post?: never;
+        /** @description Clientes permitidos: mobile, web. */
         delete: {
             parameters: {
                 query?: never;
@@ -9495,6 +11456,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Clientes permitidos: mobile, web. */
         patch: {
             parameters: {
                 query?: never;
@@ -9551,6 +11513,66 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/api/v1/wearable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/wearable/all": {
@@ -9618,16 +11640,786 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/wearable/pair": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PairWearableRequest"];
+                    "text/json": components["schemas"]["PairWearableRequest"];
+                    "application/*+json": components["schemas"]["PairWearableRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wearable/pair/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PairConfirmRequest"];
+                    "text/json": components["schemas"]["PairConfirmRequest"];
+                    "application/*+json": components["schemas"]["PairConfirmRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wearable/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: wearable. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SyncTelemetryRequest"];
+                    "text/json": components["schemas"]["SyncTelemetryRequest"];
+                    "application/*+json": components["schemas"]["SyncTelemetryRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wearable/calibration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: mobile, wearable. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CalibrationRequest"];
+                    "text/json": components["schemas"]["CalibrationRequest"];
+                    "application/*+json": components["schemas"]["CalibrationRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wearable/unlink": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Clientes permitidos: mobile. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wearable/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Clientes permitidos: mobile. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateWearablePermissionsRequest"];
+                    "text/json": components["schemas"]["UpdateWearablePermissionsRequest"];
+                    "application/*+json": components["schemas"]["UpdateWearablePermissionsRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wearable/sensors/diagnostics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** @description Clientes permitidos: wearable. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["WearableDiagnosticsReportRequest"];
+                    "text/json": components["schemas"]["WearableDiagnosticsReportRequest"];
+                    "application/*+json": components["schemas"]["WearableDiagnosticsReportRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wearable/battery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Clientes permitidos: wearable. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BatteryUpdateRequest"];
+                    "text/json": components["schemas"]["BatteryUpdateRequest"];
+                    "application/*+json": components["schemas"]["BatteryUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/wearable/heartbeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clientes permitidos: wearable. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["WearableHeartbeatRequest"];
+                    "text/json": components["schemas"]["WearableHeartbeatRequest"];
+                    "application/*+json": components["schemas"]["WearableHeartbeatRequest"];
+                };
+            };
+            responses: {
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AcceptLegalDocumentsRequest: {
+            /** Format: int32 */
+            contractVersion?: number | string;
+            termsAccepted?: boolean;
+            privacyAccepted?: boolean;
+        };
         AcceptMonitoringInvitationRequest: {
             publicRelationshipId?: null | string;
             code?: null | string;
         };
+        AccountExportV2Dto: {
+            /** Format: int32 */
+            contractVersion?: number | string;
+            /** Format: date-time */
+            generatedAtUtc?: string;
+            profile?: components["schemas"]["UserProfileDto"];
+            effectiveSubscription?: components["schemas"]["EffectiveSubscriptionDto"];
+            subscriptionHistory?: components["schemas"]["SuscripcionDto"][];
+            payments?: components["schemas"]["PagoDto"][];
+            familySubscription?: null | components["schemas"]["FamilySubscriptionSummaryDto"];
+            wearable?: null | components["schemas"]["WearableDto"];
+            vehicles?: components["schemas"]["VehicleDto"][];
+            emergencyContacts?: components["schemas"]["EmergencyContactSyncResponse"];
+            monitoringRelationships?: components["schemas"]["MonitoringRelationshipDto"][];
+            trips?: components["schemas"]["Viaje"][];
+            telemetry?: components["schemas"]["ViajeTelemetry"][];
+            alerts?: components["schemas"]["Alerta"][];
+            incidents?: components["schemas"]["Incidente"][];
+            notifications?: components["schemas"]["NotificacionDto"][];
+            quickMessages?: components["schemas"]["QuickMessageDto"][];
+        };
+        AccountRetentionDto: {
+            /** Format: int32 */
+            tripsAndTelemetryDays?: number | string;
+            /** Format: int32 */
+            alertsAndIncidentsDays?: number | string;
+            /** Format: int32 */
+            notificationsDays?: number | string;
+            accountActive?: boolean;
+            /** Format: date-time */
+            deletedAtUtc?: null | string;
+            /** Format: date-time */
+            dataAnonymizedAtUtc?: null | string;
+            deletionMode?: string;
+        };
         ActivateFamilySubscriptionRequest: {
             planName: string;
+        };
+        Alerta: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            usuarioId?: string;
+            tipo?: string;
+            severidad?: string;
+            estado?: string;
+            /** Format: double */
+            lat?: number | string;
+            /** Format: double */
+            lng?: number | string;
+            lugar?: null | string;
+            gForce?: null | string;
+            decibeles?: null | string;
+            frecuenciaCardiaca?: null | string;
+            activacion?: null | string;
+            modo?: string;
+            canal?: null | string;
+            viajeId?: null | string;
+            /** Format: uuid */
+            sourceTelemetryEventId?: null | string;
+            detectionLabel?: null | string;
+            ruleVersion?: null | string;
+            /** Format: int32 */
+            detectionScore?: null | number | string;
+            /** Format: date-time */
+            autoSendAtUtc?: null | string;
+            tiempoRespuesta?: null | string;
+            /** Format: date-time */
+            creadoEn?: string;
+            /** Format: date-time */
+            enviadaEn?: null | string;
+            /** Format: date-time */
+            confirmadaEn?: null | string;
+            /** Format: date-time */
+            cerradaEn?: null | string;
+            metodoCierre?: null | string;
+            esBypassCritico?: boolean;
+            esOffline?: boolean;
+            esFalsaAlarma?: boolean;
+            /** Format: int32 */
+            reintentos?: null | number | string;
+            nota?: null | string;
+            timeline?: string[][];
+            contactosNotificados?: string[];
+        };
+        ApiContractSnapshotDto: {
+            apiVersion?: string;
+            contractVersion?: string;
+            status?: string;
+            authentication?: string;
+            openApiDocument?: string;
+            legacySunsetUtc?: string;
+            supportedClients?: string[];
+            canonicalModules?: string[];
+            legacyModules?: string[];
+            retentionDays?: {
+                [key: string]: number | string;
+            };
+            routes?: components["schemas"]["ApiRouteContractDto"][];
+        };
+        ApiRouteContractDto: {
+            path?: string;
+            method?: string;
+            anonymous?: boolean;
+            allowedClients?: string[];
+        };
+        BatteryUpdateRequest: {
+            /** Format: int32 */
+            nivel?: number | string;
+            cargando?: boolean;
+        };
+        CalibrationRequest: {
+            acelerometro?: boolean;
+            giroscopio?: boolean;
+            magnetometro?: boolean;
+            gps?: boolean;
         };
         CancelSubscriptionRequest: {
             motivo?: null | string;
@@ -9640,20 +12432,30 @@ export interface components {
             newPassword: string;
         };
         ChangePlanRequest: {
-            planNombre?: string;
+            planNombre: string;
+            billingCycle?: string;
+            metodoPago?: string;
+        };
+        ClientCapabilityContractDto: {
+            client?: string;
+            capabilities?: string[];
+            contractVersion?: string;
         };
         CloseAlertRequest: {
             metodoCierre?: string;
             nota?: null | string;
         };
-        CreateContactoRequest: {
-            nombre?: string;
-            telefono?: string;
-            parentesco?: null | string;
+        CreateEmergencyContactInvitationRequest: {
             username?: null | string;
-            appUserId?: null | string;
+            publicProfileId?: null | string;
+            email?: null | string;
+            relationship?: null | string;
             priority?: string;
-            esPrincipal?: boolean;
+            makePrimaryWhenAccepted?: boolean;
+        };
+        CreateEmergencyContactInvitationResponse: {
+            contact?: components["schemas"]["EmergencyContactDto"];
+            manualCode?: string;
         };
         CreateFamilyInvitationRequest: {
             username?: null | string;
@@ -9669,6 +12471,7 @@ export interface components {
             username?: null | string;
             publicProfileId?: null | string;
             email?: null | string;
+            direction?: components["schemas"]["MonitoringRequestDirection"];
             permissions?: null | components["schemas"]["MonitoringPermissionsRequest"];
         };
         CreateMonitoringInvitationResponse: {
@@ -9704,6 +12507,18 @@ export interface components {
             usoPrincipalVehiculo: components["schemas"]["UsoPrincipalVehiculo"];
             esPrincipal?: null | boolean;
         };
+        DeleteAccountV2Request: {
+            password: string;
+            confirmation: string;
+            reason?: null | string;
+        };
+        DeleteAccountV2Response: {
+            deleted?: boolean;
+            /** Format: date-time */
+            deletedAtUtc?: string;
+            identityAnonymized?: boolean;
+            retentionSummary?: string;
+        };
         DetectAlertRequest: {
             /** Format: double */
             lat?: number | string;
@@ -9721,6 +12536,71 @@ export interface components {
         };
         Disable2FaRequest: {
             code?: string;
+        };
+        DriverProfileDto: {
+            tipoVehiculo?: null | string;
+            marca?: null | string;
+            modelo?: null | string;
+            /** Format: int32 */
+            anio?: null | number | string;
+            color?: null | string;
+            placa?: null | string;
+            uso?: null | string;
+            velocidadPromedioLabel?: null | string;
+        };
+        EffectiveSubscriptionDto: {
+            planNombre?: string;
+            source?: string;
+            estado?: string;
+            isOwner?: boolean;
+            /** Format: date-time */
+            validUntilUtc?: null | string;
+            /** Format: date-time */
+            graceEndsAtUtc?: null | string;
+            /** Format: int32 */
+            vehicleLimit?: number | string;
+            /** Format: int32 */
+            invitedMemberLimit?: number | string;
+            /** Format: int32 */
+            monitoringLimit?: number | string;
+            mapHistoryEnabled?: boolean;
+            exportEnabled?: boolean;
+        };
+        EmergencyContactDto: {
+            publicContactId?: string;
+            status?: components["schemas"]["EmergencyContactStatus"];
+            isOwner?: boolean;
+            ownerPublicProfileId?: string;
+            ownerUsername?: string;
+            ownerName?: string;
+            contactPublicProfileId?: null | string;
+            contactUsername?: null | string;
+            contactName?: null | string;
+            targetEmailHint?: null | string;
+            relationship?: null | string;
+            priority?: string;
+            isPrimary?: boolean;
+            /** Format: date-time */
+            requestedAtUtc?: string;
+            /** Format: date-time */
+            expiresAtUtc?: string;
+            /** Format: date-time */
+            acceptedAtUtc?: null | string;
+            /** Format: date-time */
+            rejectedAtUtc?: null | string;
+            /** Format: date-time */
+            revokedAtUtc?: null | string;
+            /** Format: date-time */
+            blockedAtUtc?: null | string;
+            /** Format: date-time */
+            updatedAtUtc?: string;
+        };
+        /** @enum {unknown} */
+        EmergencyContactStatus: "LegacyUnverified" | "Pending" | "Accepted" | "Rejected" | "Revoked" | "Blocked" | "Expired";
+        EmergencyContactSyncResponse: {
+            contacts?: components["schemas"]["EmergencyContactDto"][];
+            /** Format: date-time */
+            synchronizedAtUtc?: string;
         };
         Enable2FaRequest: {
             code?: string;
@@ -9755,6 +12635,12 @@ export interface components {
             /** Format: int32 */
             invitedMemberLimit?: number | string;
             /** Format: int32 */
+            totalActivePeople?: number | string;
+            /** Format: int32 */
+            totalPeopleLimit?: number | string;
+            /** Format: int32 */
+            pendingInvitationCount?: number | string;
+            /** Format: int32 */
             availableMemberSlots?: number | string;
             /** Format: int32 */
             vehicleLimitPerUser?: number | string;
@@ -9764,7 +12650,92 @@ export interface components {
             periodStartUtc?: string;
             /** Format: date-time */
             periodEndUtc?: string;
+            /** Format: date-time */
+            nextBillingAtUtc?: null | string;
+            /** Format: date-time */
+            graceEndsAtUtc?: null | string;
+            autoRenew?: boolean;
             latestPayment?: null | components["schemas"]["SimulatedPaymentDto"];
+        };
+        IncidentActionResponse: {
+            /** Format: uuid */
+            incidentId?: string;
+            /** Format: uuid */
+            alertId?: string;
+            estado?: string;
+            mensaje?: string;
+        };
+        IncidentCloseRequest: {
+            metodoCierre?: string;
+            nota?: null | string;
+        };
+        Incidente: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            usuarioId?: string;
+            /** Format: uuid */
+            alertaId?: string;
+            tipo?: string;
+            severidad?: string;
+            estado?: string;
+            /** Format: double */
+            lat?: number | string;
+            /** Format: double */
+            lng?: number | string;
+            lugar?: null | string;
+            gForce?: null | string;
+            decibeles?: null | string;
+            frecuenciaCardiaca?: null | string;
+            canal?: null | string;
+            viajeId?: null | string;
+            /** Format: uuid */
+            sourceTelemetryEventId?: null | string;
+            detectionLabel?: null | string;
+            ruleVersion?: null | string;
+            /** Format: int32 */
+            detectionScore?: null | number | string;
+            metodoCierre?: string;
+            esFalsaAlarma?: boolean;
+            esBypassCritico?: boolean;
+            esOffline?: boolean;
+            nota?: null | string;
+            timeline?: string[][];
+            contactosNotificados?: string[];
+            /** Format: date-time */
+            creadoEn?: string;
+            /** Format: date-time */
+            actualizadoEn?: string;
+            /** Format: date-time */
+            enviadaEn?: null | string;
+            /** Format: date-time */
+            confirmadaEn?: null | string;
+            /** Format: date-time */
+            cerradaEn?: null | string;
+            /** Format: int32 */
+            ttl?: number | string;
+        };
+        IncidenteListItemDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            alertaId?: string;
+            tipo?: string;
+            severidad?: string;
+            estado?: string;
+            /** Format: double */
+            lat?: number | string;
+            /** Format: double */
+            lng?: number | string;
+            lugar?: null | string;
+            metodoCierre?: string;
+            esFalsaAlarma?: boolean;
+            /** Format: date-time */
+            creadoEn?: string;
+            /** Format: date-time */
+            actualizadoEn?: string;
+            /** Format: date-time */
+            cerradaEn?: null | string;
         };
         InvitationTokenRequest: {
             token: string;
@@ -9775,6 +12746,7 @@ export interface components {
             appUserId?: null | string;
             permisos?: null | string[];
         };
+        JsonElement: unknown;
         LoginRequest: {
             correo?: null | string;
             identifier?: null | string;
@@ -9784,12 +12756,109 @@ export interface components {
         LogoutRequest: {
             refreshToken: string;
         };
-        MakePrimaryRequest: {
-            /** Format: uuid */
-            contactoId?: string;
-        };
         MarkFalseAlarmRequest: {
             nota?: null | string;
+        };
+        MedicalProfileDto: {
+            tipoSangre?: null | string;
+            alergias?: null | string;
+            condiciones?: null | string;
+            medicamentos?: null | string;
+            nota?: null | string;
+        };
+        MobileOfflineContractDto: {
+            /** Format: int32 */
+            contractVersion?: number | string;
+            /** Format: int32 */
+            telemetrySchemaVersion?: number | string;
+            /** Format: int32 */
+            maxTelemetryEventsPerBatch?: number | string;
+            /** Format: int64 */
+            maxTelemetryBodyBytes?: number | string;
+            /** Format: int32 */
+            maxOperationsPerPush?: number | string;
+            telemetryWriter?: string;
+            mobileMayControlTrip?: boolean;
+            mobileMayReadTripState?: boolean;
+            mobileMayRelayOfflineAlerts?: boolean;
+            idempotencyKey?: string;
+            duplicateBehavior?: string;
+            supportedPushOperations?: string[];
+        };
+        MobileSyncAckRequest: {
+            clientInstanceId: string;
+            cursor: string;
+        };
+        MobileSyncAckResponse: {
+            cursor?: string;
+            /** Format: date-time */
+            acknowledgedAtUtc?: string;
+            /** Format: int64 */
+            serverRevision?: number | string;
+        };
+        MobileSyncChangesDto: {
+            cursor?: string;
+            hasChanges?: boolean;
+            requiresBootstrap?: boolean;
+            /** Format: date-time */
+            generatedAtUtc?: string;
+            snapshot?: null | components["schemas"]["MobileSyncSnapshotDto"];
+        };
+        MobileSyncOperationDto: {
+            /** Format: uuid */
+            operationId?: string;
+            type: string;
+            /** Format: date-time */
+            createdAtUtc?: string;
+            payload?: components["schemas"]["JsonElement"];
+        };
+        MobileSyncOperationResultDto: {
+            /** Format: uuid */
+            operationId?: string;
+            type?: string;
+            result?: string;
+            message?: null | string;
+            /** Format: date-time */
+            processedAtUtc?: string;
+            wasDuplicate?: boolean;
+        };
+        MobileSyncPushRequest: {
+            clientInstanceId: string;
+            baseCursor?: null | string;
+            operations: components["schemas"]["MobileSyncOperationDto"][];
+        };
+        MobileSyncPushResponse: {
+            previousCursor?: string;
+            cursor?: string;
+            requiresPull?: boolean;
+            /** Format: int64 */
+            serverRevision?: number | string;
+            results?: components["schemas"]["MobileSyncOperationResultDto"][];
+        };
+        MobileSyncSnapshotDto: {
+            /** Format: int32 */
+            contractVersion?: number | string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: date-time */
+            generatedAtUtc?: string;
+            syncCursor?: string;
+            profile?: components["schemas"]["UserProfileDto"];
+            effectiveSubscription?: components["schemas"]["EffectiveSubscriptionDto"];
+            permissions?: components["schemas"]["PermisosDto"];
+            wearable?: null | components["schemas"]["WearableDto"];
+            activeTrip?: null | components["schemas"]["ViajeDto"];
+            vehicles?: components["schemas"]["VehicleDto"][];
+            emergencyContacts?: components["schemas"]["EmergencyContactSyncResponse"];
+            monitoringRelationships?: components["schemas"]["MonitoringRelationshipDto"][];
+            activeIncidents?: components["schemas"]["IncidenteListItemDto"][];
+            quickMessageTemplates?: components["schemas"]["QuickMessageTemplateDto"][];
+            quickMessageRecipients?: components["schemas"]["QuickMessageRecipientDto"][];
+            /** Format: int32 */
+            unreadNotifications?: number | string;
+            /** Format: int32 */
+            unreadQuickMessages?: number | string;
+            offlineContract?: components["schemas"]["MobileOfflineContractDto"];
         };
         MonitoringPermissionsDto: {
             viewRoutes?: boolean;
@@ -9839,6 +12908,21 @@ export interface components {
         NoteRequest: {
             nota?: string;
         };
+        NotificacionDto: {
+            /** Format: uuid */
+            id?: string;
+            titulo?: string;
+            mensaje?: string;
+            tipo?: string;
+            referenciaId?: null | string;
+            referenciaTipo?: null | string;
+            publicRelationshipId?: null | string;
+            leida?: boolean;
+            /** Format: date-time */
+            leidaEn?: null | string;
+            /** Format: date-time */
+            creadoEn?: string;
+        };
         OfflineAlertDto: {
             /** Format: double */
             lat?: number | string;
@@ -9852,6 +12936,79 @@ export interface components {
             frecuenciaCardiaca?: null | string;
             /** Format: date-time */
             creadoEn?: string;
+        };
+        OnboardingDto: {
+            status?: string;
+            /** Format: int32 */
+            currentStep?: number | string;
+            medicalProfileStatus?: string;
+            /** Format: int32 */
+            registrationContractVersion?: number | string;
+            termsAccepted?: boolean;
+            termsVersion?: null | string;
+            /** Format: date-time */
+            termsAcceptedAtUtc?: null | string;
+            privacyAccepted?: boolean;
+            privacyNoticeVersion?: null | string;
+            /** Format: date-time */
+            privacyAcceptedAtUtc?: null | string;
+            locationIncidentConsent?: boolean;
+            drivingPatternConsent?: boolean;
+            /** Format: date-time */
+            completedAtUtc?: null | string;
+            /** Format: date-time */
+            updatedAtUtc?: null | string;
+        };
+        PagoDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            suscripcionId?: string;
+            /** Format: double */
+            monto?: number | string;
+            moneda?: string;
+            metodoPago?: string;
+            estado?: string;
+            /** Format: date-time */
+            fechaPago?: string;
+            referencia?: null | string;
+            comprobanteUrl?: null | string;
+        };
+        PairConfirmRequest: {
+            token?: string;
+        };
+        PairWearableRequest: {
+            dispositivoId?: string;
+            nombre?: string;
+            modelo?: string;
+            fabricante?: string;
+            plataforma?: string;
+            versionSistemaOperativo?: null | string;
+            versionFirmware?: null | string;
+            appVersion?: null | string;
+            capacidadesSensores?: string[];
+        };
+        PasswordRequirementsDto: {
+            /** Format: int32 */
+            minLength?: number | string;
+            /** Format: int32 */
+            maxLength?: number | string;
+            requireUppercase?: boolean;
+            requireLowercase?: boolean;
+            requireDigit?: boolean;
+            requireSpecialCharacter?: boolean;
+        };
+        PermisosDto: {
+            mobile?: null | components["schemas"]["PermisosPlataformaDto"];
+            web?: null | components["schemas"]["PermisosPlataformaDto"];
+        };
+        PermisosPlataformaDto: {
+            ubicacion?: boolean;
+            notificaciones?: boolean;
+            camara?: boolean;
+            microfono?: boolean;
+            sensores?: boolean;
+            bluetooth?: boolean;
         };
         ProblemDetails: {
             type?: null | string;
@@ -9878,6 +13035,12 @@ export interface components {
             /** Format: date-time */
             readAtUtc?: null | string;
         };
+        QuickMessageRecipientDto: {
+            publicRelationshipId?: string;
+            recipientPublicProfileId?: string;
+            recipientUsername?: string;
+            recipientName?: string;
+        };
         QuickMessageTemplateDto: {
             publicTemplateId?: string;
             text?: string;
@@ -9895,20 +13058,50 @@ export interface components {
             refreshToken: string;
         };
         RegisterRequest: {
+            /** Format: int32 */
+            registrationVersion?: number | string;
             nombre: string;
+            username?: null | string;
             correo: string;
             telefono?: null | string;
             password: string;
+            termsAccepted?: null | boolean;
+            privacyAccepted?: null | boolean;
+            locationIncidentConsent?: null | boolean;
+            drivingPatternConsent?: null | boolean;
             planActivo?: null | string;
             client?: string;
+        };
+        RegistrationContractDto: {
+            /** Format: int32 */
+            contractVersion?: number | string;
+            termsVersion?: string;
+            privacyNoticeVersion?: string;
+            supportedClients?: string[];
+            requiredFields?: string[];
+            username?: components["schemas"]["UsernameRequirementsDto"];
+            password?: components["schemas"]["PasswordRequirementsDto"];
+            confirmPasswordIsClientOnly?: boolean;
+        };
+        RenewSubscriptionRequest: {
+            metodoPago?: string;
         };
         ResetPasswordRequest: {
             token: string;
             newPassword: string;
         };
+        RespondEmergencyContactInvitationRequest: {
+            publicContactId?: null | string;
+            code?: null | string;
+        };
         RespondMonitoringInvitationRequest: {
             publicRelationshipId?: null | string;
             code?: null | string;
+        };
+        RevokeConsentsRequest: {
+            revokeLocationIncidentConsent?: boolean;
+            revokeDrivingPatternConsent?: boolean;
+            removeMedicalProfile?: boolean;
         };
         SelectTodayRequest: {
             /** Format: uuid */
@@ -9919,6 +13112,9 @@ export interface components {
             publicTemplateId: string;
             routePublicId?: null | string;
             incidentPublicId?: null | string;
+        };
+        SettingsDto: {
+            twoFactorEnabled?: boolean;
         };
         SimulatedPaymentDto: {
             publicPaymentId?: string;
@@ -9952,10 +13148,59 @@ export interface components {
             vehiclePublicId?: null | string;
             fallbackReason?: null | string;
         };
+        SubscriptionPaymentResultDto: {
+            subscription?: components["schemas"]["SuscripcionDto"];
+            payment?: components["schemas"]["PagoDto"];
+        };
+        SuscripcionDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            planId?: string;
+            planNombre?: string;
+            estado?: string;
+            /** Format: date-time */
+            inicio?: string;
+            /** Format: date-time */
+            fin?: null | string;
+            /** Format: date-time */
+            trialFin?: null | string;
+            /** Format: date-time */
+            graceEndsAtUtc?: null | string;
+            /** Format: date-time */
+            nextBillingAtUtc?: null | string;
+            billingCycle?: string;
+            autoRenew?: boolean;
+            /** Format: uuid */
+            lastPaymentId?: null | string;
+            /** Format: date-time */
+            canceladaEn?: null | string;
+            motivoCancelacion?: null | string;
+            isActive?: boolean;
+        };
         SyncOfflineRequest: {
             alertas?: components["schemas"]["OfflineAlertDto"][];
         };
+        SyncTelemetryRequest: {
+            puntos?: components["schemas"]["TelemetryPointDto"][];
+        };
         TelemetryBatchRequest: {
+            /** Format: int32 */
+            schemaVersion?: number | string;
+            /** Format: uuid */
+            batchId?: null | string;
+            /** Format: int64 */
+            batchSequence?: null | number | string;
+            capturedOffline?: boolean;
+            wearableDeviceId?: null | string;
+            wearableModel?: null | string;
+            wearableAppVersion?: null | string;
+            wearableOsVersion?: null | string;
+            wearableFirmwareVersion?: null | string;
+            /** Format: int32 */
+            batteryLevel?: null | number | string;
+            /** Format: int64 */
+            clockOffsetMilliseconds?: null | number | string;
             eventos?: components["schemas"]["TelemetryEventRequest"][];
         };
         TelemetryEventRequest: {
@@ -9963,6 +13208,8 @@ export interface components {
             eventId?: string;
             /** Format: date-time */
             timestamp?: unknown;
+            /** Format: int64 */
+            sequenceNumber?: null | number | string;
             /** Format: double */
             lat?: number | string;
             /** Format: double */
@@ -9973,10 +13220,49 @@ export interface components {
             altitud?: null | number | string;
             /** Format: double */
             heading?: null | number | string;
+            /** Format: double */
+            gpsAccuracyMeters?: null | number | string;
+            /** Format: double */
+            aceleracionX?: null | number | string;
+            /** Format: double */
+            aceleracionY?: null | number | string;
+            /** Format: double */
+            aceleracionZ?: null | number | string;
+            /** Format: double */
+            magnitudAceleracion?: null | number | string;
+            /** Format: double */
+            giroscopioX?: null | number | string;
+            /** Format: double */
+            giroscopioY?: null | number | string;
+            /** Format: double */
+            giroscopioZ?: null | number | string;
+            /** Format: double */
+            magnitudGiroscopio?: null | number | string;
+            /** Format: double */
+            desaceleracion?: null | number | string;
+            /** Format: int32 */
+            frecuenciaCardiaca?: null | number | string;
+            /** Format: double */
+            hrvMilisegundos?: null | number | string;
+            /** Format: double */
+            spo2Porcentaje?: null | number | string;
+            /** Format: double */
+            pitch?: null | number | string;
+            /** Format: double */
+            roll?: null | number | string;
+            /** Format: double */
+            yaw?: null | number | string;
+            calidadSensor?: null | string;
+            sensorFlags?: string[];
         };
         TelemetryIngestionResultDto: {
             /** Format: uuid */
             viajeId?: string;
+            /** Format: uuid */
+            batchId?: null | string;
+            /** Format: int32 */
+            schemaVersion?: number | string;
+            capturedOffline?: boolean;
             /** Format: int32 */
             recibidos?: number | string;
             /** Format: int32 */
@@ -9987,6 +13273,12 @@ export interface components {
             primerEventoUtc?: string;
             /** Format: date-time */
             ultimoEventoUtc?: string;
+            /** Format: int64 */
+            primeraSecuencia?: null | number | string;
+            /** Format: int64 */
+            ultimaSecuencia?: null | number | string;
+            /** Format: date-time */
+            procesadoEnUtc?: string;
         };
         TelemetryPointDto: {
             /** Format: double */
@@ -10001,6 +13293,57 @@ export interface components {
             heading?: null | number | string;
             /** Format: date-time */
             timestamp?: string;
+            /** Format: int32 */
+            schemaVersion?: number | string;
+            /** Format: int64 */
+            sequenceNumber?: null | number | string;
+            capturedOffline?: boolean;
+            wearableDeviceId?: null | string;
+            wearableModel?: null | string;
+            vehiclePublicId?: null | string;
+            /** Format: int32 */
+            batteryLevel?: null | number | string;
+            /** Format: double */
+            gpsAccuracyMeters?: null | number | string;
+            /** Format: double */
+            aceleracionX?: null | number | string;
+            /** Format: double */
+            aceleracionY?: null | number | string;
+            /** Format: double */
+            aceleracionZ?: null | number | string;
+            /** Format: double */
+            magnitudAceleracion?: null | number | string;
+            /** Format: double */
+            giroscopioX?: null | number | string;
+            /** Format: double */
+            giroscopioY?: null | number | string;
+            /** Format: double */
+            giroscopioZ?: null | number | string;
+            /** Format: double */
+            magnitudGiroscopio?: null | number | string;
+            /** Format: double */
+            desaceleracion?: null | number | string;
+            /** Format: int32 */
+            frecuenciaCardiaca?: null | number | string;
+            /** Format: double */
+            hrvMilisegundos?: null | number | string;
+            /** Format: double */
+            spo2Porcentaje?: null | number | string;
+            /** Format: double */
+            pitch?: null | number | string;
+            /** Format: double */
+            roll?: null | number | string;
+            /** Format: double */
+            yaw?: null | number | string;
+            calidadSensor?: null | string;
+            sensorFlags?: string[];
+            impactCandidate?: null | boolean;
+            detectionLabel?: null | string;
+            severityLabel?: null | string;
+            ruleVersion?: null | string;
+            /** Format: int32 */
+            detectionScore?: null | number | string;
+            modelVersion?: null | string;
         };
         TelemetryUpdateRequest: {
             puntos?: components["schemas"]["TelemetryPointDto"][];
@@ -10009,12 +13352,6 @@ export interface components {
         TipoVehiculo: "Automovil" | "Suv" | "Camioneta" | "Van";
         ToggleReadRequest: {
             leida?: boolean;
-        };
-        UpdateContactoRequest: {
-            nombre?: null | string;
-            telefono?: null | string;
-            parentesco?: null | string;
-            priority?: null | string;
         };
         UpdateDriverProfileRequest: {
             tipoVehiculo?: null | string;
@@ -10026,6 +13363,10 @@ export interface components {
             placa?: null | string;
             uso?: null | string;
             velocidadPromedioLabel?: null | string;
+        };
+        UpdateEmergencyContactRequest: {
+            relationship?: null | string;
+            priority?: null | string;
         };
         UpdateMedicalProfileRequest: {
             tipoSangre?: null | string;
@@ -10112,6 +13453,9 @@ export interface components {
             velocidadPromedio?: number | string;
             usoPrincipalVehiculo: components["schemas"]["UsoPrincipalVehiculo"];
         };
+        UpdateWearablePermissionsRequest: {
+            permisos?: string[];
+        };
         UpsertDeviceRequest: {
             deviceId: string;
             platform: string;
@@ -10122,6 +13466,41 @@ export interface components {
             text: string;
             /** Format: int32 */
             sortOrder?: number | string;
+        };
+        UsernameRequirementsDto: {
+            /** Format: int32 */
+            minLength?: number | string;
+            /** Format: int32 */
+            maxLength?: number | string;
+            pattern?: string;
+            description?: string;
+        };
+        UserPreferencesDto: {
+            notificacionesPush?: boolean;
+            notificacionesEmail?: boolean;
+            compartirUbicacion?: boolean;
+            idioma?: null | string;
+            unidadVelocidad?: null | string;
+        };
+        UserProfileDto: {
+            id?: string;
+            publicProfileId?: string;
+            username?: string;
+            nombre?: string;
+            correo?: string;
+            telefono?: null | string;
+            planActivo?: null | string;
+            emailConfirmed?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            lastLoginAt?: null | string;
+            onboarding?: null | components["schemas"]["OnboardingDto"];
+            perfilConduccion?: null | components["schemas"]["DriverProfileDto"];
+            fichaMedica?: null | components["schemas"]["MedicalProfileDto"];
+            preferencias?: null | components["schemas"]["UserPreferencesDto"];
+            permisos?: null | components["schemas"]["PermisosDto"];
+            settings?: null | components["schemas"]["SettingsDto"];
         };
         /** @enum {unknown} */
         UsoPrincipalVehiculo: "Ciudad" | "Carretera" | "Mixto";
@@ -10140,6 +13519,204 @@ export interface components {
             createdAtUtc?: string;
             /** Format: date-time */
             updatedAtUtc?: string;
+        };
+        Viaje: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            usuarioId?: string;
+            dispositivoId?: string;
+            vehiclePublicId?: null | string;
+            controlClient?: string;
+            mobileFallbackUsed?: boolean;
+            fallbackReason?: null | string;
+            estado?: string;
+            /** Format: date-time */
+            inicio?: string;
+            /** Format: date-time */
+            fin?: null | string;
+            /** Format: double */
+            distanciaRecorridaKm?: null | number | string;
+            /** Format: int32 */
+            duracionMinutos?: null | number | string;
+            /** Format: double */
+            velocidadPromedio?: null | number | string;
+            /** Format: double */
+            velocidadMaxima?: null | number | string;
+            riesgoMaximo?: null | string;
+            proposito?: null | string;
+            rutaOrigen?: null | string;
+            rutaDestino?: null | string;
+        };
+        ViajeDto: {
+            /** Format: uuid */
+            id?: string;
+            dispositivoId?: string;
+            vehiclePublicId?: null | string;
+            controlClient?: string;
+            mobileFallbackUsed?: boolean;
+            fallbackReason?: null | string;
+            estado?: string;
+            /** Format: date-time */
+            inicio?: string;
+            /** Format: date-time */
+            fin?: null | string;
+            /** Format: double */
+            distanciaRecorridaKm?: null | number | string;
+            /** Format: int32 */
+            duracionMinutos?: null | number | string;
+            /** Format: double */
+            velocidadPromedio?: null | number | string;
+            /** Format: double */
+            velocidadMaxima?: null | number | string;
+            riesgoMaximo?: null | string;
+            proposito?: null | string;
+            rutaOrigen?: null | string;
+            rutaDestino?: null | string;
+        };
+        ViajeTelemetry: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            viajeId?: string;
+            /** Format: uuid */
+            usuarioId?: string;
+            /** Format: date-time */
+            timestamp?: string;
+            /** Format: double */
+            lat?: number | string;
+            /** Format: double */
+            lng?: number | string;
+            /** Format: double */
+            velocidad?: number | string;
+            /** Format: double */
+            altitud?: null | number | string;
+            /** Format: double */
+            heading?: null | number | string;
+            /** Format: int32 */
+            schemaVersion?: number | string;
+            /** Format: uuid */
+            batchId?: null | string;
+            /** Format: int64 */
+            batchSequence?: null | number | string;
+            /** Format: int64 */
+            sequenceNumber?: null | number | string;
+            capturedOffline?: boolean;
+            wearableDeviceId?: null | string;
+            wearableModel?: null | string;
+            wearableAppVersion?: null | string;
+            wearableOsVersion?: null | string;
+            wearableFirmwareVersion?: null | string;
+            vehiclePublicId?: null | string;
+            /** Format: int32 */
+            batteryLevel?: null | number | string;
+            /** Format: int64 */
+            clockOffsetMilliseconds?: null | number | string;
+            /** Format: double */
+            gpsAccuracyMeters?: null | number | string;
+            /** Format: double */
+            aceleracionX?: null | number | string;
+            /** Format: double */
+            aceleracionY?: null | number | string;
+            /** Format: double */
+            aceleracionZ?: null | number | string;
+            /** Format: double */
+            magnitudAceleracion?: null | number | string;
+            /** Format: double */
+            giroscopioX?: null | number | string;
+            /** Format: double */
+            giroscopioY?: null | number | string;
+            /** Format: double */
+            giroscopioZ?: null | number | string;
+            /** Format: double */
+            magnitudGiroscopio?: null | number | string;
+            /** Format: double */
+            desaceleracion?: null | number | string;
+            /** Format: int32 */
+            frecuenciaCardiaca?: null | number | string;
+            /** Format: double */
+            hrvMilisegundos?: null | number | string;
+            /** Format: double */
+            spo2Porcentaje?: null | number | string;
+            /** Format: double */
+            pitch?: null | number | string;
+            /** Format: double */
+            roll?: null | number | string;
+            /** Format: double */
+            yaw?: null | number | string;
+            calidadSensor?: null | string;
+            sensorFlagsCsv?: null | string;
+            impactCandidate?: null | boolean;
+            detectionLabel?: null | string;
+            severityLabel?: null | string;
+            ruleVersion?: null | string;
+            /** Format: int32 */
+            detectionScore?: null | number | string;
+            modelVersion?: null | string;
+            /** Format: date-time */
+            labeledAtUtc?: null | string;
+            /** Format: date-time */
+            recibidoEn?: string;
+        };
+        WearableDiagnosticsReportRequest: {
+            dispositivoId?: string;
+            sensoresDisponibles?: string[];
+            sensoresNoDisponibles?: string[];
+            calidadGeneral?: string;
+            /** Format: date-time */
+            timestampUtc?: unknown;
+        };
+        WearableDto: {
+            /** Format: uuid */
+            id?: string;
+            dispositivoId?: string;
+            nombre?: string;
+            modelo?: string;
+            fabricante?: string;
+            plataforma?: string;
+            /** Format: date-time */
+            vinculadoEn?: string;
+            /** Format: date-time */
+            ultimaSincronizacion?: null | string;
+            /** Format: date-time */
+            ultimoHeartbeatUtc?: null | string;
+            /** Format: date-time */
+            ultimoDiagnosticoUtc?: null | string;
+            appVersion?: null | string;
+            versionSistemaOperativo?: null | string;
+            versionFirmware?: null | string;
+            connected?: boolean;
+            cargando?: boolean;
+            /** Format: int32 */
+            nivelBateria?: number | string;
+            /** Format: int64 */
+            desfaseRelojMilisegundos?: null | number | string;
+            calibrado?: boolean;
+            /** Format: date-time */
+            ultimaCalibracion?: null | string;
+            permisosOtorgados?: string[];
+            capacidadesSensores?: string[];
+            sensoresDisponibles?: string[];
+            sensoresNoDisponibles?: string[];
+            calidadSensores?: null | string;
+            estado?: string;
+        };
+        WearableHeartbeatRequest: {
+            dispositivoId?: string;
+            modelo?: string;
+            fabricante?: string;
+            plataforma?: string;
+            appVersion?: null | string;
+            versionSistemaOperativo?: null | string;
+            versionFirmware?: null | string;
+            /** Format: int32 */
+            nivelBateria?: number | string;
+            cargando?: boolean;
+            /** Format: int64 */
+            desfaseRelojMilisegundos?: null | number | string;
+            capacidadesSensores?: string[];
+            /** Format: date-time */
+            timestampUtc?: unknown;
         };
     };
     responses: never;

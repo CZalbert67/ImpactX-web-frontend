@@ -5,12 +5,40 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  registrationVersion: 2;
   nombre: string;
+  username: string;
   correo: string;
-  telefono?: string;
+  telefono: string;
   password: string;
-  planActivo?: string;
+  termsAccepted: true;
+  privacyAccepted: true;
+  locationIncidentConsent: boolean;
+  drivingPatternConsent: boolean;
   client: "web";
+}
+
+export interface RegistrationContract {
+  contractVersion: number;
+  termsVersion: string;
+  privacyNoticeVersion: string;
+  supportedClients: string[];
+  requiredFields: string[];
+  username: {
+    minLength: number;
+    maxLength: number;
+    pattern: string;
+    description: string;
+  };
+  password: {
+    minLength: number;
+    maxLength: number;
+    requireUppercase: boolean;
+    requireLowercase: boolean;
+    requireDigit: boolean;
+    requireSpecialCharacter: boolean;
+  };
+  confirmPasswordIsClientOnly: boolean;
 }
 
 export interface RefreshTokenRequest {

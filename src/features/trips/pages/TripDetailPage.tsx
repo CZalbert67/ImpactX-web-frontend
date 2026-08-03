@@ -24,7 +24,7 @@ export function TripDetailPage() {
     <div className="space-y-6">
       <Link to="/app/trips" className="inline-flex items-center gap-1.5 text-sm font-medium text-secondary hover:text-primary"><ArrowLeft className="size-4" aria-hidden="true" /> Volver a viajes</Link>
       <PageHeader icon={Route} title={trip ? tripTitleLabel(trip) : "Detalle del viaje"} description={trip ? `Viaje ${shortTripId(trip.id)} · ${tripStateLabel(trip.estado)}` : "Información del viaje seleccionado."} />
-      <Alert tone="info">Esta vista es de solo lectura. El control del viaje permanece en móvil o wearable.</Alert>
+      <Alert tone="info">Esta vista es de solo lectura. El control del viaje pertenece exclusivamente al Galaxy Watch 8.</Alert>
 
       {!validId ? <Card><p className="text-sm text-secondary">El identificador del viaje no es válido.</p></Card> : null}
       {validId && detail.isPending ? <Card aria-hidden="true"><div className="space-y-3"><div className="skeleton h-14" /><div className="skeleton h-14" /></div></Card> : null}
@@ -39,8 +39,8 @@ export function TripDetailPage() {
             <div><dt className="text-muted">Control</dt><dd className="text-secondary">{trip.controlClient || "No informado"}</dd></div>
             <div><dt className="text-muted">Dispositivo</dt><dd className="text-secondary">{trip.dispositivoId || "No informado"}</dd></div>
             <div><dt className="text-muted">Vehículo</dt><dd className="text-secondary">{trip.vehiclePublicId || "No asociado"}</dd></div>
-            <div><dt className="text-muted">Fallback móvil</dt><dd className="text-secondary">{trip.mobileFallbackUsed ? "Sí" : "No"}</dd></div>
-            <div><dt className="text-muted">Motivo fallback</dt><dd className="text-secondary">{trip.fallbackReason || "No aplica"}</dd></div>
+            <div><dt className="text-muted">Origen del control</dt><dd className="text-secondary">Galaxy Watch 8</dd></div>
+            <div><dt className="text-muted">Compatibilidad histórica</dt><dd className="text-secondary">{trip.mobileFallbackUsed ? trip.fallbackReason || "Registro móvil heredado" : "No aplica"}</dd></div>
           </dl>
           <div className="mt-5"><Link to={`/app/trips/${trip.id}/telemetry`} className={LINK_CLASSES}><Activity className="size-4" aria-hidden="true" /> Ver telemetría</Link></div>
         </Card>
