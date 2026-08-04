@@ -23,7 +23,7 @@ export function ActiveTripCard({ trip }: ActiveTripCardProps) {
         <EmptyState
           icon={Route}
           title="Sin viaje activo"
-          description="Los viajes se inician desde el wearable o la aplicación móvil."
+          description="Los viajes se inician desde el Galaxy Watch 8."
         />
       </Card>
     );

@@ -5,12 +5,18 @@ import { Spinner } from "@/components/ui/Spinner";
 
 export interface PublicRouteProps {
   children: ReactNode;
+  authenticatedRedirect?: string;
 }
 
 /**
  * Rutas públicas: un usuario autenticado no puede volver a login/registro.
+ * El registro redirige al onboarding para que la cuenta recién creada termine
+ * su configuración sin perder el contexto del flujo.
  */
-export function PublicRoute({ children }: PublicRouteProps) {
+export function PublicRoute({
+  children,
+  authenticatedRedirect = "/app/dashboard",
+}: PublicRouteProps) {
   const { isInitialized, isAuthenticated } = useSession();
 
   if (!isInitialized) {
@@ -22,7 +28,7 @@ export function PublicRoute({ children }: PublicRouteProps) {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/app/dashboard" replace />;
+    return <Navigate to={authenticatedRedirect} replace />;
   }
 
   return <>{children}</>;

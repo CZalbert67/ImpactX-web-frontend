@@ -8,14 +8,24 @@ export const API_ERROR_STATUSES = [
 
 export type ApiErrorStatus = (typeof API_ERROR_STATUSES)[number];
 
+const NETWORK_MESSAGE =
+  "No pudimos conectarnos en este momento. Revisa tu conexión e inténtalo nuevamente.";
+const UNEXPECTED_MESSAGE =
+  "Ocurrió un inconveniente. Inténtalo nuevamente en unos momentos.";
+
+/**
+ * Mensajes deliberadamente neutros para la interfaz.
+ * La UI no muestra detalles de infraestructura, validaciones internas,
+ * nombres de excepciones ni mensajes crudos del backend.
+ */
 const STATUS_MESSAGES: Record<number, string> = {
-  400: "La solicitud no es válida.",
-  401: "Tu sesión expiró. Vuelve a iniciar sesión.",
-  403: "No tienes permisos para realizar esta acción.",
-  404: "El recurso solicitado no existe.",
-  409: "La solicitud entra en conflicto con el estado actual del servidor.",
-  413: "La solicitud es demasiado grande para el servidor.",
-  429: "Demasiadas solicitudes. Inténtalo de nuevo en un momento.",
+  400: "Revisa la información e inténtalo nuevamente.",
+  401: "Tu sesión no pudo validarse. Inicia sesión nuevamente.",
+  403: "Esta acción no está disponible para tu cuenta.",
+  404: "No pudimos encontrar la información solicitada.",
+  409: "No pudimos guardar los cambios. Revisa la información e inténtalo nuevamente.",
+  413: "No pudimos procesar la información enviada.",
+  429: "Has realizado varios intentos. Espera un momento antes de continuar.",
 };
 
 export function isExpectedStatus(status: number): boolean {
@@ -23,42 +33,17 @@ export function isExpectedStatus(status: number): boolean {
 }
 
 function fallbackMessage(status: number): string {
-  if (STATUS_MESSAGES[status]) return STATUS_MESSAGES[status] as string;
-  return "Ocurrió un error inesperado en el servidor.";
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object";
+  if (status === 0) return NETWORK_MESSAGE;
+  return STATUS_MESSAGES[status] ?? UNEXPECTED_MESSAGE;
 }
 
 /**
- * Extrae un detalle legible del cuerpo de la respuesta.
- * Soporta ProblemDetails (RFC 7807) y AuthResponse (campo `mensaje`).
+ * Conserva la firma histórica, pero siempre devuelve un texto seguro para el
+ * usuario. El payload se ignora intencionalmente para no filtrar mensajes
+ * técnicos o reglas internas del servidor.
  */
-export function extractErrorMessage(payload: unknown, status: number): string {
-  if (!isPlainRecord(payload)) {
-    return status === 0
-      ? "No se pudo conectar con el servidor. Revisa tu conexión."
-      : fallbackMessage(status);
-  }
-
-  const { detail, title, message, mensaje } = payload;
-
-  if (typeof detail === "string" && detail.length > 0) return detail;
-  if (typeof title === "string" && title.length > 0) return title;
-  if (typeof message === "string" && message.length > 0) return message;
-  if (
-    status !== 0 &&
-    isExpectedStatus(status) &&
-    typeof mensaje === "string" &&
-    mensaje.length > 0
-  ) {
-    return mensaje;
-  }
-
-  return status === 0
-    ? "No se pudo conectar con el servidor. Revisa tu conexión."
-    : fallbackMessage(status);
+export function extractErrorMessage(_payload: unknown, status: number): string {
+  return fallbackMessage(status);
 }
 
 export interface AppApiErrorOptions {
@@ -75,7 +60,8 @@ export interface AppApiErrorOptions {
 
 /**
  * Error tipado de la capa HTTP.
- * Nunca contiene tokens, credenciales ni payloads sensibles.
+ * Su mensaje es seguro para mostrarse en la interfaz y nunca contiene tokens,
+ * credenciales, nombres de excepción o detalles crudos del backend.
  */
 export class AppApiError extends Error {
   readonly status: number;
@@ -109,26 +95,29 @@ export class AppApiError extends Error {
     const info = readAxiosError(error);
 
     if (!info) {
-      const message =
-        error instanceof Error ? error.message : "Error desconocido";
-      return new AppApiError({ status: 0, message, code: "network" });
+      return new AppApiError({
+        status: 0,
+        message: NETWORK_MESSAGE,
+        code: "network",
+      });
     }
 
-    const { status, data } = info;
-    const problem = asProblemDetails(data);
+    const { status } = info;
     return new AppApiError({
       status,
-      message:
-        extractErrorMessage(data, status) ||
-        problem?.title ||
-        fallbackMessage(status),
-      title: problem?.title ?? undefined,
-      detail: problem?.detail ?? undefined,
-      instance: problem?.instance ?? undefined,
-      data,
+      message: fallbackMessage(status),
+      code: status === 0 ? "network" : "api",
       retryAfterSeconds: readRetryAfterSeconds(info.headers),
     });
   }
+}
+
+/** Devuelve un mensaje seguro para componentes que reciben `unknown`. */
+export function userSafeErrorMessage(
+  error: unknown,
+  fallback = "No pudimos completar la operación. Inténtalo nuevamente.",
+): string {
+  return error instanceof AppApiError ? error.message : fallback;
 }
 
 /** Lee `Retry-After` de los headers (segundos o fecha HTTP) de forma segura. */
@@ -150,34 +139,30 @@ function readRetryAfterSeconds(
   return undefined;
 }
 
-function asProblemDetails(data: unknown): ApiProblemDetails | undefined {
-  if (!isPlainRecord(data)) return undefined;
-  return data as unknown as ApiProblemDetails;
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
 }
 
 interface AxiosErrorInfo {
   status: number;
-  data: unknown;
   headers?: Record<string, unknown>;
 }
 
 function readAxiosError(error: unknown): AxiosErrorInfo | null {
   if (!isPlainRecord(error)) return null;
-  // Un error de Axios real siempre expone `config` y/o `response` como
-  // objetos planos. Cualquier otro objeto (p. ej. TypeError, DOMException)
-  // se trata como fallo de red.
+
   const hasAxiosShape =
     error.config !== undefined || error.response !== undefined;
   if (!hasAxiosShape) return null;
 
   const response = error.response;
   if (!response || !isPlainRecord(response)) {
-    return { status: 0, data: undefined };
+    return { status: 0 };
   }
+
   const status = typeof response.status === "number" ? response.status : 0;
   return {
     status,
-    data: response.data,
     headers: isPlainRecord(response.headers)
       ? (response.headers as Record<string, unknown>)
       : undefined,

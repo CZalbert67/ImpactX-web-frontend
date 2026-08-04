@@ -1,3 +1,4 @@
+import { userSafeErrorMessage } from "@/api/errors";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
@@ -36,9 +37,7 @@ export function LoginForm() {
 
       {login.isError ? (
         <Alert tone="error" role="alert">
-          {login.error instanceof Error
-            ? login.error.message
-            : "No se pudo iniciar sesión."}
+          {userSafeErrorMessage(login.error, "No pudimos iniciar sesión. Inténtalo nuevamente.")}
         </Alert>
       ) : null}
 

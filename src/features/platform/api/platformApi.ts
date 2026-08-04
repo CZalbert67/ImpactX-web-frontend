@@ -1,27 +1,27 @@
 import apiClient from "@/api/client";
 import type {
   AlertItem,
-  ContactInput,
+  ContactInvitationInput,
+  ContactInvitationResponse,
   ContactItem,
+  ContactResponseInput,
   ContactUpdateInput,
-  DeviceItem,
-  DeviceRegistrationInput,
   DriverProfile,
+  IncidentActionResponse,
   IncidentDetail,
   IncidentFilters,
   IncidentItem,
+  IncidentMapData,
   MedicalProfile,
   NotificationItem,
   Onboarding,
   PagedBody,
   RouteInput,
   RouteItem,
-  SensorDiagnostics,
   SettingsData,
   Setup2FaResponse,
   UserPreferences,
   UserProfile,
-  WearableItem,
 } from "@/features/platform/types";
 
 function listFrom<T>(value: unknown): T[] {
@@ -58,8 +58,19 @@ export const incidentsApi = {
     });
     return listFrom<IncidentItem>(data);
   },
+  async getActive(signal?: AbortSignal): Promise<IncidentItem[]> {
+    const { data } = await apiClient.get<IncidentItem[]>("/api/v1/incidents/active", { signal });
+    return Array.isArray(data) ? data : [];
+  },
   async getById(id: string): Promise<IncidentDetail> {
     const { data } = await apiClient.get<IncidentDetail>(`/api/v1/incidents/${idPath(id)}`);
+    return data;
+  },
+  async close(id: string, metodoCierre: string, nota?: string): Promise<IncidentActionResponse> {
+    const { data } = await apiClient.post<IncidentActionResponse>(
+      `/api/v1/incidents/${idPath(id)}/close`,
+      { metodoCierre, nota: nota?.trim() || null },
+    );
     return data;
   },
   async markFalseAlarm(id: string, nota?: string): Promise<void> {
@@ -68,7 +79,11 @@ export const incidentsApi = {
   async updateNote(id: string, nota: string): Promise<void> {
     await apiClient.patch(`/api/v1/incidents/${idPath(id)}/note`, { nota });
   },
-  async exportFile(format: "csv" | "pdf"): Promise<Blob> {
+  async getMap(id: string): Promise<IncidentMapData> {
+    const { data } = await apiClient.get<IncidentMapData>(`/api/v1/incidents/${idPath(id)}/map`);
+    return data;
+  },
+  async exportFile(format: "csv" | "txt"): Promise<Blob> {
     const { data } = await apiClient.get<Blob>("/api/v1/incidents/export", {
       params: { formato: format },
       responseType: "blob",
@@ -80,42 +95,42 @@ export const incidentsApi = {
 export const contactsApi = {
   async getAll(signal?: AbortSignal): Promise<ContactItem[]> {
     const { data } = await apiClient.get<ContactItem[]>("/api/v1/contacts", {
-      params: { pageSize: 100 }, signal,
+      params: { pageSize: 100 },
+      signal,
     });
-    return listFrom<ContactItem>(data);
+    return Array.isArray(data) ? data : [];
   },
-  async create(input: ContactInput): Promise<ContactItem> {
-    const { data } = await apiClient.post<ContactItem>("/api/v1/contacts", input);
+  async createInvitation(input: ContactInvitationInput): Promise<ContactInvitationResponse> {
+    const { data } = await apiClient.post<ContactInvitationResponse>(
+      "/api/v1/contacts/invitations",
+      input,
+    );
     return data;
   },
+  async accept(input: ContactResponseInput): Promise<void> {
+    await apiClient.post("/api/v1/contacts/invitations/accept", input);
+  },
+  async reject(input: ContactResponseInput): Promise<void> {
+    await apiClient.post("/api/v1/contacts/invitations/reject", input);
+  },
   async update(id: string, input: ContactUpdateInput): Promise<ContactItem> {
-    const { data } = await apiClient.put<ContactItem>(`/api/v1/contacts/${idPath(id)}`, input);
+    const { data } = await apiClient.patch<ContactItem>(
+      `/api/v1/contacts/${idPath(id)}`,
+      input,
+    );
     return data;
   },
   async remove(id: string): Promise<void> {
     await apiClient.delete(`/api/v1/contacts/${idPath(id)}`);
   },
   async makePrimary(id: string): Promise<ContactItem> {
-    const { data } = await apiClient.patch<ContactItem>("/api/v1/contacts/make-primary", { contactoId: id });
+    const { data } = await apiClient.patch<ContactItem>(
+      `/api/v1/contacts/${idPath(id)}/primary`,
+    );
     return data;
   },
-};
-
-export const devicesApi = {
-  async getAll(signal?: AbortSignal): Promise<DeviceItem[]> {
-    const { data } = await apiClient.get<DeviceItem[]>("/api/v1/devices", {
-      params: { pageSize: 100 }, signal,
-    });
-    return listFrom<DeviceItem>(data);
-  },
-  async register(input: DeviceRegistrationInput): Promise<void> {
-    await apiClient.put("/api/v1/devices/fcm-token", input);
-  },
-  async remove(id: string): Promise<void> {
-    await apiClient.delete(`/api/v1/devices/${idPath(id)}`);
-  },
-  async removeAll(): Promise<void> {
-    await apiClient.delete("/api/v1/devices");
+  async block(id: string): Promise<void> {
+    await apiClient.post(`/api/v1/contacts/${idPath(id)}/block`);
   },
 };
 
@@ -250,24 +265,5 @@ export const settingsApi = {
   },
   async disable2Fa(code: string): Promise<void> {
     await apiClient.delete("/api/v1/settings/2fa", { data: { code } });
-  },
-};
-
-export const wearablesApi = {
-  async getAll(signal?: AbortSignal): Promise<WearableItem[]> {
-    const { data } = await apiClient.get<unknown>("/api/v1/wearable/all", {
-      params: { pageSize: 100 }, signal,
-    });
-    return listFrom<WearableItem>(data);
-  },
-  async getDiagnostics(signal?: AbortSignal): Promise<SensorDiagnostics | null> {
-    try {
-      const { data } = await apiClient.get<SensorDiagnostics>("/api/wearable/sensors/diagnostics", { signal });
-      return data;
-    } catch (error) {
-      const status = (error as { status?: number }).status;
-      if (status === 404) return null;
-      throw error;
-    }
   },
 };

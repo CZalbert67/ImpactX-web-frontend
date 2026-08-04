@@ -23,7 +23,7 @@ export function TripsPage() {
         description="Consulta viajes y telemetría. Por seguridad, la web no inicia, pausa, reanuda ni finaliza viajes."
       />
       <Alert tone="info">
-        El wearable es el control principal del viaje y la aplicación móvil funciona como respaldo. Este panel es de consulta.
+        El Galaxy Watch 8 inicia, pausa, reanuda y finaliza los viajes. Este panel web es exclusivamente de consulta.
       </Alert>
 
       <section aria-labelledby="trips-active-heading">
@@ -38,7 +38,7 @@ export function TripsPage() {
         {trips.isLoading ? <TripListSkeleton /> : null}
         {trips.isError ? <ErrorState title="No se pudieron cargar los viajes" description={tripActionErrorMessage(trips.error)} onRetry={() => void trips.refetch()} /> : null}
         {!trips.isError && trips.isFetched && allTrips.length === 0 ? (
-          <EmptyState icon={Route} title="Aún no hay viajes" description="Los viajes iniciados desde móvil o wearable aparecerán aquí." />
+          <EmptyState icon={Route} title="Aún no hay viajes" description="Los viajes iniciados desde el Galaxy Watch 8 aparecerán aquí." />
         ) : null}
         {allTrips.length > 0 ? <ul className="space-y-3">{allTrips.map((trip) => <TripListItem key={trip.id} trip={trip} />)}</ul> : null}
         {trips.hasNextPage ? <div className="mt-4 flex justify-center"><Button variant="outline" onClick={() => void trips.fetchNextPage()} loading={trips.isFetchingNextPage}>Cargar más</Button></div> : null}

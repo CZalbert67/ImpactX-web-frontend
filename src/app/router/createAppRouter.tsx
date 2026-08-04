@@ -5,11 +5,10 @@ import { ProtectedRoute } from "@/app/router/ProtectedRoute";
 import { PublicRoute } from "@/app/router/PublicRoute";
 import { RootRedirect } from "@/app/router/RootRedirect";
 import {
+  AccountPage,
   AlertsPage,
-  ComingSoonPage,
   ContactsPage,
   DashboardPage,
-  DevicesPage,
   FamilySubscriptionPage,
   IncidentsPage,
   LoginPage,
@@ -20,6 +19,7 @@ import {
   MonitoringPage,
   NotFoundPage,
   RegisterPage,
+  RegistrationOnboardingPage,
   RoutesPage,
   SettingsPage,
   TripDetailPage,
@@ -27,7 +27,6 @@ import {
   TripsPage,
   UnauthorizedPage,
   VehiclesPage,
-  WearablesPage,
 } from "@/app/router/lazyRoutes";
 import { AppShell } from "@/components/layout/AppShell";
 import { Spinner } from "@/components/ui/Spinner";
@@ -50,7 +49,8 @@ function buildRoutes() {
   return [
     { path: "/", element: <RootRedirect /> },
     { path: "/login", element: <PublicRoute>{withSuspense(<LoginPage />)}</PublicRoute> },
-    { path: "/register", element: <PublicRoute>{withSuspense(<RegisterPage />)}</PublicRoute> },
+    { path: "/register", element: <PublicRoute authenticatedRedirect="/onboarding">{withSuspense(<RegisterPage />)}</PublicRoute> },
+    { path: "/onboarding", element: <ProtectedRoute>{withSuspense(<RegistrationOnboardingPage />)}</ProtectedRoute> },
     { path: "/unauthorized", element: withSuspense(<UnauthorizedPage />) },
     {
       path: "/app",
@@ -66,16 +66,15 @@ function buildRoutes() {
         { path: "alerts", element: withSuspense(<AlertsPage />) },
         { path: "incidents", element: withSuspense(<IncidentsPage />) },
         { path: "contacts", element: withSuspense(<ContactsPage />) },
-        { path: "devices", element: withSuspense(<DevicesPage />) },
         { path: "notifications", element: withSuspense(<NotificationsPage />) },
         { path: "routes", element: withSuspense(<RoutesPage />) },
         { path: "profile", element: withSuspense(<ProfilePage />) },
         { path: "settings", element: withSuspense(<SettingsPage />) },
-        { path: "wearables", element: withSuspense(<WearablesPage />) },
+        { path: "account", element: withSuspense(<AccountPage />) },
         { path: "trips", element: withSuspense(<TripsPage />) },
         { path: "trips/:tripId", element: withSuspense(<TripDetailPage />) },
         { path: "trips/:tripId/telemetry", element: withSuspense(<TripTelemetryPage />) },
-        { path: "*", element: withSuspense(<ComingSoonPage />) },
+        { path: "*", element: withSuspense(<NotFoundPage />) },
       ],
     },
     { path: "*", element: withSuspense(<NotFoundPage />) },

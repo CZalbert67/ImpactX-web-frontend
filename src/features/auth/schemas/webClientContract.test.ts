@@ -4,7 +4,22 @@ import { toRegisterRequest } from "@/features/auth/schemas/register.schema";
 
 describe("contrato de capacidades del cliente web", () => {
   it("marca login y registro como cliente web", () => {
-    expect(toLoginRequest({ identifier: "usuario", password: "password123" }).client).toBe("web");
-    expect(toRegisterRequest({ nombre: "Usuario", correo: "usuario@example.com", password: "password123" }).client).toBe("web");
+    expect(
+      toLoginRequest({ identifier: "usuario", password: "password123" }).client,
+    ).toBe("web");
+    expect(
+      toRegisterRequest({
+        nombre: "Usuario",
+        username: "usuario.test",
+        correo: "usuario@example.com",
+        telefono: "5512345678",
+        password: "Password123!",
+        confirmPassword: "Password123!",
+        termsAccepted: true,
+        privacyAccepted: true,
+        locationIncidentConsent: false,
+        drivingPatternConsent: false,
+      }).client,
+    ).toBe("web");
   });
 });

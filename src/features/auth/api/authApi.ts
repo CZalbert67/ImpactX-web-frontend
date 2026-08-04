@@ -5,6 +5,7 @@ import type {
   LogoutRequest,
   ProfileResponse,
   RegisterRequest,
+  RegistrationContract,
 } from "@/features/auth/types/api";
 
 /**
@@ -15,6 +16,14 @@ import type {
  *   GET  /api/v1/profile           (autenticado)
  */
 export const authApi = {
+  async getRegistrationContract(signal?: AbortSignal): Promise<RegistrationContract> {
+    const { data } = await publicClient.get<RegistrationContract>(
+      "/api/v1/auth/registration-contract",
+      { signal },
+    );
+    return data;
+  },
+
   async login(request: LoginRequest): Promise<AuthResponse> {
     const { data } = await publicClient.post<AuthResponse>(
       "/api/v1/auth/login",

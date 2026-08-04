@@ -12,18 +12,19 @@ import {
   UserMinus,
   Users,
 } from "lucide-react";
-import { AppApiError } from "@/api/errors";
+import { userSafeErrorMessage } from "@/api/errors";
 import { Alert } from "@/components/ui/Alert";
 import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Checkbox } from "@/components/ui/Checkbox";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
+import { resolveFamilyCapacity } from "@/features/family/utils/familyCapacity";
+import { GroupAccessManager } from "@/features/family/components/GroupAccessManager";
 import {
   useAcceptFamilyInvitation,
   useActivateFamily,
@@ -33,16 +34,19 @@ import {
   useCurrentFamilySubscription,
   useFamilyInvitations,
   useFamilyMembers,
+  useIncomingFamilyInvitations,
   useLeaveFamily,
   useRedeemFamilyInvitation,
   useRejectFamilyInvitation,
   useRemoveFamilyMember,
+  useRevokeFamilyInvitation,
   useRenewFamily,
 } from "@/features/family/hooks";
 import type {
   CreateFamilyInvitationInput,
   FamilyInvitation,
   FamilyMember,
+  IncomingFamilyInvitation,
   FamilyPlanName,
   FamilySubscriptionSummary,
 } from "@/features/family/types";
@@ -57,30 +61,31 @@ const PLAN_CARDS: ReadonlyArray<{
   {
     value: "Free",
     label: "Gratuito",
-    invited: "1 invitado",
+    invited: "2 personas en total",
     vehicles: "1 vehículo por usuario",
     description: "Para probar el monitoreo familiar esencial.",
   },
   {
-    value: "Basic",
+    value: "Standard",
     label: "Estándar",
-    invited: "3 invitados",
+    invited: "3 personas en total",
     vehicles: "3 vehículos por usuario",
     description: "Para familias que administran varios vehículos.",
   },
   {
     value: "Premium",
     label: "Premium",
-    invited: "6 invitados",
+    invited: "6 personas en total",
     vehicles: "Vehículos sin límite fijo",
     description: "Cobertura ampliada con protección contra abuso.",
   },
 ];
 
 function messageOf(error: unknown): string {
-  return error instanceof AppApiError
-    ? error.message
-    : "No se pudo completar la operación.";
+  return userSafeErrorMessage(
+    error,
+    "No pudimos completar la operación. Inténtalo nuevamente.",
+  );
 }
 
 function formatDate(value: string | null | undefined): string {
@@ -112,6 +117,21 @@ function invitationTarget(invitation: FamilyInvitation): string {
   );
 }
 
+function incomingInvitationOwner(invitation: IncomingFamilyInvitation): string {
+  return invitation.ownerName || invitation.ownerUsername || invitation.ownerPublicProfileId;
+}
+
+function canonicalPlanName(value: string | null | undefined): FamilyPlanName | null {
+  if (!value) return null;
+  if (value === "Basic") return "Standard";
+  if (value === "Free" || value === "Standard" || value === "Premium") return value;
+  return null;
+}
+
+function planLabel(value: string | null | undefined): string {
+  return canonicalPlanName(value) === "Standard" ? "Estándar" : value ?? "Gratuito";
+}
+
 function PlanPicker({
   currentPlan,
   pending,
@@ -124,7 +144,7 @@ function PlanPicker({
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       {PLAN_CARDS.map((plan) => {
-        const selected = currentPlan === plan.value;
+        const selected = canonicalPlanName(currentPlan) === plan.value;
         return (
           <Card key={plan.value} className={selected ? "border-line-strong" : undefined}>
             <div className="flex items-center justify-between gap-2">
@@ -159,7 +179,19 @@ function PlanPicker({
   );
 }
 
-function SubscriptionSummary({ summary }: { summary: FamilySubscriptionSummary }) {
+function SubscriptionSummary({
+  summary,
+  activePeople,
+  totalPeopleLimit,
+  availableToInvite,
+  pendingInvitations,
+}: {
+  summary: FamilySubscriptionSummary;
+  activePeople: number;
+  totalPeopleLimit: number;
+  availableToInvite: number;
+  pendingInvitations: number;
+}) {
   const unlimited = summary.vehicleLimitPerUser >= 2_147_483_647;
   return (
     <Card>
@@ -167,7 +199,7 @@ function SubscriptionSummary({ summary }: { summary: FamilySubscriptionSummary }
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <Crown className="size-5 text-brand" aria-hidden="true" />
-            <h2 className="text-xl font-semibold">Plan {summary.planName}</h2>
+            <h2 className="text-xl font-semibold">Plan {planLabel(summary.planName)}</h2>
             <Badge tone={statusTone(summary.status)}>{summary.status}</Badge>
             <Badge tone="neutral">{summary.currentUserRole === "Owner" ? "Titular" : "Miembro"}</Badge>
           </div>
@@ -177,14 +209,14 @@ function SubscriptionSummary({ summary }: { summary: FamilySubscriptionSummary }
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
           <div className="rounded-lg bg-panel-soft p-3 text-center">
-            <p className="text-xs text-muted">Miembros</p>
+            <p className="text-xs text-muted">Personas</p>
             <p className="mt-1 font-bold">
-              {summary.acceptedMembers}/{summary.invitedMemberLimit + 1}
+              {activePeople}/{totalPeopleLimit}
             </p>
           </div>
           <div className="rounded-lg bg-panel-soft p-3 text-center">
-            <p className="text-xs text-muted">Espacios</p>
-            <p className="mt-1 font-bold">{summary.availableMemberSlots}</p>
+            <p className="text-xs text-muted">Disponibles</p>
+            <p className="mt-1 font-bold">{availableToInvite}</p>
           </div>
           <div className="rounded-lg bg-panel-soft p-3 text-center">
             <p className="text-xs text-muted">Vehículos/usuario</p>
@@ -205,9 +237,14 @@ function SubscriptionSummary({ summary }: { summary: FamilySubscriptionSummary }
             : "Sin pago simulado registrado"}
         </div>
       </div>
+      {pendingInvitations > 0 ? (
+        <p className="mt-3 text-xs text-muted">
+          {pendingInvitations} espacio{pendingInvitations === 1 ? "" : "s"} reservado{pendingInvitations === 1 ? "" : "s"} por invitaciones pendientes.
+        </p>
+      ) : null}
       {summary.pendingAdjustment ? (
         <Alert tone="warning" className="mt-4">
-          Hay un ajuste pendiente hacia el plan {summary.pendingPlanName ?? "seleccionado"}. Puede requerir reducir miembros antes de aplicarse.
+          Hay un ajuste pendiente hacia el plan {planLabel(summary.pendingPlanName)}. Puede requerir reducir miembros antes de aplicarse.
         </Alert>
       ) : null}
     </Card>
@@ -229,7 +266,7 @@ function MemberList({
     <Card>
       <div className="mb-4 flex items-center gap-2">
         <Users className="size-4 text-brand" aria-hidden="true" />
-        <h2 className="font-semibold">Miembros familiares</h2>
+        <h2 className="font-semibold">Integrantes del grupo</h2>
       </div>
       {members.length === 0 ? (
         <EmptyState icon={Users} title="Sin miembros" description="Las personas aceptadas aparecerán aquí." />
@@ -268,7 +305,8 @@ function MemberList({
 export function FamilySubscriptionPage() {
   const current = useCurrentFamilySubscription();
   const members = useFamilyMembers(Boolean(current.data));
-  const invitations = useFamilyInvitations(true);
+  const invitations = useFamilyInvitations(current.data?.canManagePlan ?? false);
+  const incomingInvitations = useIncomingFamilyInvitations(true);
   const activate = useActivateFamily();
   const changePlan = useChangeFamilyPlan();
   const renew = useRenewFamily();
@@ -278,20 +316,40 @@ export function FamilySubscriptionPage() {
   const createInvitation = useCreateFamilyInvitation();
   const acceptInvitation = useAcceptFamilyInvitation();
   const rejectInvitation = useRejectFamilyInvitation();
+  const revokeInvitation = useRevokeFamilyInvitation();
   const redeemInvitation = useRedeemFamilyInvitation();
 
   const [targetType, setTargetType] = useState<"username" | "publicProfileId" | "email">("username");
   const [target, setTarget] = useState("");
-  const [createMonitoring, setCreateMonitoring] = useState(true);
   const [redeemCode, setRedeemCode] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState<string | null>(null);
   const [removeCandidate, setRemoveCandidate] = useState<FamilyMember | null>(null);
+  const [revokeCandidate, setRevokeCandidate] = useState<FamilyInvitation | null>(null);
   const [cancelConfirm, setCancelConfirm] = useState(false);
   const [leaveConfirm, setLeaveConfirm] = useState(false);
 
   const summary = current.data ?? null;
-  const isOwner = summary?.currentUserRole === "Owner";
+  const isOwner = summary?.canManagePlan ?? summary?.currentUserRole === "Owner";
+  const queriedPendingInvitations = (invitations.data ?? []).filter(
+    (invitation) => invitation.status === "Pending",
+  ).length;
+  const {
+    activePeople,
+    totalPeopleLimit,
+    pendingInvitations: pendingOutgoingInvitations,
+    availableInvitationSlots,
+  } = resolveFamilyCapacity(
+    summary,
+    members.data ?? [],
+    queriedPendingInvitations,
+  );
+  const canJoinAnotherGroup = !summary || (
+    isOwner
+    && canonicalPlanName(summary.planName) === "Free"
+    && activePeople === 1
+    && pendingOutgoingInvitations === 0
+  );
   const busy = [
     activate,
     changePlan,
@@ -302,6 +360,7 @@ export function FamilySubscriptionPage() {
     createInvitation,
     acceptInvitation,
     rejectInvitation,
+    revokeInvitation,
     redeemInvitation,
   ].some((mutation) => mutation.isPending);
 
@@ -317,6 +376,7 @@ export function FamilySubscriptionPage() {
         createInvitation.error,
         acceptInvitation.error,
         rejectInvitation.error,
+        revokeInvitation.error,
         redeemInvitation.error,
       ].find(Boolean),
     [
@@ -329,6 +389,7 @@ export function FamilySubscriptionPage() {
       createInvitation.error,
       acceptInvitation.error,
       rejectInvitation.error,
+      revokeInvitation.error,
       redeemInvitation.error,
     ],
   );
@@ -337,18 +398,22 @@ export function FamilySubscriptionPage() {
     setNotice(null);
     const mutation = summary ? changePlan : activate;
     mutation.mutate(planName, {
-      onSuccess: () => setNotice(summary ? "Solicitud de cambio de plan aplicada." : "Suscripción familiar activada."),
+      onSuccess: () => setNotice(summary ? "Solicitud de cambio de plan aplicada." : "Plan y grupo activados."),
     });
   };
 
   const submitInvitation = () => {
+    if (summary && availableInvitationSlots <= 0) {
+      setNotice("El plan ya no tiene espacios disponibles para nuevas invitaciones.");
+      return;
+    }
+
     const clean = target.trim();
     if (!clean) {
       setNotice("Escribe un usuario, perfil público o correo para invitar.");
       return;
     }
     const input: CreateFamilyInvitationInput = {
-      createMonitoringRelationship: createMonitoring,
       [targetType]: clean,
     };
     createInvitation.mutate(input, {
@@ -370,11 +435,21 @@ export function FamilySubscriptionPage() {
     <div className="space-y-6">
       <PageHeader
         icon={Users}
-        title="Plan familiar"
-        description="Administra el plan compartido, los miembros y las invitaciones. Los pagos de esta versión son simulados."
+        title="Mi plan y grupo"
+        description="Todos los planes incluyen un grupo. El titular administra la suscripción y cada integrante conserva beneficios individuales."
       />
 
-      {notice ? <Alert tone={notice.startsWith("Escribe") ? "warning" : "success"}>{notice}</Alert> : null}
+      {notice ? (
+        <Alert
+          tone={
+            notice.startsWith("Escribe") || notice.startsWith("El plan")
+              ? "warning"
+              : "success"
+          }
+        >
+          {notice}
+        </Alert>
+      ) : null}
       {firstError ? <Alert tone="error">{messageOf(firstError)}</Alert> : null}
 
       {current.isPending ? <div className="panel h-56 p-5"><div className="skeleton h-full" /></div> : null}
@@ -386,9 +461,17 @@ export function FamilySubscriptionPage() {
         />
       ) : null}
 
-      {!current.isPending && !current.isError && summary ? <SubscriptionSummary summary={summary} /> : null}
+      {!current.isPending && !current.isError && summary ? (
+        <SubscriptionSummary
+          summary={summary}
+          activePeople={activePeople}
+          totalPeopleLimit={totalPeopleLimit}
+          availableToInvite={availableInvitationSlots}
+          pendingInvitations={pendingOutgoingInvitations}
+        />
+      ) : null}
 
-      {!current.isPending && !current.isError ? (
+      {!current.isPending && !current.isError && (!summary || isOwner) ? (
         <section aria-labelledby="plans-heading" className="space-y-3">
           <div>
             <h2 id="plans-heading" className="text-lg font-semibold">
@@ -400,6 +483,13 @@ export function FamilySubscriptionPage() {
           </div>
           <PlanPicker currentPlan={summary?.planName} pending={activate.isPending || changePlan.isPending} onSelect={selectPlan} />
         </section>
+      ) : null}
+
+      {summary && !isOwner ? (
+        <Alert tone="info" title="Plan administrado por otra persona">
+          Heredas el plan {planLabel(summary.planName)} de {summary.ownerName || summary.ownerUsername}.
+          Solo la persona titular puede cambiar, renovar o cancelar el plan.
+        </Alert>
       ) : null}
 
       {summary ? (
@@ -414,7 +504,7 @@ export function FamilySubscriptionPage() {
           <Card>
             <div className="mb-4 flex items-center gap-2">
               <MailPlus className="size-4 text-brand" aria-hidden="true" />
-              <h2 className="font-semibold">Invitar a un miembro</h2>
+              <h2 className="font-semibold">Invitar al grupo</h2>
             </div>
             {isOwner ? (
               <div className="space-y-4">
@@ -436,16 +526,22 @@ export function FamilySubscriptionPage() {
                     autoComplete="off"
                   />
                 </div>
-                <label className="flex items-start gap-2.5 rounded-lg bg-panel-soft p-3 text-sm text-secondary">
-                  <Checkbox checked={createMonitoring} onChange={(event) => setCreateMonitoring(event.target.checked)} />
-                  Crear también una relación de monitoreo al aceptar.
-                </label>
-                <Button onClick={submitInvitation} loading={createInvitation.isPending} disabled={summary.availableMemberSlots <= 0}>
+                <Alert tone="info">
+                  Una sola invitación integra a la persona al grupo. Después, cada integrante decide qué comparte con los demás y a quién designa como contacto SOS.
+                </Alert>
+                <Button onClick={submitInvitation} loading={createInvitation.isPending} disabled={availableInvitationSlots <= 0}>
                   Crear invitación
                 </Button>
-                {summary.availableMemberSlots <= 0 ? (
-                  <Alert tone="warning">No quedan espacios disponibles en el plan actual.</Alert>
-                ) : null}
+                {availableInvitationSlots <= 0 ? (
+                  <Alert tone="warning">
+                    No quedan espacios disponibles. Las invitaciones pendientes
+                    también reservan un lugar hasta que se acepten, rechacen o expiren.
+                  </Alert>
+                ) : (
+                  <p className="text-xs text-muted">
+                    Espacios disponibles para nuevas invitaciones: {availableInvitationSlots}
+                  </p>
+                )}
                 {manualCode ? (
                   <Alert tone="info" title="Código manual de un solo uso">
                     <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -464,6 +560,10 @@ export function FamilySubscriptionPage() {
         </div>
       ) : null}
 
+      {summary ? (
+        <GroupAccessManager onNotice={setNotice} />
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <div className="mb-4 flex items-center gap-2">
@@ -479,7 +579,7 @@ export function FamilySubscriptionPage() {
             />
             <Button
               loading={redeemInvitation.isPending}
-              disabled={!redeemCode.trim()}
+              disabled={!redeemCode.trim() || !canJoinAnotherGroup}
               onClick={() =>
                 redeemInvitation.mutate(redeemCode.trim(), {
                   onSuccess: () => {
@@ -492,6 +592,11 @@ export function FamilySubscriptionPage() {
               Canjear
             </Button>
           </div>
+          {!canJoinAnotherGroup ? (
+            <Alert tone="warning" className="mt-3">
+              Para entrar a otro grupo primero debes abandonar el actual o dejar tu grupo Gratuito sin miembros ni invitaciones pendientes.
+            </Alert>
+          ) : null}
         </Card>
 
         {summary ? (
@@ -512,7 +617,7 @@ export function FamilySubscriptionPage() {
                 </>
               ) : (
                 <Button variant="ghost" className="text-error" leftIcon={<UserMinus className="size-4" aria-hidden="true" />} onClick={() => setLeaveConfirm(true)}>
-                  Salir del plan
+                  Abandonar grupo
                 </Button>
               )}
             </div>
@@ -520,61 +625,159 @@ export function FamilySubscriptionPage() {
         ) : null}
       </div>
 
-      <Card>
-        <div className="mb-4 flex items-center gap-2">
-          <MailPlus className="size-4 text-brand" aria-hidden="true" />
-          <h2 className="font-semibold">Invitaciones relacionadas con tu cuenta</h2>
-        </div>
-        {invitations.isPending ? <div className="skeleton h-28" /> : null}
-        {invitations.isError ? (
-          <ErrorState description={messageOf(invitations.error)} onRetry={() => void invitations.refetch()} />
-        ) : null}
-        {invitations.data && invitations.data.length === 0 ? (
-          <EmptyState icon={MailPlus} title="Sin invitaciones" description="Las invitaciones enviadas o recibidas aparecerán aquí." />
-        ) : null}
-        {invitations.data && invitations.data.length > 0 ? (
-          <ul className="divide-y divide-[var(--color-border)]">
-            {invitations.data.map((invitation) => (
-              <li key={invitation.publicInvitationId} className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium">{invitationTarget(invitation)}</p>
-                    <Badge tone={statusTone(invitation.status)}>{invitation.status}</Badge>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card>
+          <div className="mb-4 flex items-center gap-2">
+            <MailPlus className="size-4 text-brand" aria-hidden="true" />
+            <h2 className="font-semibold">Invitaciones recibidas</h2>
+          </div>
+          <p className="mb-3 text-xs text-muted">
+            Esta sección se actualiza automáticamente mientras la página está abierta.
+          </p>
+          {!canJoinAnotherGroup && incomingInvitations.data?.length ? (
+            <Alert tone="warning" className="mb-3">
+              Ya perteneces a un grupo que no puede suspenderse. Sal del grupo actual o libera tu grupo Gratuito antes de aceptar otra invitación.
+            </Alert>
+          ) : null}
+          {incomingInvitations.isPending ? <div className="skeleton h-28" /> : null}
+          {incomingInvitations.isError ? (
+            <ErrorState
+              description={messageOf(incomingInvitations.error)}
+              onRetry={() => void incomingInvitations.refetch()}
+            />
+          ) : null}
+          {incomingInvitations.data && incomingInvitations.data.length === 0 ? (
+            <EmptyState
+              icon={MailPlus}
+              title="Sin invitaciones nuevas"
+              description="Cuando alguien te invite a su plan, aparecerá aquí sin recargar la página."
+            />
+          ) : null}
+          {incomingInvitations.data && incomingInvitations.data.length > 0 ? (
+            <ul className="divide-y divide-[var(--color-border)]">
+              {incomingInvitations.data.map((invitation) => (
+                <li
+                  key={invitation.publicInvitationId}
+                  className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{incomingInvitationOwner(invitation)}</p>
+                      <Badge tone="brand">Plan {planLabel(invitation.planName)}</Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-muted">
+                      @{invitation.ownerUsername} · Expira: {formatDate(invitation.expiresAtUtc)}
+                    </p>
                   </div>
-                  <p className="mt-1 text-xs text-muted">
-                    Expira: {formatDate(invitation.expiresAtUtc)} · {invitation.publicInvitationId}
-                  </p>
-                </div>
-                {invitation.status === "Pending" ? (
                   <div className="flex gap-2">
                     <Button
                       size="sm"
-                      onClick={() => acceptInvitation.mutate(invitation.publicInvitationId, { onSuccess: () => setNotice("Invitación aceptada.") })}
-                      disabled={busy}
+                      onClick={() =>
+                        acceptInvitation.mutate(invitation.publicInvitationId, {
+                          onSuccess: () => setNotice("Invitación aceptada."),
+                        })
+                      }
+                      disabled={busy || !canJoinAnotherGroup}
                     >
                       Aceptar
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => rejectInvitation.mutate(invitation.publicInvitationId, { onSuccess: () => setNotice("Invitación rechazada.") })}
+                      onClick={() =>
+                        rejectInvitation.mutate(invitation.publicInvitationId, {
+                          onSuccess: () => setNotice("Invitación rechazada."),
+                        })
+                      }
                       disabled={busy}
                     >
                       Rechazar
                     </Button>
                   </div>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </Card>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </Card>
+
+        <Card>
+          <div className="mb-4 flex items-center gap-2">
+            <MailPlus className="size-4 text-brand" aria-hidden="true" />
+            <h2 className="font-semibold">Invitaciones enviadas</h2>
+          </div>
+          {invitations.isPending ? <div className="skeleton h-28" /> : null}
+          {invitations.isError ? (
+            <ErrorState
+              description={messageOf(invitations.error)}
+              onRetry={() => void invitations.refetch()}
+            />
+          ) : null}
+          {invitations.data && invitations.data.length === 0 ? (
+            <EmptyState
+              icon={MailPlus}
+              title="Sin invitaciones enviadas"
+              description="Las invitaciones que genere la persona titular aparecerán aquí."
+            />
+          ) : null}
+          {invitations.data && invitations.data.length > 0 ? (
+            <ul className="divide-y divide-[var(--color-border)]">
+              {invitations.data.map((invitation) => (
+                <li
+                  key={invitation.publicInvitationId}
+                  className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{invitationTarget(invitation)}</p>
+                      <Badge tone={statusTone(invitation.status)}>{invitation.status}</Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-muted">
+                      Expira: {formatDate(invitation.expiresAtUtc)} · {invitation.publicInvitationId}
+                    </p>
+                  </div>
+                  {invitation.status === "Pending" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-error"
+                      disabled={busy}
+                      onClick={() => setRevokeCandidate(invitation)}
+                    >
+                      Revocar
+                    </Button>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </Card>
+      </div>
+
+      <ConfirmDialog
+        open={Boolean(revokeCandidate)}
+        title="Revocar invitación"
+        description={revokeCandidate ? `Se liberará el espacio reservado para ${invitationTarget(revokeCandidate)}.` : ""}
+        confirmLabel="Revocar invitación"
+        danger
+        loading={revokeInvitation.isPending}
+        error={revokeInvitation.isError ? messageOf(revokeInvitation.error) : null}
+        onConfirm={() => {
+          if (!revokeCandidate) return;
+          revokeInvitation.mutate(revokeCandidate.publicInvitationId, {
+            onSuccess: () => {
+              setRevokeCandidate(null);
+              setNotice("Invitación revocada y espacio liberado.");
+            },
+          });
+        }}
+        onCancel={() => !revokeInvitation.isPending && setRevokeCandidate(null)}
+      />
 
       <ConfirmDialog
         open={Boolean(removeCandidate)}
-        title="Quitar miembro"
-        description={removeCandidate ? `Se quitará a ${removeCandidate.displayName || removeCandidate.username} del plan familiar.` : ""}
-        confirmLabel="Quitar miembro"
+        title="Eliminar del grupo"
+        description={removeCandidate ? `Se quitará a ${removeCandidate.displayName || removeCandidate.username} del grupo del plan.` : ""}
+        confirmLabel="Eliminar del grupo"
         danger
         loading={removeMember.isPending}
         error={removeMember.isError ? messageOf(removeMember.error) : null}
@@ -592,25 +795,25 @@ export function FamilySubscriptionPage() {
 
       <ConfirmDialog
         open={cancelConfirm}
-        title="Cancelar plan familiar"
+        title="Cancelar plan y grupo"
         description="La suscripción quedará cancelada y los miembros volverán al plan gratuito según las reglas del backend."
         confirmLabel="Cancelar plan"
         danger
         loading={cancel.isPending}
         error={cancel.isError ? messageOf(cancel.error) : null}
-        onConfirm={() => cancel.mutate(undefined, { onSuccess: () => { setCancelConfirm(false); setNotice("Plan familiar cancelado."); } })}
+        onConfirm={() => cancel.mutate(undefined, { onSuccess: () => { setCancelConfirm(false); setNotice("Plan y grupo cancelados."); } })}
         onCancel={() => !cancel.isPending && setCancelConfirm(false)}
       />
 
       <ConfirmDialog
         open={leaveConfirm}
-        title="Salir del plan familiar"
+        title="Abandonar el grupo"
         description="Dejarás de heredar los beneficios del titular y volverás al plan gratuito."
-        confirmLabel="Salir del plan"
+        confirmLabel="Abandonar grupo"
         danger
         loading={leave.isPending}
         error={leave.isError ? messageOf(leave.error) : null}
-        onConfirm={() => leave.mutate(undefined, { onSuccess: () => { setLeaveConfirm(false); setNotice("Saliste del plan familiar."); } })}
+        onConfirm={() => leave.mutate(undefined, { onSuccess: () => { setLeaveConfirm(false); setNotice("Saliste del grupo del plan."); } })}
         onCancel={() => !leave.isPending && setLeaveConfirm(false)}
       />
     </div>

@@ -21,7 +21,7 @@ export interface TripTelemetryParams {
  *   GET /api/v1/trips/{id}/telemetry   (paginada por X-Continuation-Token)
  *
  * El POST y PATCH del mismo recurso corresponden a la ingesta desde el
- * móvil/wearable; en esta rama web solo se consume (GET). Nunca se puede
+ * wearable; en esta rama web solo se consume (GET). Nunca se puede
  * tomar/seleccionar una coordenada manualmente.
  */
 export const telemetryApi = {

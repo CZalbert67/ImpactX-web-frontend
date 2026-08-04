@@ -27,13 +27,17 @@ export interface AlertItem {
 
 export interface IncidentItem {
   id: string;
+  alertaId: string;
+  tipo: string;
   severidad: string;
+  estado: string;
   lat: number;
   lng: number;
   lugar: string | null;
   metodoCierre: string;
   esFalsaAlarma: boolean;
   creadoEn: string;
+  actualizadoEn: string;
   cerradaEn: string | null;
 }
 
@@ -42,10 +46,18 @@ export interface IncidentDetail extends IncidentItem {
   decibeles: string | null;
   frecuenciaCardiaca: string | null;
   canal: string | null;
+  viajeId: string | null;
+  sourceTelemetryEventId: string | null;
+  detectionLabel: string | null;
+  ruleVersion: string | null;
+  detectionScore: number | null;
   esBypassCritico: boolean;
+  esOffline: boolean;
   nota: string | null;
   timeline: string[][];
   contactosNotificados: string[];
+  enviadaEn: string | null;
+  confirmadaEn: string | null;
 }
 
 export interface IncidentFilters {
@@ -57,52 +69,74 @@ export interface IncidentFilters {
   tamano?: number;
 }
 
-export interface ContactItem {
-  id: string;
-  nombre: string;
-  telefono: string;
-  parentesco: string | null;
-  username: string | null;
-  appUserId: string | null;
-  channel: string;
-  priority: string;
-  esPrincipal: boolean;
-  creadoEn: string;
+export interface IncidentActionResponse {
+  incidentId: string;
+  alertId: string;
+  estado: string;
+  mensaje: string;
 }
 
-export interface ContactInput {
-  nombre: string;
-  telefono: string;
-  parentesco?: string;
+export interface IncidentMapData {
+  lat: number;
+  lng: number;
+  lugar: string | null;
+  mapsUrl: string;
+}
+
+export type EmergencyContactStatus =
+  | "LegacyUnverified"
+  | "Pending"
+  | "Accepted"
+  | "Rejected"
+  | "Revoked"
+  | "Blocked"
+  | "Expired";
+
+export interface ContactItem {
+  publicContactId: string;
+  status: EmergencyContactStatus;
+  isOwner: boolean;
+  ownerPublicProfileId: string;
+  ownerUsername: string;
+  ownerName: string;
+  contactPublicProfileId: string | null;
+  contactUsername: string | null;
+  contactName: string | null;
+  targetEmailHint: string | null;
+  relationship: string | null;
+  priority: "Primary" | "Secondary" | string;
+  isPrimary: boolean;
+  requestedAtUtc: string;
+  expiresAtUtc: string;
+  acceptedAtUtc: string | null;
+  rejectedAtUtc: string | null;
+  revokedAtUtc: string | null;
+  blockedAtUtc: string | null;
+  updatedAtUtc: string;
+}
+
+export interface ContactInvitationInput {
   username?: string;
-  appUserId?: string;
-  priority: string;
-  esPrincipal: boolean;
+  publicProfileId?: string;
+  email?: string;
+  relationship?: string;
+  priority: "Primary" | "Secondary";
+  makePrimaryWhenAccepted: boolean;
+}
+
+export interface ContactInvitationResponse {
+  contact: ContactItem;
+  manualCode: string;
+}
+
+export interface ContactResponseInput {
+  publicContactId?: string;
+  code?: string;
 }
 
 export interface ContactUpdateInput {
-  nombre?: string;
-  telefono?: string;
-  parentesco?: string;
-  priority?: string;
-}
-
-export interface DeviceItem {
-  id: string;
-  deviceId: string;
-  platform: string;
-  nombre: string | null;
-  activo: boolean;
-  creadoEn: string;
-  actualizadoEn: string;
-  ultimoUsoEn: string | null;
-}
-
-export interface DeviceRegistrationInput {
-  deviceId: string;
-  platform: string;
-  token: string;
-  name?: string;
+  relationship?: string;
+  priority?: "Primary" | "Secondary";
 }
 
 export interface NotificationItem {
@@ -112,6 +146,10 @@ export interface NotificationItem {
   tipo: string;
   referenciaId: string | null;
   referenciaTipo: string | null;
+  publicRelationshipId: string | null;
+  evento: string | null;
+  deepLink: string | null;
+  entityId: string | null;
   leida: boolean;
   leidaEn: string | null;
   creadoEn: string;
@@ -178,7 +216,10 @@ export interface Onboarding {
   status: string;
   currentStep: number;
   medicalProfileStatus: string;
+  termsAccepted?: boolean;
+  termsVersion?: string | null;
   privacyAccepted: boolean;
+  privacyNoticeVersion?: string | null;
   locationIncidentConsent: boolean;
   drivingPatternConsent: boolean;
   completedAtUtc: string | null;
@@ -215,32 +256,6 @@ export interface Setup2FaResponse {
   secret: string;
   qrCodeUri: string;
   manualKey: string;
-}
-
-export interface WearableItem {
-  id: string;
-  dispositivoId: string;
-  nombre: string;
-  modelo: string;
-  vinculadoEn: string;
-  ultimaSincronizacion: string | null;
-  appVersion: string | null;
-  connected: boolean;
-  nivelBateria: number;
-  calibrado: boolean;
-  ultimaCalibracion: string | null;
-  permisosOtorgados: string[];
-  estado: string;
-}
-
-export interface SensorDiagnostics {
-  acelerometro: boolean;
-  giroscopio: boolean;
-  magnetometro: boolean;
-  gps: boolean;
-  frecuenciaCardiaca: boolean;
-  nivelBateria: number;
-  ultimoDiagnostico: string;
 }
 
 export interface PagedBody<T> {

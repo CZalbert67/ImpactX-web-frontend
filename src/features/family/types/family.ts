@@ -20,7 +20,7 @@ export type FamilyInvitationStatus =
   | "Revoked"
   | "Consumed";
 
-export type FamilyPlanName = "Free" | "Basic" | "Premium";
+export type FamilyPlanName = "Free" | "Standard" | "Premium";
 
 export interface SimulatedPayment {
   publicPaymentId: string;
@@ -41,12 +41,22 @@ export interface FamilySubscriptionSummary {
   ownerName: string;
   acceptedMembers: number;
   invitedMemberLimit: number;
+  totalActivePeople: number;
+  totalPeopleLimit: number;
+  pendingInvitationCount: number;
   availableMemberSlots: number;
   vehicleLimitPerUser: number;
   pendingAdjustment: boolean;
   pendingPlanName: string | null;
   periodStartUtc: string;
   periodEndUtc: string;
+  nextBillingAtUtc?: string | null;
+  graceEndsAtUtc?: string | null;
+  autoRenew?: boolean;
+  canManagePlan: boolean;
+  canInviteMembers: boolean;
+  canLeaveGroup: boolean;
+  sosContactLimit: number;
   latestPayment: SimulatedPayment | null;
 }
 
@@ -70,11 +80,49 @@ export interface FamilyInvitation {
   expiresAtUtc: string;
 }
 
+export interface IncomingFamilyInvitation extends FamilyInvitation {
+  ownerPublicProfileId: string;
+  ownerUsername: string;
+  ownerName: string;
+  planName: FamilyPlanName;
+}
+
 export interface CreateFamilyInvitationInput {
   username?: string;
   publicProfileId?: string;
   email?: string;
-  createMonitoringRelationship: boolean;
+}
+
+export interface FamilyAccessPermissions {
+  viewRoutes: boolean;
+  viewLocation: boolean;
+  viewEmergencyLocation: boolean;
+  viewIncidents: boolean;
+  receiveCriticalAlerts: boolean;
+  viewMedicalProfile: boolean;
+  sendMessages: boolean;
+  viewTelemetry: boolean;
+  receiveNotifications: boolean;
+}
+
+export interface FamilyMemberAccess {
+  publicRelationshipId: string;
+  publicSubscriptionId: string;
+  subjectPublicProfileId: string;
+  subjectUsername: string;
+  subjectName: string;
+  viewerPublicProfileId: string;
+  viewerUsername: string;
+  viewerName: string;
+  permissions: FamilyAccessPermissions;
+  medicalConsentGranted: boolean;
+  sosPriority: number | null;
+  updatedAtUtc: string;
+}
+
+export interface UpdateFamilyMemberAccessInput extends FamilyAccessPermissions {
+  confirmMedicalConsent: boolean;
+  sosPriority: number | null;
 }
 
 export interface CreateFamilyInvitationResponse {

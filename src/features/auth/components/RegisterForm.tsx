@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { userSafeErrorMessage } from "@/api/errors";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
+import { queryKeys } from "@/api/queryKeys";
 import {
   registerSchema,
   type RegisterInputValues,
 } from "@/features/auth/schemas/register.schema";
+import { authApi } from "@/features/auth/api/authApi";
 import { useRegister } from "@/features/auth/hooks/useRegister";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -16,98 +19,131 @@ import { Alert } from "@/components/ui/Alert";
 
 export function RegisterForm() {
   const registerMutation = useRegister();
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const contract = useQuery({
+    queryKey: queryKeys.registrationContract,
+    queryFn: ({ signal }) => authApi.getRegistrationContract(signal),
+    staleTime: 60 * 60 * 1000,
+  });
 
   const {
-    register,
+    register: bind,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterInputValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       nombre: "",
+      username: "",
       correo: "",
       telefono: "",
       password: "",
+      confirmPassword: "",
+      termsAccepted: false,
+      privacyAccepted: false,
+      locationIncidentConsent: false,
+      drivingPatternConsent: false,
     },
   });
 
-  const onSubmit = handleSubmit((values) => {
-    if (!acceptedTerms) return;
-    registerMutation.mutate(values);
-  });
+  const onSubmit = handleSubmit((values) => registerMutation.mutate(values));
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <div>
-        <h1 className="text-2xl font-semibold">Crea tu cuenta</h1>
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand">
+          Paso 1 de 4
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold">Crea tu cuenta</h1>
         <p className="mt-1 text-sm text-muted">
-          Empieza a proteger tus viajes y tu salud con ImpactX.
+          Después te preguntaremos por tu vehículo, ficha médica y una persona
+          de confianza. Puedes omitir los datos opcionales. Tu cuenta inicia en
+          el plan Gratuito.
         </p>
       </div>
 
-      {registerMutation.isError ? (
-        <Alert tone="error" role="alert">
-          {registerMutation.error instanceof Error
-            ? registerMutation.error.message
-            : "No se pudo completar el registro."}
+      {contract.isError ? (
+        <Alert tone="warning">
+          No fue posible consultar las versiones legales. Reintenta antes de
+          completar el registro.
         </Alert>
       ) : null}
 
-      <FormField
-        label="Nombre"
-        required
-        error={errors.nombre?.message}
-      >
+      {registerMutation.isError ? (
+        <Alert tone="error" role="alert">
+          {userSafeErrorMessage(registerMutation.error, "No pudimos crear la cuenta. Inténtalo nuevamente.")}
+        </Alert>
+      ) : null}
+
+      <FormField label="Nombre" required error={errors.nombre?.message}>
         {(fieldId) => (
           <Input
             id={fieldId}
             autoComplete="name"
             placeholder="Tu nombre completo"
             invalid={Boolean(errors.nombre)}
-            {...register("nombre")}
+            {...bind("nombre")}
           />
         )}
       </FormField>
 
       <FormField
-        label="Correo electrónico"
+        label="Nombre de usuario"
         required
-        error={errors.correo?.message}
+        error={errors.username?.message}
+        hint={contract.data?.username.description}
       >
         {(fieldId) => (
           <Input
             id={fieldId}
-            type="email"
-            autoComplete="email"
-            placeholder="tucorreo@ejemplo.com"
-            invalid={Boolean(errors.correo)}
-            {...register("correo")}
+            autoComplete="username"
+            placeholder="tu_usuario"
+            invalid={Boolean(errors.username)}
+            {...bind("username")}
           />
         )}
       </FormField>
 
-      <FormField
-        label="Teléfono (opcional)"
-        error={errors.telefono?.message}
-      >
-        {(fieldId) => (
-          <Input
-            id={fieldId}
-            type="tel"
-            autoComplete="tel"
-            placeholder="55 0000 0000"
-            invalid={Boolean(errors.telefono)}
-            {...register("telefono")}
-          />
-        )}
-      </FormField>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField
+          label="Correo electrónico"
+          required
+          error={errors.correo?.message}
+        >
+          {(fieldId) => (
+            <Input
+              id={fieldId}
+              type="email"
+              autoComplete="email"
+              placeholder="tucorreo@ejemplo.com"
+              invalid={Boolean(errors.correo)}
+              {...bind("correo")}
+            />
+          )}
+        </FormField>
+
+        <FormField
+          label="Teléfono"
+          required
+          error={errors.telefono?.message}
+        >
+          {(fieldId) => (
+            <Input
+              id={fieldId}
+              type="tel"
+              autoComplete="tel"
+              placeholder="55 0000 0000"
+              invalid={Boolean(errors.telefono)}
+              {...bind("telefono")}
+            />
+          )}
+        </FormField>
+      </div>
 
       <FormField
         label="Contraseña"
         required
         error={errors.password?.message}
-        hint="Mínimo 8 caracteres."
+        hint="8–100 caracteres, con mayúscula, minúscula, número y símbolo."
       >
         {(fieldId) => (
           <PasswordInput
@@ -115,30 +151,57 @@ export function RegisterForm() {
             newPassword
             placeholder="Crea una contraseña segura"
             invalid={Boolean(errors.password)}
-            {...register("password")}
+            {...bind("password")}
           />
         )}
       </FormField>
 
-      <div className="flex items-start gap-2.5">
-        <Checkbox
-          id="register-terms"
-          checked={acceptedTerms}
-          onChange={(event) => setAcceptedTerms(event.target.checked)}
-        />
-<label
-          htmlFor="register-terms"
-          className="cursor-pointer text-sm text-muted"
-        >
-          Acepto los{" "}
-          <span className="font-medium text-secondary underline">
-            Términos de uso
-          </span>{" "}
-          y la{" "}
-          <span className="font-medium text-secondary underline">
-            Política de Privacidad
-          </span>{" "}
-          provisionales de ImpactX (se afinarán en la versión final).
+      <FormField
+        label="Confirmar contraseña"
+        required
+        error={errors.confirmPassword?.message}
+      >
+        {(fieldId) => (
+          <PasswordInput
+            id={fieldId}
+            newPassword
+            placeholder="Repite tu contraseña"
+            invalid={Boolean(errors.confirmPassword)}
+            {...bind("confirmPassword")}
+          />
+        )}
+      </FormField>
+
+      <div className="space-y-3 rounded-xl border border-line bg-panel-soft p-4">
+        <label className="flex items-start gap-2.5 text-sm text-secondary">
+          <Checkbox {...bind("termsAccepted")} invalid={Boolean(errors.termsAccepted)} />
+          <span>
+            Acepto los Términos de uso
+            {contract.data ? ` (${contract.data.termsVersion})` : ""}.
+          </span>
+        </label>
+        {errors.termsAccepted ? (
+          <p className="text-xs text-error">{errors.termsAccepted.message}</p>
+        ) : null}
+
+        <label className="flex items-start gap-2.5 text-sm text-secondary">
+          <Checkbox {...bind("privacyAccepted")} invalid={Boolean(errors.privacyAccepted)} />
+          <span>
+            Acepto el Aviso de privacidad
+            {contract.data ? ` (${contract.data.privacyNoticeVersion})` : ""}.
+          </span>
+        </label>
+        {errors.privacyAccepted ? (
+          <p className="text-xs text-error">{errors.privacyAccepted.message}</p>
+        ) : null}
+
+        <label className="flex items-start gap-2.5 text-sm text-secondary">
+          <Checkbox {...bind("locationIncidentConsent")} />
+          Permito usar mi ubicación únicamente durante incidentes y viajes.
+        </label>
+        <label className="flex items-start gap-2.5 text-sm text-secondary">
+          <Checkbox {...bind("drivingPatternConsent")} />
+          Permito analizar patrones de conducción para mejorar la detección.
         </label>
       </div>
 
@@ -147,9 +210,9 @@ export function RegisterForm() {
         size="lg"
         fullWidth
         loading={registerMutation.isPending}
-        disabled={!acceptedTerms}
+        disabled={contract.isPending || contract.isError}
       >
-        {registerMutation.isPending ? "Creando cuenta…" : "Crear cuenta"}
+        {registerMutation.isPending ? "Creando cuenta…" : "Crear cuenta y continuar"}
       </Button>
 
       <p className="text-center text-sm text-muted">

@@ -3,9 +3,12 @@ import type {
   CreateFamilyInvitationInput,
   CreateFamilyInvitationResponse,
   FamilyInvitation,
+  FamilyMemberAccess,
+  IncomingFamilyInvitation,
   FamilyMember,
   FamilyPlanName,
   FamilySubscriptionSummary,
+  UpdateFamilyMemberAccessInput,
 } from "@/features/family/types";
 
 const BASE = "/api/v1/family-subscriptions";
@@ -64,9 +67,38 @@ export const familyApi = {
     await apiClient.post(`${BASE}/leave`);
   },
 
+  async getMemberAccess(signal?: AbortSignal): Promise<FamilyMemberAccess[]> {
+    const { data } = await apiClient.get<FamilyMemberAccess[]>(
+      `${BASE}/members/access`,
+      { signal },
+    );
+    return Array.isArray(data) ? data : [];
+  },
+
+  async updateMemberAccess(
+    targetPublicProfileId: string,
+    input: UpdateFamilyMemberAccessInput,
+  ): Promise<FamilyMemberAccess> {
+    const { data } = await apiClient.put<FamilyMemberAccess>(
+      `${BASE}/members/${encodeURIComponent(targetPublicProfileId)}/access`,
+      input,
+    );
+    return data;
+  },
+
   async getInvitations(signal?: AbortSignal): Promise<FamilyInvitation[]> {
     const { data } = await apiClient.get<FamilyInvitation[]>(
       `${BASE}/invitations`,
+      { signal },
+    );
+    return Array.isArray(data) ? data : [];
+  },
+
+  async getIncomingInvitations(
+    signal?: AbortSignal,
+  ): Promise<IncomingFamilyInvitation[]> {
+    const { data } = await apiClient.get<IncomingFamilyInvitation[]>(
+      `${BASE}/invitations/incoming`,
       { signal },
     );
     return Array.isArray(data) ? data : [];
@@ -91,6 +123,12 @@ export const familyApi = {
   async rejectInvitation(publicInvitationId: string): Promise<void> {
     await apiClient.post(
       `${BASE}/invitations/${encodeURIComponent(publicInvitationId)}/reject`,
+    );
+  },
+
+  async revokeInvitation(publicInvitationId: string): Promise<void> {
+    await apiClient.delete(
+      `${BASE}/invitations/${encodeURIComponent(publicInvitationId)}`,
     );
   },
 

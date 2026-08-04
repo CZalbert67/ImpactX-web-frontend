@@ -26,7 +26,7 @@ export function DashboardPage() {
       {!preparing && !failed ? (
         <div className="space-y-6">
           <WelcomeCard displayName={user?.nombre || user?.username || ""} />
-          {dashboard.view.kind === "empty" ? <EmptyState icon={Route} title="Aún no hay viajes" description="Los viajes iniciados desde móvil o wearable aparecerán en este panel." /> : null}
+          {dashboard.view.kind === "empty" ? <EmptyState icon={Route} title="Aún no hay viajes" description="Los viajes iniciados desde el Galaxy Watch 8 aparecerán en este panel." /> : null}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <ConnectionStatusCard connectivity={dashboard.connectivity} />
             <ActiveTripCard trip={dashboard.activeTrip} />
@@ -34,10 +34,11 @@ export function DashboardPage() {
             <div className="lg:col-span-2"><RecentTripsCard trips={dashboard.recentTrips} /></div>
             <QuickActionsCard actions={[
               { id: "vehicles", label: "Administrar vehículos", to: "/app/vehicles" },
-              { id: "family", label: "Ver plan familiar", to: "/app/family" },
+              { id: "family", label: "Ver plan y grupo", to: "/app/family" },
               { id: "monitoring", label: "Abrir monitoreo", to: "/app/monitoring" },
               { id: "messages", label: "Mensajes rápidos", to: "/app/messages" },
               { id: "trips", label: "Consultar viajes", to: "/app/trips" },
+              { id: "account", label: "Cuenta y privacidad", to: "/app/account" },
             ]} />
           </div>
         </div>

@@ -6,6 +6,9 @@ export const LoginPage = lazy(() =>
 export const RegisterPage = lazy(() =>
   import("@/features/auth/pages/RegisterPage").then((m) => ({ default: m.RegisterPage })),
 );
+export const RegistrationOnboardingPage = lazy(() =>
+  import("@/features/onboarding/pages/RegistrationOnboardingPage").then((m) => ({ default: m.RegistrationOnboardingPage })),
+);
 export const DashboardPage = lazy(() =>
   import("@/features/dashboard/pages/DashboardPage").then((m) => ({ default: m.DashboardPage })),
 );
@@ -42,9 +45,6 @@ export const IncidentsPage = lazy(() =>
 export const ContactsPage = lazy(() =>
   import("@/features/platform/pages/ContactsPage").then((m) => ({ default: m.ContactsPage })),
 );
-export const DevicesPage = lazy(() =>
-  import("@/features/platform/pages/DevicesPage").then((m) => ({ default: m.DevicesPage })),
-);
 export const NotificationsPage = lazy(() =>
   import("@/features/platform/pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage })),
 );
@@ -57,11 +57,8 @@ export const ProfilePage = lazy(() =>
 export const SettingsPage = lazy(() =>
   import("@/features/platform/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
 );
-export const WearablesPage = lazy(() =>
-  import("@/features/platform/pages/WearablesPage").then((m) => ({ default: m.WearablesPage })),
-);
-export const ComingSoonPage = lazy(() =>
-  import("@/pages/ComingSoonPage").then((m) => ({ default: m.ComingSoonPage })),
+export const AccountPage = lazy(() =>
+  import("@/features/account/pages/AccountPage").then((m) => ({ default: m.AccountPage })),
 );
 export const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),

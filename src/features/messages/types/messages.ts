@@ -1,3 +1,10 @@
+export interface QuickMessageRecipient {
+  publicRelationshipId: string;
+  recipientPublicProfileId: string;
+  recipientUsername: string;
+  recipientName: string;
+}
+
 export interface QuickMessageTemplate {
   publicTemplateId: string;
   text: string;
