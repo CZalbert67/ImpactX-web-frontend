@@ -65,12 +65,24 @@ export const tripsApi = {
       },
     );
 
-    const items = Array.isArray(data) ? (data as unknown[]) : [];
+    const body = isPlainRecord(data) ? data : null;
+    const rawItems = Array.isArray(data)
+      ? (data as unknown[])
+      : body && Array.isArray(body.items)
+        ? body.items
+        : [];
+    const bodyContinuationToken =
+      body &&
+      typeof body.continuationToken === "string" &&
+      body.continuationToken.trim() !== ""
+        ? body.continuationToken
+        : null;
+
     return {
-      items: items
+      items: rawItems
         .map(parseTripFromTrip)
         .filter((trip): trip is Trip => trip !== null),
-      nextToken: readContinuationToken(headers),
+      nextToken: readContinuationToken(headers) ?? bodyContinuationToken,
     };
   },
 
