@@ -46,6 +46,7 @@ El script comprueba la paleta original, fronteras de capacidad web, contrato Ope
 
 ## Módulos web
 
+- Página pública de presentación con explicación del servicio, flujo de uso y wearable recomendado.
 - Registro V2, login, refresh y sesión web.
 - Dashboard.
 - Vehículos y vehículo principal.
@@ -60,6 +61,8 @@ El script comprueba la paleta original, fronteras de capacidad web, contrato Ope
 - Perfil, ficha médica opcional, preferencias y onboarding.
 - Configuración y 2FA.
 - Exportación, consentimientos, retención y eliminación de cuenta.
+
+La página pública recomienda el Galaxy Watch8 como dispositivo objetivo del prototipo y enlaza a una opción de compra externa. Las imágenes del wearable se publican como recursos estáticos versionados en `public/images/landing`.
 
 Las páginas principales antiguas de dispositivos y wearables fueron retiradas. El wearable se administra desde la aplicación móvil y el estado relevante se consulta mediante los módulos autorizados.
 

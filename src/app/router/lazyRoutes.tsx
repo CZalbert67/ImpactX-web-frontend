@@ -1,5 +1,17 @@
 import { lazy } from "react";
 
+export const LandingPage = lazy(() =>
+  import("@/features/landing/pages/LandingPage").then((m) => ({ default: m.LandingPage })),
+);
+export const TermsPage = lazy(() =>
+  import("@/features/legal/pages/LegalPage").then((m) => ({ default: m.TermsPage })),
+);
+export const PrivacyNoticePage = lazy(() =>
+  import("@/features/legal/pages/LegalPage").then((m) => ({ default: m.PrivacyNoticePage })),
+);
+export const DataConsentsPage = lazy(() =>
+  import("@/features/legal/pages/LegalPage").then((m) => ({ default: m.DataConsentsPage })),
+);
 export const LoginPage = lazy(() =>
   import("@/features/auth/pages/LoginPage").then((m) => ({ default: m.LoginPage })),
 );

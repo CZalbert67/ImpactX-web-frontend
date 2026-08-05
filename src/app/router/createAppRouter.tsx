@@ -3,18 +3,20 @@ import type { ReactNode } from "react";
 import { createBrowserRouter, createMemoryRouter, Navigate } from "react-router";
 import { ProtectedRoute } from "@/app/router/ProtectedRoute";
 import { PublicRoute } from "@/app/router/PublicRoute";
-import { RootRedirect } from "@/app/router/RootRedirect";
 import {
   AccountPage,
   AlertsPage,
   ContactsPage,
   DashboardPage,
+  DataConsentsPage,
   FamilySubscriptionPage,
   IncidentsPage,
+  LandingPage,
   LoginPage,
   MessagesPage,
   MonitoringDetailPage,
   NotificationsPage,
+  PrivacyNoticePage,
   ProfilePage,
   MonitoringPage,
   NotFoundPage,
@@ -23,6 +25,7 @@ import {
   RoutesPage,
   SettingsPage,
   TripDetailPage,
+  TermsPage,
   TripTelemetryPage,
   TripsPage,
   UnauthorizedPage,
@@ -47,7 +50,10 @@ function withSuspense(element: ReactNode): ReactNode {
 
 function buildRoutes() {
   return [
-    { path: "/", element: <RootRedirect /> },
+    { path: "/", element: withSuspense(<LandingPage />) },
+    { path: "/legal/terms", element: withSuspense(<TermsPage />) },
+    { path: "/legal/privacy", element: withSuspense(<PrivacyNoticePage />) },
+    { path: "/legal/consents", element: withSuspense(<DataConsentsPage />) },
     { path: "/login", element: <PublicRoute>{withSuspense(<LoginPage />)}</PublicRoute> },
     { path: "/register", element: <PublicRoute authenticatedRedirect="/onboarding">{withSuspense(<RegisterPage />)}</PublicRoute> },
     { path: "/onboarding", element: <ProtectedRoute>{withSuspense(<RegistrationOnboardingPage />)}</ProtectedRoute> },

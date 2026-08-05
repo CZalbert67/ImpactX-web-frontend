@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router";
 import { AppLogo } from "@/components/branding/AppLogo";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
 import { cn } from "@/lib/cn";
@@ -16,8 +18,20 @@ export function AuthShell({ children, size = "md" }: AuthShellProps) {
   return (
     <div className="flex min-h-dvh flex-col bg-page text-primary">
       <header className="flex items-center justify-between gap-3 px-4 py-4 sm:px-6">
-        <AppLogo />
-        <ThemeSelector compact />
+        <Link to="/" aria-label="Volver a la presentación de ImpactX">
+          <AppLogo />
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-line-strong px-3 text-sm font-semibold transition-colors hover:bg-panel-soft sm:px-4"
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Volver a la presentación</span>
+            <span className="sm:hidden">Inicio</span>
+          </Link>
+          <ThemeSelector compact />
+        </div>
       </header>
 
       <main className="flex flex-1 items-center justify-center px-4 py-8">
