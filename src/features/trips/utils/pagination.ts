@@ -3,9 +3,9 @@
  *
  * - `pageSize`: query opcional (1–100, default 20).
  * - `continuationToken`: query opcional, opaco.
- * - El token de la siguiente página viaja en el header
- *   `X-Continuation-Token` de la respuesta (ver descripción del parámetro
- *   en el OpenAPI). El cuerpo de las listas es un arreglo.
+ * - El token de la siguiente página puede viajar en el header
+ *   `X-Continuation-Token` o en `continuationToken` dentro del cuerpo paginado.
+ * - El cliente conserva compatibilidad con respuestas antiguas en forma de arreglo.
  *
  * El token nunca se muestra, registra ni persiste: solo se reenvía tal cual
  * en la siguiente petición.
