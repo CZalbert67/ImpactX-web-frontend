@@ -173,24 +173,48 @@ export function RegisterForm() {
       </FormField>
 
       <div className="space-y-3 rounded-xl border border-line bg-panel-soft p-4">
-        <label className="flex items-start gap-2.5 text-sm text-secondary">
-          <Checkbox {...bind("termsAccepted")} invalid={Boolean(errors.termsAccepted)} />
+        <div className="flex items-start gap-2.5 text-sm text-secondary">
+          <Checkbox
+            {...bind("termsAccepted")}
+            aria-label="Aceptar los Términos de uso"
+            invalid={Boolean(errors.termsAccepted)}
+          />
           <span>
-            Acepto los Términos de uso
+            Acepto los{" "}
+            <Link
+              to="/legal/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-brand hover:underline"
+            >
+              Términos de uso
+            </Link>
             {contract.data ? ` (${contract.data.termsVersion})` : ""}.
           </span>
-        </label>
+        </div>
         {errors.termsAccepted ? (
           <p className="text-xs text-error">{errors.termsAccepted.message}</p>
         ) : null}
 
-        <label className="flex items-start gap-2.5 text-sm text-secondary">
-          <Checkbox {...bind("privacyAccepted")} invalid={Boolean(errors.privacyAccepted)} />
+        <div className="flex items-start gap-2.5 text-sm text-secondary">
+          <Checkbox
+            {...bind("privacyAccepted")}
+            aria-label="Aceptar el Aviso de privacidad"
+            invalid={Boolean(errors.privacyAccepted)}
+          />
           <span>
-            Acepto el Aviso de privacidad
+            Acepto el{" "}
+            <Link
+              to="/legal/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-brand hover:underline"
+            >
+              Aviso de privacidad
+            </Link>
             {contract.data ? ` (${contract.data.privacyNoticeVersion})` : ""}.
           </span>
-        </label>
+        </div>
         {errors.privacyAccepted ? (
           <p className="text-xs text-error">{errors.privacyAccepted.message}</p>
         ) : null}
@@ -203,6 +227,17 @@ export function RegisterForm() {
           <Checkbox {...bind("drivingPatternConsent")} />
           Permito analizar patrones de conducción para mejorar la detección.
         </label>
+        <p className="text-xs leading-5 text-muted">
+          Consulta cómo funcionan estos permisos en{" "}
+          <Link
+            to="/legal/consents"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-brand hover:underline"
+          >
+            Consentimientos de datos y sensores
+          </Link>.
+        </p>
       </div>
 
       <Button

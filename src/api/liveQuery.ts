@@ -8,6 +8,7 @@ export const LIVE_QUERY_INTERVAL = {
   invitations: 5_000,
   relationships: 5_000,
   notifications: 8_000,
+  trips: 5_000,
   activity: 10_000,
 } as const;
 

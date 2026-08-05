@@ -23,7 +23,7 @@ export function TripsPage() {
         description="Consulta viajes y telemetría. Por seguridad, la web no inicia, pausa, reanuda ni finaliza viajes."
       />
       <Alert tone="info">
-        El Galaxy Watch 8 inicia, pausa, reanuda y finaliza los viajes. Este panel web es exclusivamente de consulta.
+        El Galaxy Watch 8 inicia, pausa, reanuda y finaliza los viajes. Este panel web es exclusivamente de consulta y actualiza el estado automáticamente cada 5 segundos.
       </Alert>
 
       <section aria-labelledby="trips-active-heading">
